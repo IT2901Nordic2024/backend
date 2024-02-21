@@ -31,14 +31,16 @@ export class HabitStorage extends Construct {
         this.table = habitTable
 
 
-        this.handler= new lambda.Function(this, "HitCounterHandler", {
+        this.handler= new lambda.Function(this, "postHandler", {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: "postActivity.handler",
             code: lambda.Code.fromAsset("lambda"),
+            /*
             environment: {
                 // DOWNSTREAM_FUNCTION_NAME: props.downstream.functionName,
                 HITS_TABLE_NAME: habitTable.tableName
             }
+            */
         })
     }
 }

@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as apigw from "aws-cdk-lib/aws-apigateway"
 import { Construct } from 'constructs';
 import { HabitStorage } from './habitTable';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
@@ -15,6 +16,10 @@ export class HabitStorageStack extends cdk.Stack {
     // });
 
     const habitStorage = new HabitStorage(this, "HabitStorage", {name: "Steve"})
+
+    new apigw.LambdaRestApi(this, "HabitStorageAPI", {
+      handler: habitStorage.handler
+    });
 
   }
 }
