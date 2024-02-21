@@ -25,22 +25,24 @@ export class HabitStorage extends Construct {
 
         const habitTable = new dynamodb.Table(this, "habitTable", {
             partitionKey: {name: "deviceId", type: dynamodb.AttributeType.STRING},
-            sortKey: {name: "time", type: dynamodb.AttributeType.NUMBER}
+            //sortKey: {name: "time", type: dynamodb.AttributeType.NUMBER}
         })
 
         this.table = habitTable
 
 
         this.handler= new lambda.Function(this, "postHandler", {
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_20_X,
             handler: "postActivity.handler",
             code: lambda.Code.fromAsset("lambda"),
-            /*
+            
             environment: {
                 // DOWNSTREAM_FUNCTION_NAME: props.downstream.functionName,
-                HITS_TABLE_NAME: habitTable.tableName
+                HABIT_TABLE_NAME: habitTable.tableName
             }
-            */
+            
         })
+
+        habitTable.grantReadWriteData(this.handler);
     }
 }

@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as apigw from "aws-cdk-lib/aws-apigateway"
 import { Construct } from 'constructs';
 import { HabitStorage } from './habitTable';
+import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class HabitStorageStack extends cdk.Stack {
@@ -16,10 +17,16 @@ export class HabitStorageStack extends cdk.Stack {
     // });
 
     const habitStorage = new HabitStorage(this, "HabitStorage", {name: "Steve"})
+    const lambdaIntegration = new HttpLambdaIntegration("getActivities", habitStorage.handler)
 
-    new apigw.LambdaRestApi(this, "HabitStorageAPI", {
-      handler: habitStorage.handler
+    const api = new apigw.RestApi(this, "HabitStorageREST", {
     });
+
+    const items = api.root.addResource('items');
+    const itemsIntegration = new apigw.LambdaIntegration(habitStorage.handler);
+
+    items.addMethod("GET", itemsIntegration)
+
 
   }
 }
