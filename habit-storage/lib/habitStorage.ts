@@ -8,40 +8,32 @@ import { Construct } from "constructs"
  * related APIs for GET, PUT, POST and DELETE
  */
 
-
-
-export interface HabitStorageProps {
-    // Placeholder, needs to be changed later
-    name: string
-}
-
 export class HabitStorage extends Construct {
 
     public readonly table: dynamodb.Table
     public readonly handler: lambda.Function
 
-    constructor(scope: Construct, id: string, props: HabitStorageProps){
+    constructor(scope: Construct, id: string){
         super(scope, id)
 
         const habitTable = new dynamodb.Table(this, "habitTable", {
-            tableName: "HabitTable",
-            partitionKey: {name: "deviceId", type: dynamodb.AttributeType.STRING},
-            //sortKey: {name: "time", type: dynamodb.AttributeType.NUMBER}
+            tableName: "habitTable",
+            partitionKey: {name: "userId", type: dynamodb.AttributeType.STRING},
+            sortKey: {name: "habitName", type: dynamodb.AttributeType.STRING}
         })
 
         this.table = habitTable
 
-
         this.handler= new lambda.Function(this, "postHandler", {
             runtime: lambda.Runtime.NODEJS_20_X,
-            handler: "postActivity.handler",
+            handler: "getHabits.handler",
             code: lambda.Code.fromAsset("lambda"),
+            functionName: "getHabits",
             
             environment: {
                 // DOWNSTREAM_FUNCTION_NAME: props.downstream.functionName,
                 HABIT_TABLE_NAME: habitTable.tableName
             }
-            
         })
 
         habitTable.grantReadWriteData(this.handler);
