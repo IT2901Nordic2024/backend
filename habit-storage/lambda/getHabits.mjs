@@ -2,15 +2,13 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   ScanCommand,
-  PutCommand,
   GetCommand,
-  DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({});
 
 const dynamo = DynamoDBDocumentClient.from(client);
-const tableName = "HabitTable"
+const tableName = process.env.HABIT_TABLE_NAME
 
 export const handler = async (event, context) => {
   let body;
@@ -21,18 +19,19 @@ export const handler = async (event, context) => {
 
   try {
     switch (event.routeKey) {
-      case "GET /items/{id}":
+      case "GET /habitEvents/{id}":
         body = await dynamo.send(
           new GetCommand({
             TableName: tableName,
             Key: {
-              deviceId: event.pathParameters.id,
+              userId: event.pathParameters.id,
+              habitName: "Coffe consumed"
             },
           })
         );
         body = body.Item;
         break;
-      case "GET /items":
+      case "GET /habitEvents":
         body = await dynamo.send(
           new ScanCommand({ TableName: tableName })
         );
