@@ -10,6 +10,7 @@ import {
 const client = new DynamoDBClient({});
 
 const dynamo = DynamoDBDocumentClient.from(client);
+const tableName = "HabitTable"
 
 export const handler = async (event, context) => {
   let body;
@@ -23,7 +24,7 @@ export const handler = async (event, context) => {
       case "GET /items/{id}":
         body = await dynamo.send(
           new GetCommand({
-            TableName: process.env.HITS_TABLE_NAME,
+            TableName: tableName,
             Key: {
               deviceId: event.pathParameters.id,
             },
@@ -33,7 +34,7 @@ export const handler = async (event, context) => {
         break;
       case "GET /items":
         body = await dynamo.send(
-          new ScanCommand({ TableName: process.env.HITS_TABLE_NAME })
+          new ScanCommand({ TableName: tableName })
         );
         body = body.Items;
         break;
@@ -42,7 +43,7 @@ export const handler = async (event, context) => {
     }
   } catch (err) {
     statusCode = 400;
-    body = err.message;
+    body = err.message
   } finally {
     body = JSON.stringify(body);
   }

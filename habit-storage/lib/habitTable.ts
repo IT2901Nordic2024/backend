@@ -24,6 +24,7 @@ export class HabitStorage extends Construct {
         super(scope, id)
 
         const habitTable = new dynamodb.Table(this, "habitTable", {
+            tableName: "HabitTable",
             partitionKey: {name: "deviceId", type: dynamodb.AttributeType.STRING},
             //sortKey: {name: "time", type: dynamodb.AttributeType.NUMBER}
         })
