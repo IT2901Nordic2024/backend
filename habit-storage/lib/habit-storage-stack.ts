@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2"
 import { Construct } from 'constructs';
-import { HabitStorage } from './habitTable';
+import { HabitStorage } from './habitStorage';
 import { HttpUrlIntegration, HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
@@ -16,19 +16,19 @@ export class HabitStorageStack extends cdk.Stack {
     //   visibilityTimeout: cdk.Duration.seconds(300)
     // });
 
-    const habitStorage = new HabitStorage(this, "HabitStorage", {name: "Steve"})
-    const lambdaIntegration = new HttpLambdaIntegration("getActivities", habitStorage.handler)
+    const habitStorage = new HabitStorage(this, "HabitStorage")
+    const lambdaIntegration = new HttpLambdaIntegration("getHabitEvents", habitStorage.handler)
 
     const httpApi = new apigwv2.HttpApi(this, "HabitStorageHTTP");
 
     httpApi.addRoutes({
-      path: '/items',
+      path: '/habitEvents',
       methods: [ apigwv2.HttpMethod.GET ],
       integration: lambdaIntegration,
     }
     )
     httpApi.addRoutes({
-      path: '/items/{id}',
+      path: '/habitEvents/{id}',
       methods: [ apigwv2.HttpMethod.GET ],
       integration: lambdaIntegration,
     }
