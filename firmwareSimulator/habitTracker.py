@@ -1,5 +1,6 @@
 import keyboard
 from datetime import datetime
+import re
 
 
 class habitTracker:
@@ -72,16 +73,18 @@ class habitTracker:
     }
 
     
-    def onKeyPressed(self, event):
-        """Function that does something based on the key pressed"""
+    def valueTransformer(self, value):
+        """Function that takes in a value and does something with it.
+        At the moment that is to transform its string value to an integer value
+        and return that or to throw an error if that does not work."""
         try:
-            print(event.name)
-            return int(event.name)  # If a number is key is pressed return that number
+            print(value)
+            return int(value)  # If a number key is pressed return its value as a number
         except:
             print("Invalid input! Input must be a number.")   # Otherwise show the user that the wrong input was provided
     
     def getType(self,side):
-        """Function that takes an integer as inputt that represents a side of the dodecahedron habit tracker and 
+        """Function that takes an integer, that represents a side of the dodecahedron habit tracker, as input and 
         returns the type of habit associated with that side. If the input does not match any side of the dodecahedron, the 
         function throws an error."""
         if side in list(self.dodecahedron.keys()):
@@ -90,10 +93,27 @@ class habitTracker:
             raise Exception("The provided input does not correspond to any side of the device / dodecahedron")
     
     def interactionListener(self):
-        """Function that listens to the keys being pressed on the keyboard"""
-        keyboard.on_press(self.onKeyPressed)
-        keyboard.wait('esc') # stops logging when Escape is pressed
+        """Function used to simulate interaction with the habit tracker aka interacting with its sides.
+        The function listens to the keys being pressed on the keyboard. If the user inputs a number with more than two digits the function passes on the value.
+        Since the habit tracker has 12 sides, the side number cannot exceed double digits in length. To select a side with a single digit number (for instance 1), the
+         user can enter 1 and then press Enter. """
+        
+        keyBuffer = [] # Stores the user input
+        while keyboard.is_pressed('esc') == False: # Checks if the user wants to terminate the program
+            if len(keyBuffer) >= 2 or keyboard.is_pressed('enter'): # Checking whether to submit a side selection
+                side = ""
+                for value in keyBuffer:
+                    side = side + value
+                print("side: ", side)       # Providing the user with some feedback, specifically showing the selected habit tracker side
+                keyBuffer.clear()           # Clearing the buffer to make way for new entries
+                self.valueTransformer(side)     # Passing on the side selection
 
+            happening = keyboard.read_event()   # Listening to user input 
+            if happening.event_type == "down" and re.search("[0-9]", happening.name): # Only accepts user input that corresponds to numbers 7 digits between 0 and 9.
+                keyBuffer.append(happening.name)
+                print("keyBuffer: ", keyBuffer)         
+        
+        print("Escape was pressed, program is terminated!")
 
     def habitRunner(habitType):
        """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
