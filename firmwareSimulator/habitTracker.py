@@ -1,13 +1,17 @@
 import keyboard
 from datetime import datetime
 import re
+from awscrt import  mqtt5
+from awsiot import mqtt5_client_builder
+import json
 
 
-class habitTracker:
+
+class HabitTracker:
     """Class that represents the dodecahedron habit tracker"""
-    def __init__(self):
+    def __init__(self, awsClientID, awsEndPoint, certificateFilePath, privateKeyFilePath, rootPemFileFilePath):
         # The representation of the dodecahedron and its sides in this simulator
-        self.dodecahedron = { 
+        self._dodecahedron = { 
         0:{
             "id": "",
             "type":"",
@@ -71,8 +75,71 @@ class habitTracker:
             "name":""
         }
     }
+        self.client = mqtt5_client_builder.mtls_from_path(
+            endpoint = awsEndPoint, # AWS account’s IoT device endpoint
+            port = 8883, #MQTT over TLS/SSL
+            cert_filepath = certificateFilePath,
+            pri_key_filepath = privateKeyFilePath,
+            ca_filepath = rootPemFileFilePath,
+            on_publish_received = self.onPublishReceived,
+            on_lifecycle_stopped = self.onLifecycleConnectionSuccess,
+            on_lifecycle_connection_success = self.onLifecycleConnectionSuccess,
+            on_lifecycle_connection_failure = self.onLifecycleConnectionFailure,
+            client_id = awsClientID # A string you can make up yourself. Must be unique amongst all clients connected to the specified mqtt broker. AWS definition: The ID that uniquely identifies this device in the AWS Region.
+        )
+
+    # Helper functions for MQTT messaging
+    @staticmethod
+    def onPublishReceived(publishPacketData):
+        """Mostly taken from https://github.com/aws/aws-iot-device-sdk-python-v2/blob/main/samples/mqtt5_pubsub.py"""
+        publishPacket = publishPacketData.publish_packet
+        assert isinstance(publishPacket, mqtt5.PublishPacket)
+        print("Received message from topic'{}':{}".format(publishPacket.topic, publishPacket.payload))
+
+    @staticmethod
+    def onLifecycleStopped(lifecycle_stopped_data: mqtt5.LifecycleStoppedData):
+        """Mostly taken from https://github.com/aws/aws-iot-device-sdk-python-v2/blob/main/samples/mqtt5_pubsub.py"""
+        print("Lifecycle stopped")
+    
+    @staticmethod
+    def onLifecycleConnectionSuccess(ifecycle_connect_success_data: mqtt5.LifecycleConnectSuccessData):
+        """Mostly taken from https://github.com/aws/aws-iot-device-sdk-python-v2/blob/main/samples/mqtt5_pubsub.py"""
+        print("Lifecycle connection success")
+    @staticmethod
+    def onLifecycleConnectionFailure(lifecycle_connection_failure: mqtt5.LifecycleConnectFailureData):
+        """Mostly taken from https://github.com/aws/aws-iot-device-sdk-python-v2/blob/main/samples/mqtt5_pubsub.py"""
+        print("Lifecycle connection failure")
+        print("Connection failed with exception:{}".format(lifecycle_connection_failure.exception))
 
     
+    def start(self):
+        """Starts the MQTT5 connection"""
+        self.client.start()
+        print("MQTT5 client successfully created") 
+    
+    def subscribe(self, topic):
+        """Method to subscribe to a single MQTT topic"""
+        self.client.subscribe(topic = topic)
+        print(f"Sccessfully subscribed to topic:  {topic}") 
+
+    def unsubscribe(self, topic):
+        """Method for unsubscribing from a single MQTT topic"""
+        self.client.unsubscribe(unsubscribe_packet=mqtt5.UnsubackPacket(
+                                                         topic_filters=[topic]))
+        print(f"Sccessfully unsubscribed from topic:  {topic}") 
+
+    def publishPayload(self, topic, payload):
+        """Method used to publish / send data / payload to an MQTT topic"""
+        self.client.publish(topic = topic, payload = payload)
+        print(f"Payload {payload} successfully delivered") 
+    
+    def stop(self):
+        """Stops the MQTT5 connection"""
+        self.client.stop()
+        print("MQTT5 client successfully stopped") 
+
+
+
     def valueTransformer(self, value):
         """Function that takes in a value and does something with it.
         At the moment that is to transform its string value to an integer value
@@ -87,8 +154,8 @@ class habitTracker:
         """Function that takes an integer, that represents a side of the dodecahedron habit tracker, as input and 
         returns the type of habit associated with that side. If the input does not match any side of the dodecahedron, the 
         function throws an error."""
-        if side in list(self.dodecahedron.keys()):
-            return self.dodecahedron.get(side).get("type")
+        if side in list(self._dodecahedron.keys()):
+            return self._dodecahedron.get(side).get("type")
         else:
             raise Exception("The provided input does not correspond to any side of the device / dodecahedron")
     
@@ -115,10 +182,10 @@ class habitTracker:
         
         print("Escape was pressed, program is terminated!")
 
-    def habitRunner(habitType):
-       """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
-       It was necessary to call the input variable for habitType, because type is a python keyword."""
-       match habitType:
+    def habitRunner(self, habitType):
+        """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
+        It was necessary to call the input variable for habitType, because type is a python keyword."""
+        match habitType:
             case "count":
                 return 1                                 # Returns an increment value of 1
             case "timer":
@@ -126,6 +193,4 @@ class habitTracker:
             case _:                                      
                 raise Exception("This habit type does not exist")   # Throws an error if the provided habit type does not exist
            
-    def sendHabitEvent():
-        """Function that handles the sending of data from the device to AWS IoT"""
-        pass
+          
