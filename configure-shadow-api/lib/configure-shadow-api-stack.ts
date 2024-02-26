@@ -31,5 +31,11 @@ export class ConfigureShadowApiStack extends cdk.Stack {
 
     const lambdaIntegration = new HttpLambdaIntegration("PostShadowConfigurationAPI", handler)
 
+    httpAPI.addRoutes({
+      path: 'shadow/{deviceId}',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: lambdaIntegration
+    })
+
   }
 }
