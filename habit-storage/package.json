@@ -1,8 +1,8 @@
 {
-  "name": "activity_storage",
+  "name": "habit-storage",
   "version": "0.1.0",
   "bin": {
-    "activity_storage": "bin/activity_storage.js"
+    "habit-storage": "bin/habit-storage.js"
   },
   "scripts": {
     "build": "tsc",
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "aws-cdk-lib": "2.128.0",
-    "constructs": "^10.0.0"
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
   }
 }
