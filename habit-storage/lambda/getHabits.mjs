@@ -26,7 +26,7 @@ export const handler = async (event, context) => {
           new GetCommand({
             TableName: tableName,
             Key: {
-              userId: event.pathParameters.id,
+              userId: Number(event.pathParameters.id),
               itemNumber: 0
             },
           })

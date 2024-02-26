@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2"
 import { Construct } from 'constructs';
 import { HabitStorage } from './habitStorage';
-import { HttpUrlIntegration, HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class HabitStorageStack extends cdk.Stack {

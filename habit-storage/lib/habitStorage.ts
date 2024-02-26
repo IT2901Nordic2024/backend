@@ -1,4 +1,3 @@
-import * as cdk from "aws-cdk-lib"
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb"
 import * as lambda from "aws-cdk-lib/aws-lambda"
 import { Construct } from "constructs"
@@ -17,7 +16,7 @@ export class HabitStorage extends Construct {
 
         // Creating DynamoDB table. Sort key is included in case more than one row is needed
         const habitTable = new dynamodb.Table(this, "habitTable", {
-            tableName: "HabitTable",
+            tableName: "habitTable",
             partitionKey: {name: "userId", type: dynamodb.AttributeType.NUMBER},
             sortKey: {name: "itemNumber", type: dynamodb.AttributeType.NUMBER}
         })
