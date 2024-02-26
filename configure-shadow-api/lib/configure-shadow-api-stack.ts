@@ -1,6 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2' 
+import * as lambda from 'aws-cdk-lib/aws-lambda'
+import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class ConfigureShadowApiStack extends cdk.Stack {
@@ -13,11 +15,21 @@ export class ConfigureShadowApiStack extends cdk.Stack {
     // const queue = new sqs.Queue(this, 'ConfigureShadowApiQueue', {
     //   visibilityTimeout: cdk.Duration.seconds(300)
     // });
+
+    const handler = new lambda.Function(this, "PostShadowConfigurationFunction", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: "postShadow.handler",
+      code: lambda.Code.fromAsset("lambda"),
+      functionName: "PostShadowConfiguration"
+    })
+
     const httpAPI = new apigwv2.HttpApi(this, "ConfigureShadow", {
       corsPreflight: {
         allowMethods: [apigwv2.CorsHttpMethod.POST]
       }
     })
+
+    const lambdaIntegration = new HttpLambdaIntegration("PostShadowConfigurationAPI", handler)
 
   }
 }
