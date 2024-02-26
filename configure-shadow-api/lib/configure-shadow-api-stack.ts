@@ -16,6 +16,7 @@ export class ConfigureShadowApiStack extends cdk.Stack {
     //   visibilityTimeout: cdk.Duration.seconds(300)
     // });
 
+    // Declaring lambda handler
     const handler = new lambda.Function(this, "PostShadowConfigurationFunction", {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: "postShadow.handler",
@@ -23,19 +24,21 @@ export class ConfigureShadowApiStack extends cdk.Stack {
       functionName: "PostShadowConfiguration"
     })
 
+    // Initiating HTTP-API for updating the deviceshadow
     const httpAPI = new apigwv2.HttpApi(this, "ConfigureShadow", {
       corsPreflight: {
         allowMethods: [apigwv2.CorsHttpMethod.POST]
       }
     })
 
+    // Creating lambdaIntegration for API
     const lambdaIntegration = new HttpLambdaIntegration("PostShadowConfigurationAPI", handler)
 
+    // Adding route for API
     httpAPI.addRoutes({
       path: 'shadow/{deviceId}',
       methods: [apigwv2.HttpMethod.POST],
       integration: lambdaIntegration
     })
-
   }
 }
