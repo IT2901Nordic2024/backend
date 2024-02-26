@@ -1,21 +1,23 @@
-from habitTracker import habitTracker
+from habitTracker import HabitTracker
 
 
 #---------------------------------------------------------------------------
 #                                       Constants                     
 #---------------------------------------------------------------------------
-CERT_FILEPATH = "certficates\\firmwareSimulatorThing.cert.pem"
-PRI_KEY_FILEPATH = "certficates\\firmwareSimulatorThing.private.key"
-CA_FILEPATH = "certficates\\root.pem"
+CERT_FILEPATH = "certificates\\firmwareSimulatorThing.cert.pem"
+PRI_KEY_FILEPATH = "certificates\\firmwareSimulatorThing.private.key"
+CA_FILEPATH = "certificates\\root.pem"
 AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
 
-tracker = habitTracker(awsEndPoint = AWS_ENDPOINT,
+tracker = HabitTracker(awsEndPoint = AWS_ENDPOINT,
                         awsClientID = "firmwareSimulator",
                         certificateFilePath = CERT_FILEPATH,
                         privateKeyFilePath = PRI_KEY_FILEPATH,
                         rootPemFileFilePath = CA_FILEPATH)
 
-tracker.interactionListener()
+
+tracker.interactionListener(mqttTopic="firmwareSimulator/testdata",messageFormat="JSON")
+
 
 
 
@@ -29,5 +31,6 @@ tracker.interactionListener()
 #                                           https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
 # Simple keylogger in python:               https://medium.com/@meetmeonmail04/a-simple-keylogger-using-python-ddc39d04b5ab
 # AWS connecting a device to AWS IoT core:  https://docs.aws.amazon.com/iot/latest/developerguide/sdk-tutorials.html#sdk-tutorials-prepare
+
 
 

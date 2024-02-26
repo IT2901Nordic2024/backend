@@ -13,9 +13,9 @@ class HabitTracker:
         # The representation of the dodecahedron and its sides in this simulator
         self._dodecahedron = { 
         0:{
-            "id": "",
-            "type":"",
-            "name":""
+            "id": 123,
+            "type":"count",
+            "name":"coffee"
         },
         1:{
             "id": "",
@@ -117,8 +117,14 @@ class HabitTracker:
         self.client.start()
         print("MQTT5 client successfully created") 
     
-    def subscribe(self, topic):
+    def subscribe(self, topic): 
         """Method to subscribe to a single MQTT topic"""
+        self.client.subscribe(subscribe_packet=mqtt5.SubackPacket(
+            subscriptions=[mqtt5.Subscription(
+                topic_filter=topic,
+                qos=mqtt5.QoS.AT_LEAST_ONCE
+            )]
+        ))
         self.client.subscribe(topic = topic)
         print(f"Sccessfully subscribed to topic:  {topic}") 
 
@@ -130,7 +136,11 @@ class HabitTracker:
 
     def publishPayload(self, topic, payload):
         """Method used to publish / send data / payload to an MQTT topic"""
-        self.client.publish(topic = topic, payload = payload)
+        self.client.publish(mqtt5.PublishPacket(
+            topic=topic,
+            payload=payload,
+            qos=mqtt5.QoS.AT_LEAST_ONCE
+        ))
         print(f"Payload {payload} successfully delivered") 
     
     def stop(self):
@@ -145,7 +155,6 @@ class HabitTracker:
         At the moment that is to transform its string value to an integer value
         and return that or to throw an error if that does not work."""
         try:
-            print(value)
             return int(value)  # If a number key is pressed return its value as a number
         except:
             print("Invalid input! Input must be a number.")   # Otherwise show the user that the wrong input was provided
@@ -159,7 +168,42 @@ class HabitTracker:
         else:
             raise Exception("The provided input does not correspond to any side of the device / dodecahedron")
     
-    def interactionListener(self):
+    def getID(self,side):
+        """Method that gets the id of the habit associated with the provided side"""
+        if side in list(self._dodecahedron.keys()):
+            return self._dodecahedron.get(side).get("id")
+        else:
+            raise Exception("The provided input does not correspond to any side of the device / dodecahedron")
+
+    def habitRunner(self, habitType):
+        """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
+        It was necessary to call the input variable for habitType, because type is a python keyword."""
+        match habitType:
+            case "count":
+                return 1                                 # Returns an increment value of 1
+            case "timer":
+                now = datetime.now()
+                return int(round(datetime.timestamp(now)))  # Returns the current timestamp as integer
+            case _:                                      
+                raise Exception("This habit type does not exist")   # Throws an error if the provided habit type does not exist
+
+    def createPayload(self,format, id, data):
+        """Method that creates the payload to be sent to AWS IoT"""
+        print("Format: ", format)
+        payload = {
+            "deviceTimestamp": int(round(datetime.timestamp(datetime.now()))),
+            "habitId": id,
+            "value": data
+        }
+        match format:
+            case "JSON":
+                return json.dumps(payload)
+            case "protoBuff":
+                pass
+            case _: 
+                raise Exception("The provided format must either be json or protoBuff")
+
+    def interactionListener(self, messageFormat, mqttTopic):
         """Function used to simulate interaction with the habit tracker aka interacting with its sides.
         The function listens to the keys being pressed on the keyboard. If the user inputs a number with more than two digits the function passes on the value.
         Since the habit tracker has 12 sides, the side number cannot exceed double digits in length. To select a side with a single digit number (for instance 1), the
@@ -173,24 +217,29 @@ class HabitTracker:
                     side = side + value
                 print("side: ", side)       # Providing the user with some feedback, specifically showing the selected habit tracker side
                 keyBuffer.clear()           # Clearing the buffer to make way for new entries
-                self.valueTransformer(side)     # Passing on the side selection
+                
+                #------Preparing data to be sent to AWS IoT core------
+                habit = self.valueTransformer(value=side)     # Passing on the side selection and storing the returned value
+                habitId = self.getID(side=habit)                 # The id of the habit
+                habitType = self.getType(side=habit)            # The type of habit
+                habitData = self.habitRunner(habitType=habitType) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
+                payload = self.createPayload(format=messageFormat,id=habitId,data=habitData)
+            
+                #------MQTT------
+                self.start() # Start connection to MQTT broker
+                #self.subscribe(topic=mqttTopic) # Subscribe to provided MQTT topic
+                self.publishPayload(topic=mqttTopic, payload=payload) # Send payload
+                # Cleanup
+                #self.unsubscribe(topic=mqttTopic)
+                #self.stop() # Close connection to Mqtt topic
 
             happening = keyboard.read_event()   # Listening to user input 
             if happening.event_type == "down" and re.search("[0-9]", happening.name): # Only accepts user input that corresponds to numbers 7 digits between 0 and 9.
                 keyBuffer.append(happening.name)
                 print("keyBuffer: ", keyBuffer)         
-        
+        self.stop() # Close connection to Mqtt topic
         print("Escape was pressed, program is terminated!")
 
-    def habitRunner(self, habitType):
-        """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
-        It was necessary to call the input variable for habitType, because type is a python keyword."""
-        match habitType:
-            case "count":
-                return 1                                 # Returns an increment value of 1
-            case "timer":
-                return int(round(datetime.timestamp()))  # Returns the current timestamp as integer
-            case _:                                      
-                raise Exception("This habit type does not exist")   # Throws an error if the provided habit type does not exist
+
            
           
