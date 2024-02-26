@@ -12,8 +12,14 @@ export class HabitStorageStack extends cdk.Stack {
     //Creating HabitStorage construct
     const habitStorage = new HabitStorage(this, "HabitStorage")
 
-    //Creating API
-    const httpApi = new apigwv2.HttpApi(this, "HabitStorageHTTP");
+    //Creating API, and configures CORS to allow GET methods
+    const httpApi = new apigwv2.HttpApi(this, "HabitStorageHTTP", 
+      {corsPreflight: {
+        allowMethods: [
+          apigwv2.CorsHttpMethod.GET,
+        ]
+      }
+    });
 
     //Integration for lambda function
     const lambdaIntegration = new HttpLambdaIntegration("getHabitEvents", habitStorage.handler)
