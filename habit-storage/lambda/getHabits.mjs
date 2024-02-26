@@ -27,7 +27,7 @@ export const handler = async (event, context) => {
             TableName: tableName,
             Key: {
               userId: event.pathParameters.id,
-              habitName: "Coffe consumed"
+              itemNumber: 0
             },
           })
         );

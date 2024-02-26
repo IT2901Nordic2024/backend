@@ -18,7 +18,7 @@ export class HabitStorage extends Construct {
         // Creating DynamoDB table. Sort key is included in case more than one row is needed
         const habitTable = new dynamodb.Table(this, "habitTable", {
             tableName: "HabitTable",
-            partitionKey: {name: "userId", type: dynamodb.AttributeType.STRING},
+            partitionKey: {name: "userId", type: dynamodb.AttributeType.NUMBER},
             sortKey: {name: "itemNumber", type: dynamodb.AttributeType.NUMBER}
         })
 
