@@ -1,15 +1,17 @@
+# Imports
 import keyboard
 from datetime import datetime
 import re
 from awscrt import  mqtt5
 from awsiot import mqtt5_client_builder
 import json
-
+from concurrent.futures import Future
+import time
 
 
 class HabitTracker:
     """Class that represents the dodecahedron habit tracker"""
-    def __init__(self, awsClientID, awsEndPoint, certificateFilePath, privateKeyFilePath, rootPemFileFilePath):
+    def __init__(self, client_id, end_point, certficate_file_path, private_key_file_path, root_pem_file_path):
         # The representation of the dodecahedron and its sides in this simulator
         self._dodecahedron = { 
         0:{
@@ -75,82 +77,93 @@ class HabitTracker:
             "name":""
         }
     }
+        self.client_id = client_id
+        self.end_point = end_point
+        self.certficate_file_path = certficate_file_path
+        self.private_key_file_path = private_key_file_path
+        self.root_pem_file_path = root_pem_file_path
+        self.client = None
+        self.future_stopped = Future()
+        self.future_connection_success = Future()
+
+
+    #############################################################
+    #                     MQTT related methods                  #
+    #                            Start                          #
+    #############################################################
+
+    def create_client(self):
         self.client = mqtt5_client_builder.mtls_from_path(
-            endpoint = awsEndPoint, # AWS account’s IoT device endpoint
-            port = 8883, #MQTT over TLS/SSL
-            cert_filepath = certificateFilePath,
-            pri_key_filepath = privateKeyFilePath,
-            ca_filepath = rootPemFileFilePath,
-            on_publish_received = self.onPublishReceived,
-            on_lifecycle_stopped = self.onLifecycleConnectionSuccess,
-            on_lifecycle_connection_success = self.onLifecycleConnectionSuccess,
-            on_lifecycle_connection_failure = self.onLifecycleConnectionFailure,
-            client_id = awsClientID # A string you can make up yourself. Must be unique amongst all clients connected to the specified mqtt broker. AWS definition: The ID that uniquely identifies this device in the AWS Region.
+            endpoint = self.end_point,
+            port = 8883,
+            cert_filepath = self.certficate_file_path,
+            pri_key_filepath= self.private_key_file_path,
+            ca_filepath = self.root_pem_file_path,
+            on_publish_received = self.on_publish_received,
+            on_lifecycle_stopped = self. on_lifecycle_stopped,
+            on_lifecycle_connection_succes = self.on_lifecycle_connection_succes,
+            on_lifecycle_connection_failure = self.on_lifecycle_connection_failure,
+            client_id = self.client_id
         )
 
-    # Helper functions for MQTT messaging
-    @staticmethod
-    def onPublishReceived(publishPacketData):
-        """Mostly taken from https://github.com/aws/aws-iot-device-sdk-python-v2/blob/main/samples/mqtt5_pubsub.py"""
-        publishPacket = publishPacketData.publish_packet
-        assert isinstance(publishPacket, mqtt5.PublishPacket)
-        print("Received message from topic'{}':{}".format(publishPacket.topic, publishPacket.payload))
+    def on_publish_received(self, publish_packet_data):
+        publish_packet = publish_packet_data.publish_packet
+        assert isinstance(publish_packet, mqtt5.PublishPacket)
+        print("Received message from topic {}: {}".format(publish_packet.topic,publish_packet.payload))
 
-    @staticmethod
-    def onLifecycleStopped(lifecycle_stopped_data: mqtt5.LifecycleStoppedData):
-        """Mostly taken from https://github.com/aws/aws-iot-device-sdk-python-v2/blob/main/samples/mqtt5_pubsub.py"""
-        print("Lifecycle stopped")
+    def on_lifecycle_stopped(self, lifecycle_stopped_data:mqtt5.LifecycleStoppedData):
+        print("Lifecycle Stopped")
+        self.future_stopped.set_result(lifecycle_stopped_data)
     
-    @staticmethod
-    def onLifecycleConnectionSuccess(ifecycle_connect_success_data: mqtt5.LifecycleConnectSuccessData):
-        """Mostly taken from https://github.com/aws/aws-iot-device-sdk-python-v2/blob/main/samples/mqtt5_pubsub.py"""
-        print("Lifecycle connection success")
-    @staticmethod
-    def onLifecycleConnectionFailure(lifecycle_connection_failure: mqtt5.LifecycleConnectFailureData):
-        """Mostly taken from https://github.com/aws/aws-iot-device-sdk-python-v2/blob/main/samples/mqtt5_pubsub.py"""
-        print("Lifecycle connection failure")
+    def on_lifecycle_connection_succes(self, lifecycle_connection_succes_data: mqtt5.LifecycleConnectSuccessData):
+        print("Lifecycle Connection Success")
+        self.future_connection_success.set_result(lifecycle_connection_succes_data)
+    
+    def on_lifecycle_connection_failure(self, lifecycle_connection_failure: mqtt5.LifecycleConnectFailureData):
+        print("Lifecycle Connection Failure")
         print("Connection failed with exception:{}".format(lifecycle_connection_failure.exception))
 
+
+    def publish_message(self, format, mqtt_topic, habit_id, data):
+        message = {
+            "deviceTimestamp": int(round(datetime.timestamp(datetime.now()))),
+            "habitId": habit_id,
+            "value": data
+        }
+
+        match format:
+            case "JSON":
+                print("publishing...")
+                self.client.publish(mqtt5.PublishPacket(
+                    topic = mqtt_topic,
+                    payload = json.dumps(message),
+                    qos = mqtt5.QoS.AT_LEAST_ONCE
+                ))
+                print("Message published")
+            case "proto_buff":
+                pass
+            case _:
+                raise Exception("The provided format must either be JSON or proto_buff")
     
-    def start(self):
-        """Starts the MQTT5 connection"""
+    def start_connection(self):
         self.client.start()
-        print("MQTT5 client successfully created") 
     
-    def subscribe(self, topic): 
-        """Method to subscribe to a single MQTT topic"""
-        self.client.subscribe(subscribe_packet=mqtt5.SubackPacket(
-            subscriptions=[mqtt5.Subscription(
-                topic_filter=topic,
-                qos=mqtt5.QoS.AT_LEAST_ONCE
-            )]
-        ))
-        self.client.subscribe(topic = topic)
-        print(f"Sccessfully subscribed to topic:  {topic}") 
-
-    def unsubscribe(self, topic):
-        """Method for unsubscribing from a single MQTT topic"""
-        self.client.unsubscribe(unsubscribe_packet=mqtt5.UnsubackPacket(
-                                                         topic_filters=[topic]))
-        print(f"Sccessfully unsubscribed from topic:  {topic}") 
-
-    def publishPayload(self, topic, payload):
-        """Method used to publish / send data / payload to an MQTT topic"""
-        self.client.publish(mqtt5.PublishPacket(
-            topic=topic,
-            payload=payload,
-            qos=mqtt5.QoS.AT_LEAST_ONCE
-        ))
-        print(f"Payload {payload} successfully delivered") 
-    
-    def stop(self):
-        """Stops the MQTT5 connection"""
+    def stop_connection(self):
         self.client.stop()
-        print("MQTT5 client successfully stopped") 
 
+    #############################################################
+    #                     MQTT related methods                  #
+    #                             Stop                          #
+    #############################################################  
+        
+    
 
-
-    def valueTransformer(self, value):
+    #############################################################
+    #                Dodecahedron interaction methods           #
+    #                             Start                         #
+    ############################################################# 
+    
+    def value_transformer(self, value):
         """Function that takes in a value and does something with it.
         At the moment that is to transform its string value to an integer value
         and return that or to throw an error if that does not work."""
@@ -159,7 +172,7 @@ class HabitTracker:
         except:
             print("Invalid input! Input must be a number.")   # Otherwise show the user that the wrong input was provided
     
-    def getType(self,side):
+    def get_habit_type(self,side):
         """Function that takes an integer, that represents a side of the dodecahedron habit tracker, as input and 
         returns the type of habit associated with that side. If the input does not match any side of the dodecahedron, the 
         function throws an error."""
@@ -168,17 +181,17 @@ class HabitTracker:
         else:
             raise Exception("The provided input does not correspond to any side of the device / dodecahedron")
     
-    def getID(self,side):
+    def get_habit_id(self,side):
         """Method that gets the id of the habit associated with the provided side"""
         if side in list(self._dodecahedron.keys()):
             return self._dodecahedron.get(side).get("id")
         else:
             raise Exception("The provided input does not correspond to any side of the device / dodecahedron")
-
-    def habitRunner(self, habitType):
+    
+    def execute_habit(self, habit_type):
         """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
         It was necessary to call the input variable for habitType, because type is a python keyword."""
-        match habitType:
+        match habit_type:
             case "count":
                 return 1                                 # Returns an increment value of 1
             case "timer":
@@ -187,59 +200,48 @@ class HabitTracker:
             case _:                                      
                 raise Exception("This habit type does not exist")   # Throws an error if the provided habit type does not exist
 
-    def createPayload(self,format, id, data):
-        """Method that creates the payload to be sent to AWS IoT"""
-        print("Format: ", format)
-        payload = {
-            "deviceTimestamp": int(round(datetime.timestamp(datetime.now()))),
-            "habitId": id,
-            "value": data
-        }
-        match format:
-            case "JSON":
-                return json.dumps(payload)
-            case "protoBuff":
-                pass
-            case _: 
-                raise Exception("The provided format must either be json or protoBuff")
 
-    def interactionListener(self, messageFormat, mqttTopic):
-        """Function used to simulate interaction with the habit tracker aka interacting with its sides.
-        The function listens to the keys being pressed on the keyboard. If the user inputs a number with more than two digits the function passes on the value.
-        Since the habit tracker has 12 sides, the side number cannot exceed double digits in length. To select a side with a single digit number (for instance 1), the
-         user can enter 1 and then press Enter. """
+    def interaction_listener(self, message_format, mqtt_topic):
         
-        keyBuffer = [] # Stores the user input
-        while keyboard.is_pressed('esc') == False: # Checks if the user wants to terminate the program
-            if len(keyBuffer) >= 2 or keyboard.is_pressed('enter'): # Checking whether to submit a side selection
-                side = ""
-                for value in keyBuffer:
-                    side = side + value
-                print("side: ", side)       # Providing the user with some feedback, specifically showing the selected habit tracker side
-                keyBuffer.clear()           # Clearing the buffer to make way for new entries
-                
-                #------Preparing data to be sent to AWS IoT core------
-                habit = self.valueTransformer(value=side)     # Passing on the side selection and storing the returned value
-                habitId = self.getID(side=habit)                 # The id of the habit
-                habitType = self.getType(side=habit)            # The type of habit
-                habitData = self.habitRunner(habitType=habitType) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
-                payload = self.createPayload(format=messageFormat,id=habitId,data=habitData)
-            
-                #------MQTT------
-                self.start() # Start connection to MQTT broker
-                #self.subscribe(topic=mqttTopic) # Subscribe to provided MQTT topic
-                self.publishPayload(topic=mqttTopic, payload=payload) # Send payload
-                # Cleanup
-                #self.unsubscribe(topic=mqttTopic)
-                #self.stop() # Close connection to Mqtt topic
+        self.create_client() # Create client
+        key_buffer = [] # Stores the user input
 
+        print("Press ESCAPE to terminate program or Enter a side to interact with: ")
+
+        while keyboard.is_pressed('esc') == False:
+            if len(key_buffer) >= 2 or keyboard.is_pressed('enter'):
+                side = ""
+                for value in key_buffer:
+                    side = side + value
+                print("side: ", side) # Providing the user with some feedback, specifically showing the selected habit tracker side
+                key_buffer.clear()    # Clearing the buffer to make way for new entries
+
+            #------Preparing data to be sent to AWS IoT core------
+                habit = self.value_transformer(value=side)  # Passing on the side selection and storing the returned value
+                print("type of habit: ", type(habit))
+                print("habit: ", habit)
+                habit_id = self.get_habit_id(side=habit)    # The id of the habit
+                habit_type = self.get_habit_type(side=habit)# The type of habit
+                habit_data = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
+
+            #-------------------MQTT-------------------
+                self.start_connection() # Start connection to MQTT broker
+                self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data)
+                time.sleep(1)
+                print("Press ESCAPE to terminate program or Enter a side to interact with: ")
+
+    
             happening = keyboard.read_event()   # Listening to user input 
             if happening.event_type == "down" and re.search("[0-9]", happening.name): # Only accepts user input that corresponds to numbers 7 digits between 0 and 9.
-                keyBuffer.append(happening.name)
-                print("keyBuffer: ", keyBuffer)         
-        self.stop() # Close connection to Mqtt topic
+                key_buffer.append(happening.name)
+                print("keyBuffer: ", key_buffer)     
+        
+        self.stop_connection()
+        self.future_stopped.result(timeout=100)
         print("Escape was pressed, program is terminated!")
 
 
-           
-          
+    #############################################################
+    #                Dodecahedron interaction methods           #
+    #                             Stop                          #
+    ############################################################# 
