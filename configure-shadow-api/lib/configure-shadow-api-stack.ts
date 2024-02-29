@@ -55,8 +55,8 @@ export class ConfigureShadowApiStack extends cdk.Stack {
     })
 
     // Creating lambdaIntegrations for API
-    const getShadowIntegration = new HttpLambdaIntegration("GetShadowIntegration", updateShadowHandler)
-    const UpdateShadowIntegration = new HttpLambdaIntegration("UpdateShadowIntegration", getShadowHandler)
+    const getShadowIntegration = new HttpLambdaIntegration("GetShadowIntegration", getShadowHandler)
+    const UpdateShadowIntegration = new HttpLambdaIntegration("UpdateShadowIntegration", updateShadowHandler)
 
     // Adding routes for API
     httpAPI.addRoutes({
