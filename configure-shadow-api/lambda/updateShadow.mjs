@@ -10,7 +10,7 @@ export const handler = async (event, context) => {
     // Create empty response
     let response = ""
 
-    // Getting unnamed thing shadow, or send error messager
+    // Updating unnamed thing shadow, or send error messager
     //Help below!!!
     // https://stackoverflow.com/questions/68959299/iot-data-plane-client-aws-sdk-for-javascript-v3-function-updatethingshadowco
     try {
@@ -21,14 +21,13 @@ export const handler = async (event, context) => {
                     JSON.stringify({
                         "state": {
                             "desired": {
-                                "BackendApollo": "landed"
+                                "BackendApollo": "LandedOnEarthAgain"
                             }
                         }
                     })
                 )
             )
         });
-        console.log(command);
         response = await client.send(command);
     }
     catch (err){
