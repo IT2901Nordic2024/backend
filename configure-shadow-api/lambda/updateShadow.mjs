@@ -13,7 +13,7 @@ export const handler = async (event, context) => {
     // Updating unnamed thing shadow, or send error messager
     try {
         const deviceId = event.pathParameters.deviceId
-        const activityId = event.pathParameters.activityId
+        const habitId = event.pathParameters.habitId
         const deviceSide = event.pathParameters.deviceSide
 
         const command = new UpdateThingShadowCommand({
@@ -23,7 +23,7 @@ export const handler = async (event, context) => {
                     JSON.stringify({
                         "state": {
                             "desired": {
-                                [deviceSide]: activityId
+                                [deviceSide]: habitId
                             }
                         }
                     })
