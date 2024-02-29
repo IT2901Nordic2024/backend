@@ -3,7 +3,7 @@ import { IoTDataPlaneClient, UpdateThingShadowCommand,  } from "@aws-sdk/client-
 export const handler = async (event, context) => {
     // client for requesting shadow
     const client = new IoTDataPlaneClient({
-        logger: console,
+        // logger: console,
         endpoint: "https://a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
     });
 
@@ -35,6 +35,12 @@ export const handler = async (event, context) => {
         response = err.message
     }
 
-    // Returning response to sender
-    return response
+    // Converting raw Uint8Array to human readable JSON (may be useless for updateShadow)
+    const responsePayload = response.payload
+    const uint8ArrayToString = String.fromCharCode.apply(null, responsePayload)
+    const json = JSON.parse(uint8ArrayToString)
+
+
+    // Returning json to sender
+    return json
 }

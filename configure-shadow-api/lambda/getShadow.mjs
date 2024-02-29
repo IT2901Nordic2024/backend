@@ -20,12 +20,13 @@ export const handler = async (event, context) => {
     catch (err){
         response = err.message
     }
-    const responsePayload = response.payload// .toString('base64')
-    const humanReadable = String.fromCharCode.apply(null, responsePayload)
-    //const humanReadable = JSON.stringify(payloadJson)
-    const finalJSON = JSON.parse(humanReadable)
+
+    // Converting raw Uint8Array to human readable JSON
+    const responsePayload = response.payload
+    const uint8ArrayToString = String.fromCharCode.apply(null, responsePayload)
+    const json = JSON.parse(uint8ArrayToString)
 
 
-    // Returning response to sender
-    return finalJSON
+    // Returning json to sender
+    return json
 }
