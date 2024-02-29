@@ -7,7 +7,8 @@ from awsiot import mqtt5_client_builder
 import json
 from concurrent.futures import Future
 import time
-
+from fromFirmwareToBackend_pb2 import habit_data as firmwareMessage
+from google.protobuf.text_format import MessageToString, MessageToBytes
 
 class HabitTracker:
     """Class that represents the dodecahedron habit tracker"""
@@ -133,7 +134,7 @@ class HabitTracker:
 
         match format:
             case "JSON":
-                print("publishing...")
+                print("publishing message in JSON format")
                 self.client.publish(mqtt5.PublishPacket(
                     topic = mqtt_topic,
                     payload = json.dumps(message),
@@ -141,9 +142,36 @@ class HabitTracker:
                 ))
                 print("Message published")
             case "proto_buff":
-                pass
+                payload = MessageToBytes(firmwareMessage(device_timestamp=message["deviceTimestamp"], habit_id=message["habitId"], data=message["value"]))
+                print("publishing message in protocol buffers format")
+                self.client.publish(mqtt5.PublishPacket(
+                    topic = mqtt_topic,
+                    payload = payload,
+                    qos = mqtt5.QoS.AT_LEAST_ONCE
+                ))
             case _:
                 raise Exception("The provided format must either be JSON or proto_buff")
+    
+    def subscribe(self,topic):
+        """Method that allows the HabitTracker to subscribe to an MQTT5 topic.
+        The method takes as its input the topic the HabitTracker is to subscribe to."""
+        print("Trying to subscribe to {}".format(topic))
+        subscribe_future = self.client.subscribe(subscribe_packet=mqtt5.SubscribePacket(
+            subscriptions=[mqtt5.Subscription(
+                topic_filter=topic,
+                qos=mqtt5.QoS.AT_LEAST_ONCE
+            )]
+        ))
+        suback = subscribe_future.result(timeout=30)
+        print("Subscribed to {}, with {}".format(topic, suback.reason_codes))
+
+    def unsubscribe(self, topic):
+        """A method that allows the HabitTracker to unsubscribe from an MQTT5 topic.
+        The method takes as its input the topic the HabitTracker is to unsubscribe from."""
+        unsubscribe_future = self.client.unsubscribe(unsubscribe_packet=mqtt5.UnsubackPacket(
+            topic_filters=[topic]))
+        unsuback = unsubscribe_future.result(timeout=100)
+        print("Unsubscribed from {}, with {}".format(topic, unsuback.reason_codes))
     
     def start_connection(self):
         self.client.start()
@@ -203,7 +231,7 @@ class HabitTracker:
 
     def interaction_listener(self, message_format, mqtt_topic):
         
-        self.create_client() # Create client
+        #self.create_client() # Create client
         key_buffer = [] # Stores the user input
 
         print("Press ESCAPE to terminate program or Enter a side to interact with: ")
