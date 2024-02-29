@@ -26,7 +26,7 @@ export class ConfigureShadowApiStack extends cdk.Stack {
       policyName: "IotShadowRestPolicy",
       statements: [new iam.PolicyStatement({
         actions: ["iot:GetThingShadow", "iot:UpdateThingShadow"],
-        resources: ["arn:aws:iot:eu-north-1:339713040007:thing/firmwareSimulatorThing"]
+        resources: ["arn:aws:iot:eu-north-1:339713040007:thing/*"]
       })]
     }))
 
