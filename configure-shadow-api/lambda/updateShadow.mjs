@@ -11,17 +11,19 @@ export const handler = async (event, context) => {
     let response = ""
 
     // Updating unnamed thing shadow, or send error messager
-    //Help below!!!
-    // https://stackoverflow.com/questions/68959299/iot-data-plane-client-aws-sdk-for-javascript-v3-function-updatethingshadowco
     try {
+        const deviceId = event.pathParameters.deviceId
+        const activityId = event.pathParameters.activityId
+        const deviceSide = event.pathParameters.deviceSide
+
         const command = new UpdateThingShadowCommand({
-            thingName: "firmwareSimulatorThing",
+            thingName: deviceId,
             payload: new Uint8Array(
                 Buffer.from(
                     JSON.stringify({
                         "state": {
                             "desired": {
-                                "BackendApollo": "LandedOnEarthAgain"
+                                [deviceSide]: activityId
                             }
                         }
                     })
