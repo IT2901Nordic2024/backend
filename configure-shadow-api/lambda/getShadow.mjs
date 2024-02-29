@@ -20,7 +20,12 @@ export const handler = async (event, context) => {
     catch (err){
         response = err.message
     }
+    const responsePayload = response.payload// .toString('base64')
+    const humanReadable = String.fromCharCode.apply(null, responsePayload)
+    //const humanReadable = JSON.stringify(payloadJson)
+    const finalJSON = JSON.parse(humanReadable)
+
 
     // Returning response to sender
-    return response
+    return finalJSON
 }
