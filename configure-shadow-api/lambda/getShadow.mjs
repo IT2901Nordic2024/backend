@@ -12,8 +12,13 @@ export const handler = async (event, context) => {
 
     // Getting unnamed thing shadow, or send error messager
     try {
+
+        // deviceId from URL-path
+        const deviceId = event.pathParameters.deviceId
+
+        // Get Command
         const command = new GetThingShadowCommand({
-            thingName: "firmwareSimulatorThing",
+            thingName: deviceId,
         });
         response = await client.send(command);
     }

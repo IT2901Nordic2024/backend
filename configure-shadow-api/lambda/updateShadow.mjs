@@ -12,10 +12,13 @@ export const handler = async (event, context) => {
 
     // Updating unnamed thing shadow, or send error messager
     try {
+
+        // Data from URL-path
         const deviceId = event.pathParameters.deviceId
         const habitId = event.pathParameters.habitId
         const deviceSide = event.pathParameters.deviceSide
 
+        //Command for updating shadow
         const command = new UpdateThingShadowCommand({
             thingName: deviceId,
             payload: new Uint8Array(
