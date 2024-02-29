@@ -18,8 +18,14 @@ tracker = HabitTracker(client_id="firmwareSimulatorThing",
 
 
 
-tracker.interaction_listener("JSON","firmwareSimulatorThing")
-
+#tracker.interaction_listener("JSON","firmwareSimulatorThing")
+print("Start")
+print("Creating client")
+tracker.create_client()
+print("Client created")
+#tracker.subscribe("firmwareSimulatorThing/updates")
+tracker.subscribe("firmwareSimulatorThing/updates")
+tracker.interaction_listener("proto_buff","firmwareSimulatorThing")
 
 
 #---------------------------------------------------------------------------
@@ -27,10 +33,10 @@ tracker.interaction_listener("JSON","firmwareSimulatorThing")
 #---------------------------------------------------------------------------
 
 ############################################################################
-# AWS python sdk v2:                        https://github.com/aws/aws-iot-device-sdk-python-v2
-# Activating venv:                          https://stackoverflow.com/questions/18713086/virtualenv-wont-activate-on-windows
-#                                           https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
-# Simple keylogger in python:               https://medium.com/@meetmeonmail04/a-simple-keylogger-using-python-ddc39d04b5ab
-# AWS connecting a device to AWS IoT core:  https://docs.aws.amazon.com/iot/latest/developerguide/sdk-tutorials.html#sdk-tutorials-prepare
-
-
+# AWS python sdk v2:                                    https://github.com/aws/aws-iot-device-sdk-python-v2
+# Activating venv:                                      https://stackoverflow.com/questions/18713086/virtualenv-wont-activate-on-windows
+#                                                       https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
+# Simple keylogger in python:                           https://medium.com/@meetmeonmail04/a-simple-keylogger-using-python-ddc39d04b5ab
+# AWS connecting a device to AWS IoT core:              https://docs.aws.amazon.com/iot/latest/developerguide/sdk-tutorials.html#sdk-tutorials-prepare
+# AWS Connect and publish policy examples:              https://docs.aws.amazon.com/iot/latest/developerguide/connect-and-pub.html
+# Sending messages / payloads with protocol buffers:    https://faun.pub/using-googles-protocol-buffers-in-python-basics-ac79e9a6e6a9
