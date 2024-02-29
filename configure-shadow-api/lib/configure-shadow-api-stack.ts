@@ -67,7 +67,7 @@ export class ConfigureShadowApiStack extends cdk.Stack {
 
     httpAPI.addRoutes({
       path: '/updateshadow/{deviceId}/{activityId}/{deviceSide}',
-      methods: [apigwv2.HttpMethod.PUT],
+      methods: [apigwv2.HttpMethod.GET, apigwv2.HttpMethod.PUT],
       integration: UpdateShadowIntegration
     })
   }
