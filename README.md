@@ -23,6 +23,7 @@ https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/habitEvents/{id}
 ## configure-shadow-api
 
 This is an API for configuring the shadow of a users device. Format for HTTP request below
+
 **Updating device shadow**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/updateshadow/{deviceId}/{updatedSide}/{relatedHabitId}
