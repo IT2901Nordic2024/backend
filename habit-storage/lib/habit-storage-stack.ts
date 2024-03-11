@@ -17,12 +17,15 @@ export class HabitStorageStack extends cdk.Stack {
       {corsPreflight: {
         allowMethods: [
           apigwv2.CorsHttpMethod.GET,
+          apigwv2.CorsHttpMethod.POST
         ]
       }
     });
 
     //Integration for lambda function
     const getHabitsLambdaIntegration = new HttpLambdaIntegration("getHabitEvents", habitStorage.getHabitsHandler)
+    const createHabitLambdaIntegration = new HttpLambdaIntegration("CreateHabitIntegration", habitStorage.createHabitHandler)
+
 
     //Adding integration to relevant API routes
     httpApi.addRoutes({
@@ -35,6 +38,12 @@ export class HabitStorageStack extends cdk.Stack {
       path: '/habits/{userId}',
       methods: [ apigwv2.HttpMethod.GET ],
       integration: getHabitsLambdaIntegration,
+    })
+
+    httpApi.addRoutes({
+      path: '/habits/{userId}',
+      methods: [ apigwv2.HttpMethod.PUT ],
+      integration: createHabitLambdaIntegration,
     })
   }
 }
