@@ -1,14 +1,17 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  ScanCommand,
+  UpdateCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
+// ER recommended å bruk from "uuid" i stedet for "uuid/v4", men vscode likte ikke det
+import { v4 as uuidv4 } from "uuid/v4";
 
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 const tableName = process.env.HABIT_TABLE_NAME
+const id = uuidv4()
 
 export const handler = async (event, context) => {
   // Initiating response we will send back to sender
@@ -20,26 +23,20 @@ export const handler = async (event, context) => {
 
   try {
     switch (event.routeKey) {
-      //Gets a specific tableitem by "userId" and "habitName"
-      case "GET /habits/{userId}":
+      // Creates a new habit for the user
+      case "GET /habits/{userId}/{deviceId}/{habitName}/{habitType}/":
         body = await dynamo.send(
-          new GetCommand({
+          new UpdateCommand({
             TableName: tableName,
             Key: {
               userId: Number(event.pathParameters.userId),
             },
+            
           })
         );
         body = body.Item;
         break;
 
-      // Gets the whole table
-      case "GET /habits":
-        body = await dynamo.send(
-          new ScanCommand({ TableName: tableName })
-        );
-        body = body.Items;
-        break;
       // If the route isn't supported by the API
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);
