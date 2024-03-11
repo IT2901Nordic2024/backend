@@ -21,13 +21,12 @@ export const handler = async (event, context) => {
   try {
     switch (event.routeKey) {
       //Gets a specific tableitem by "userId" and "habitName"
-      case "GET /habitEvents/{id}":
+      case "GET /habits/{userId}":
         body = await dynamo.send(
           new GetCommand({
             TableName: tableName,
             Key: {
-              userId: Number(event.pathParameters.id),
-              itemNumber: 0
+              userId: Number(event.pathParameters.userId),
             },
           })
         );
@@ -35,7 +34,7 @@ export const handler = async (event, context) => {
         break;
 
       // Gets the whole table
-      case "GET /habitEvents":
+      case "GET /habits":
         body = await dynamo.send(
           new ScanCommand({ TableName: tableName })
         );

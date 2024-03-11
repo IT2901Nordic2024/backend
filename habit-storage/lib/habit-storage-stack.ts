@@ -22,19 +22,19 @@ export class HabitStorageStack extends cdk.Stack {
     });
 
     //Integration for lambda function
-    const lambdaIntegration = new HttpLambdaIntegration("getHabitEvents", habitStorage.handler)
+    const getHabitsLambdaIntegration = new HttpLambdaIntegration("getHabitEvents", habitStorage.getHabitsHandler)
 
     //Adding integration to relevant API routes
     httpApi.addRoutes({
-      path: '/habitEvents',
+      path: '/habits',
       methods: [ apigwv2.HttpMethod.GET ],
-      integration: lambdaIntegration,
+      integration: getHabitsLambdaIntegration,
     })
     
     httpApi.addRoutes({
-      path: '/habitEvents/{id}',
+      path: '/habits/{userId}',
       methods: [ apigwv2.HttpMethod.GET ],
-      integration: lambdaIntegration,
+      integration: getHabitsLambdaIntegration,
     })
   }
 }
