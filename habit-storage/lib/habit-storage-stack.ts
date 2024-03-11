@@ -41,7 +41,7 @@ export class HabitStorageStack extends cdk.Stack {
     })
 
     httpApi.addRoutes({
-      path: '/habits/{userId}',
+      path: '/createHabit/{userId}/{deviceId}/{habitName}/{habitType}',
       methods: [ apigwv2.HttpMethod.PUT ],
       integration: createHabitLambdaIntegration,
     })
