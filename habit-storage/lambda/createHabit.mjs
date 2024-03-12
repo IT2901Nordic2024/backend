@@ -4,14 +4,13 @@ import {
   UpdateCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
-// ER recommended å bruk from "uuid" i stedet for "uuid/v4", men vscode likte ikke det
-import { v4 as uuidv4 } from "uuid/v4";
 
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
-const client = new DynamoDBClient({});
+const client = new DynamoDBClient({
+    logger: console.log()
+});
 const dynamo = DynamoDBDocumentClient.from(client);
 const tableName = process.env.HABIT_TABLE_NAME
-const id = uuidv4()
 
 export const handler = async (event, context) => {
   // Initiating response we will send back to sender
@@ -22,16 +21,28 @@ export const handler = async (event, context) => {
   };
 
   try {
+  
     switch (event.routeKey) {
       // Creates a new habit for the user
-      case "GET /habits/{userId}/{deviceId}/{habitName}/{habitType}/":
+      case "PUT /createHabit/{userId}/{deviceId}/{habitName}/{habitType}":
+        // habitId må være globalt unikt. Foreløpig er den satt som UserId + DateNow (ikke addert, men ved siden av hverandre)
+        const habitId = Number(String(Date.now()) + String(event.pathParameters.userId))
+        const newHabit = {
+          "habitId": habitId,
+          "habitName": event.pathParameters.habitName,
+          "type": event.pathParameters.habitType,
+          "deviceId": event.pathParameters.deviceId,}
+
         body = await dynamo.send(
           new UpdateCommand({
             TableName: tableName,
             Key: {
               userId: Number(event.pathParameters.userId),
             },
-            
+            UpdateExpression: "SET habits = list_append(habits, :newHabit)",
+            ExpressionAttributeValues: {
+              ":newHabit": [newHabit],
+            },     
           })
         );
         body = body.Item;
