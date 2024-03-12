@@ -2,7 +2,6 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   UpdateCommand,
-  GetCommand,
 } from "@aws-sdk/lib-dynamodb";
 
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
@@ -23,15 +22,17 @@ export const handler = async (event, context) => {
   try {
   
     switch (event.routeKey) {
+
       // Creates a new habit for the user
-      case "PUT /createHabit/{userId}/{deviceId}/{habitName}/{habitType}":
+      case "GET /createHabit/{userId}/{deviceId}/{habitName}/{habitType}":
         // habitId må være globalt unikt. Foreløpig er den satt som UserId + DateNow (ikke addert, men ved siden av hverandre)
         const habitId = Number(String(Date.now()) + String(event.pathParameters.userId))
         const newHabit = {
           "habitId": habitId,
           "habitName": event.pathParameters.habitName,
           "type": event.pathParameters.habitType,
-          "deviceId": event.pathParameters.deviceId,}
+          "deviceId": event.pathParameters.deviceId,
+        }
 
         body = await dynamo.send(
           new UpdateCommand({
@@ -45,6 +46,7 @@ export const handler = async (event, context) => {
             },     
           })
         );
+        
         body = body.Item;
         break;
 

@@ -3,7 +3,6 @@ import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2"
 import { Construct } from 'constructs';
 import { HabitStorage } from './habitStorage';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class HabitStorageStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -42,7 +41,7 @@ export class HabitStorageStack extends cdk.Stack {
 
     httpApi.addRoutes({
       path: '/createHabit/{userId}/{deviceId}/{habitName}/{habitType}',
-      methods: [ apigwv2.HttpMethod.PUT ],
+      methods: [ apigwv2.HttpMethod.GET ],
       integration: createHabitLambdaIntegration,
     })
   }
