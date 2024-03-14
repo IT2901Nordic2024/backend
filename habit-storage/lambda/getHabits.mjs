@@ -40,6 +40,7 @@ export const handler = async (event, context) => {
         );
         body = body.Items;
         break;
+        
       // If the route isn't supported by the API
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);
