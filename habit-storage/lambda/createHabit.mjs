@@ -19,12 +19,21 @@ export const handler = async (event, context) => {
     "Content-Type": "application/json",
   };
 
+  const habitTypes = [
+    "count",
+    "time"
+  ]
+
   try {
   
     switch (event.routeKey) {
 
       // Creates a new habit for the user
       case "GET /createHabit/{userId}/{deviceId}/{habitName}/{habitType}":
+        if (!habitTypes.includes(event.pathParameters.habitType)) {
+          body = "invalid habitType. Valid habitTypes are " + habitTypes
+          return body
+        }
         // habitId må være globalt unikt. Foreløpig er den satt som UserId + DateNow (ikke addert, men ved siden av hverandre)
         const habitId = Number(String(Date.now()) + String(event.pathParameters.userId))
         const newHabit = {
@@ -46,7 +55,7 @@ export const handler = async (event, context) => {
             },     
           })
         );
-        
+
         body = body.Item;
         break;
 
