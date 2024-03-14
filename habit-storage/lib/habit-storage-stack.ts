@@ -3,7 +3,6 @@ import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2"
 import { Construct } from 'constructs';
 import { HabitStorage } from './habitStorage';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class HabitStorageStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -17,24 +16,33 @@ export class HabitStorageStack extends cdk.Stack {
       {corsPreflight: {
         allowMethods: [
           apigwv2.CorsHttpMethod.GET,
+          apigwv2.CorsHttpMethod.POST
         ]
       }
     });
 
     //Integration for lambda function
-    const lambdaIntegration = new HttpLambdaIntegration("getHabitEvents", habitStorage.handler)
+    const getHabitsLambdaIntegration = new HttpLambdaIntegration("getHabitEvents", habitStorage.getHabitsHandler)
+    const createHabitLambdaIntegration = new HttpLambdaIntegration("CreateHabitIntegration", habitStorage.createHabitHandler)
+
 
     //Adding integration to relevant API routes
     httpApi.addRoutes({
-      path: '/habitEvents',
+      path: '/habits',
       methods: [ apigwv2.HttpMethod.GET ],
-      integration: lambdaIntegration,
+      integration: getHabitsLambdaIntegration,
     })
     
     httpApi.addRoutes({
-      path: '/habitEvents/{id}',
+      path: '/habits/{userId}',
       methods: [ apigwv2.HttpMethod.GET ],
-      integration: lambdaIntegration,
+      integration: getHabitsLambdaIntegration,
+    })
+
+    httpApi.addRoutes({
+      path: '/createHabit/{userId}/{deviceId}/{habitName}/{habitType}',
+      methods: [ apigwv2.HttpMethod.GET ],
+      integration: createHabitLambdaIntegration,
     })
   }
 }
