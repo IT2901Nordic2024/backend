@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { ConfigureShadowApiStack } from '../lib/configure-shadow-api-stack';
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import { ConfigureShadowApiStack } from "../lib/configure-shadow-api-stack";
 
 const app = new cdk.App();
-new ConfigureShadowApiStack(app, 'ConfigureShadowApiStack', {
-  env: { 
-    account: process.env.CDK_DEFAULT_ACCOUNT, 
-    region: process.env.CDK_DEFAULT_REGION ,
-}
+new ConfigureShadowApiStack(app, "ConfigureShadowApiStack", {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION,
+  },
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
