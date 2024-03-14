@@ -20,7 +20,7 @@ export const handler = async (event, context) => {
 
   try {
     switch (event.routeKey) {
-      //Gets a specific tableitem by "userId" and "habitName"
+      // Gets a specific tableitem by "userId" and "habitName"
       case "GET /habits/{userId}":
         body = await dynamo.send(
           new GetCommand({

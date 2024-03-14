@@ -12,6 +12,7 @@ const dynamo = DynamoDBDocumentClient.from(client);
 const tableName = process.env.HABIT_TABLE_NAME
 
 export const handler = async (event, context) => {
+
   // Initiating response we will send back to sender
   let body;
   let statusCode = 200;
@@ -19,6 +20,7 @@ export const handler = async (event, context) => {
     "Content-Type": "application/json",
   };
 
+  // The types of habits this function can add
   const habitTypes = [
     "count",
     "time"
@@ -34,8 +36,11 @@ export const handler = async (event, context) => {
           body = "invalid habitType. Valid habitTypes are " + habitTypes
           return body
         }
-        // habitId må være globalt unikt. Foreløpig er den satt som UserId + DateNow (ikke addert, men ved siden av hverandre)
+
+        // Currently, this is a unique id consisting of current timestamp and the userID combined
         const habitId = Number(String(Date.now()) + String(event.pathParameters.userId))
+
+        // Henter ut data fra 
         const newHabit = {
           "habitId": habitId,
           "habitName": event.pathParameters.habitName,
@@ -43,6 +48,7 @@ export const handler = async (event, context) => {
           "deviceId": event.pathParameters.deviceId,
         }
 
+        // Sends a message to DynamoDB, making it add newHabit to a users habits
         body = await dynamo.send(
           new UpdateCommand({
             TableName: tableName,
@@ -67,10 +73,12 @@ export const handler = async (event, context) => {
     statusCode = 400;
     body = err.message
   } 
+
   // Makes the body recieved usable
     finally {
     body = JSON.stringify(body);
   }
+
   // Returning response to sender
   return {
     statusCode,
