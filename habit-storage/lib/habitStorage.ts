@@ -1,56 +1,56 @@
-import * as dynamodb from "aws-cdk-lib/aws-dynamodb"
-import * as lambda from "aws-cdk-lib/aws-lambda"
-import { Construct } from "constructs"
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
+import * as lambda from 'aws-cdk-lib/aws-lambda'
+import { Construct } from 'constructs'
 
 /**
  * This file contains the table for storing diffrent habits, and a handler for interracting with it
  */
 
 export class HabitStorage extends Construct {
-    // Making handler and table public for all 
-    public readonly table: dynamodb.Table
-    public readonly getHabitsHandler: lambda.Function
-    public readonly createHabitHandler: lambda.Function
+  // Making handler and table public for all
+  public readonly table: dynamodb.Table
+  public readonly getHabitsHandler: lambda.Function
+  public readonly createHabitHandler: lambda.Function
 
-    constructor(scope: Construct, id: string){
-        super(scope, id)
+  constructor(scope: Construct, id: string) {
+    super(scope, id)
 
-        // Creating DynamoDB table. Sort key is included in case more than one row is needed
-        const habitTable = new dynamodb.Table(this, "HabitTable", {
-            tableName: "HabitTable",
-            partitionKey: {name: "userId", type: dynamodb.AttributeType.NUMBER},
-        })
+    // Creating DynamoDB table. Sort key is included in case more than one row is needed
+    const habitTable = new dynamodb.Table(this, 'HabitTable', {
+      tableName: 'HabitTable',
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.NUMBER },
+    })
 
-        // Handler for accessing DynamoDB table
-        const getHabitsHandler = new lambda.Function(this, "postHandler", {
-            runtime: lambda.Runtime.NODEJS_20_X,
-            handler: "getHabits.handler",
-            code: lambda.Code.fromAsset("lambda"),
-            functionName: "getHabits",
-            
-            environment: {
-                HABIT_TABLE_NAME: habitTable.tableName
-            }
-        })
+    // Handler for accessing DynamoDB table
+    const getHabitsHandler = new lambda.Function(this, 'postHandler', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'getHabits.handler',
+      code: lambda.Code.fromAsset('lambda'),
+      functionName: 'getHabits',
 
-        const createHabitHandler = new lambda.Function(this, "CreateHabitHandler", {
-            runtime: lambda.Runtime.NODEJS_20_X,
-            handler: "createHabit.handler",
-            code: lambda.Code.fromAsset("lambda"),
-            functionName: "CreateHabit",
+      environment: {
+        HABIT_TABLE_NAME: habitTable.tableName,
+      },
+    })
 
-            environment: {
-                HABIT_TABLE_NAME: habitTable.tableName
-            }
-        })
+    const createHabitHandler = new lambda.Function(this, 'CreateHabitHandler', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'createHabit.handler',
+      code: lambda.Code.fromAsset('lambda'),
+      functionName: 'CreateHabit',
 
-        // Setting the table and handler for this construct
-        this.table = habitTable
-        this.getHabitsHandler = getHabitsHandler
-        this.createHabitHandler = createHabitHandler
+      environment: {
+        HABIT_TABLE_NAME: habitTable.tableName,
+      },
+    })
 
-        // Granting handler read and write access to the table
-        habitTable.grantReadWriteData(this.getHabitsHandler);
-        habitTable.grantReadWriteData(this.createHabitHandler)
-    }
+    // Setting the table and handler for this construct
+    this.table = habitTable
+    this.getHabitsHandler = getHabitsHandler
+    this.createHabitHandler = createHabitHandler
+
+    // Granting handler read and write access to the table
+    habitTable.grantReadWriteData(this.getHabitsHandler)
+    habitTable.grantReadWriteData(this.createHabitHandler)
+  }
 }
