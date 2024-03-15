@@ -18,12 +18,13 @@ tracker = HabitTracker(client_id="firmwareSimulatorThing",
 
 
 
-#tracker.interaction_listener("JSON","firmwareSimulatorThing")
+
 print("Start")
 print("Creating client")
 tracker.create_client()
 print("Client created")
-#tracker.subscribe("firmwareSimulatorThing/updates")
+tracker.start_connection()
+print("Connection established")
 tracker.subscribe("firmwareSimulatorThing/updates")
 tracker.interaction_listener("proto_buff","firmwareSimulatorThing")
 

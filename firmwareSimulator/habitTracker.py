@@ -162,8 +162,12 @@ class HabitTracker:
                 qos=mqtt5.QoS.AT_LEAST_ONCE
             )]
         ))
-        suback = subscribe_future.result(timeout=30)
-        print("Subscribed to {}, with {}".format(topic, suback.reason_codes))
+        print("subscribe_future: ", subscribe_future.__dict__)
+        try:
+            suback = subscribe_future.result(timeout=30)
+            print("Subscribed to {}, with {}".format(topic, suback.reason_codes))
+        except:
+            print("subscribe future failed: ", subscribe_future.__dict__)
 
     def unsubscribe(self, topic):
         """A method that allows the HabitTracker to unsubscribe from an MQTT5 topic.
@@ -230,8 +234,6 @@ class HabitTracker:
 
 
     def interaction_listener(self, message_format, mqtt_topic):
-        
-        #self.create_client() # Create client
         key_buffer = [] # Stores the user input
 
         print("Press ESCAPE to terminate program or Enter a side to interact with: ")
@@ -253,7 +255,7 @@ class HabitTracker:
                 habit_data = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
 
             #-------------------MQTT-------------------
-                self.start_connection() # Start connection to MQTT broker
+                #self.start_connection() # Start connection to MQTT broker
                 self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data)
                 time.sleep(1)
                 print("Press ESCAPE to terminate program or Enter a side to interact with: ")

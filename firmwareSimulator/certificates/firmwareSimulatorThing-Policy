@@ -10,27 +10,19 @@
         "iot:Subscribe"
       ],
       "Resource": [
-        "arn:aws:iot:eu-north-1:339713040007:topic/${iot:Connection.Thing.ThingName}",
-        "arn:aws:iot:eu-north-1:339713040007:topic/${iot:Connection.Thing.ThingName}/updates"
+        "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}",
+        "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}/updates"
       ]
     },
     {
       "Effect": "Allow",
       "Action": "iot:Subscribe",
-      "Resource": "arn:aws:iot:eu-north-1:339713040007:topicfilter/${iot:Connection.Thing.ThingName}/updates"
+      "Resource": "arn:aws:iot:*:*:topicfilter/${iot:Connection.Thing.ThingName}/updates"
     },
     {
       "Effect": "Allow",
       "Action": "iot:Connect",
-      "Resource": [
-        "arn:aws:iot:eu-north-1:339713040007:client/${iot:Connection.Thing.ThingName}",
-        "arn:aws:iot:eu-north-1:339713040007:client/${iot:Connection.Thing.ThingName}/updates"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "iot:GetThingShadow",
-      "Resource": "*"
+      "Resource": "arn:aws:iot:*:*:client/${iot:Connection.Thing.ThingName}"
     }
   ]
 }
