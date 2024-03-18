@@ -1,14 +1,17 @@
-/* global process */
+/* global process, Buffer */
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane' // ES Modules import
 
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
-const client = new DynamoDBClient({
+const ddbclient = new DynamoDBClient({
   logger: console.log(),
 })
-const dynamo = DynamoDBDocumentClient.from(client)
+const dynamo = DynamoDBDocumentClient.from(ddbclient)
 const tableName = process.env.HABIT_TABLE_NAME
+
+const iotClient = new IoTDataPlaneClient({})
 
 export const handler = async (event) => {
   // Initiating response we will send back to sender
@@ -22,51 +25,65 @@ export const handler = async (event) => {
   const habitTypes = ['count', 'time']
 
   try {
-    switch (event.routeKey) {
-      // Creates a new habit for the user
-      case 'GET /createHabit/{userId}/{deviceId}/{habitName}/{habitType}': {
-        if (!habitTypes.includes(event.pathParameters.habitType)) {
-          body = 'invalid habitType. Valid habitTypes are ' + habitTypes
-          return body
-        }
-
-        // Currently, this is a unique id consisting of current timestamp and the userID combined
-        const habitId = Number(String(Date.now()) + String(event.pathParameters.userId))
-
-        // Henter ut data fra
-        const newHabit = {
-          habitId: habitId,
-          habitName: event.pathParameters.habitName,
-          type: event.pathParameters.habitType,
-          deviceId: event.pathParameters.deviceId,
-        }
-
-        // Sends a message to DynamoDB, making it add newHabit to a users habits
-        body = await dynamo.send(
-          new UpdateCommand({
-            TableName: tableName,
-            Key: {
-              userId: Number(event.pathParameters.userId),
-            },
-            UpdateExpression: 'SET habits = list_append(habits, :newHabit)',
-            ExpressionAttributeValues: {
-              ':newHabit': [newHabit],
-            },
-          }),
-        )
-
-        body = body.Item
-        break
-      }
-
-      // If the route isn't supported by the API
-      default: {
-        throw new Error(`Unsupported route: "${event.routeKey}"`)
-      }
+    // Validates if the type of tracking is supported
+    if (!habitTypes.includes(event.pathParameters.habitType)) {
+      body = 'invalid habitType. Valid habitTypes are ' + habitTypes
+      return body
     }
+
+    // Validates if the deviceside exists on the device
+    if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 12) {
+      body = 'invalid deviceSide. Must be a number between 0 and 12'
+      return body
+    }
+
+    // creating habitId. It is just the timestamp for when this was invoked
+    const habitId = Date.now()
+
+    //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
+    await iotClient.send(
+      new UpdateThingShadowCommand({
+        thingName: event.pathParameters.deviceId,
+        payload: new Uint8Array(
+          Buffer.from(
+            JSON.stringify({
+              state: {
+                desired: {
+                  [event.pathParameters.deviceSide]: habitId,
+                },
+              },
+            }),
+          ),
+        ),
+      }),
+    )
+
+    // Data habit that will be added to the table
+    const newHabit = {
+      habitId: habitId,
+      habitName: event.pathParameters.habitName,
+      type: event.pathParameters.habitType,
+      deviceId: event.pathParameters.deviceId,
+    }
+
+    // Sends a message to DynamoDB, making it add newHabit to a users habits
+    await dynamo.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: {
+          userId: Number(event.pathParameters.userId),
+        },
+        UpdateExpression: 'SET habits = list_append(habits, :newHabit)',
+        ExpressionAttributeValues: {
+          ':newHabit': [newHabit],
+        },
+      }),
+    )
+
+    body = 'All actions completed successfully'
   } catch (err) {
     statusCode = 400
-    body = err.message
+    body = err
   } finally {
     // Makes the body recieved usable
     body = JSON.stringify(body)
