@@ -2,6 +2,10 @@
 
 ## For non-backend devs
 
+### General info
+
+Each of the stacks below has its own API-id. The ids can be found in the AWS API Gateway console. Ask your local backend dev if you can find the API id, and he will happily help you.
+
 ### habit-storage
 
 This stack uses API Gateway, DynamoDB and Lambda to get and update the users habit. Format for different HTTP routes below
