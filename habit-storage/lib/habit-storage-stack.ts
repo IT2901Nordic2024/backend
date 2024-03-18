@@ -13,7 +13,7 @@ export class HabitStorageStack extends cdk.Stack {
     //Creating API, and configures CORS to allow GET methods
     const httpApi = new apigwv2.HttpApi(this, 'HabitStorageHTTP', {
       corsPreflight: {
-        allowMethods: [apigwv2.CorsHttpMethod.GET, apigwv2.CorsHttpMethod.POST],
+        allowMethods: [apigwv2.CorsHttpMethod.GET, apigwv2.CorsHttpMethod.PUT],
       },
     })
 
@@ -38,8 +38,8 @@ export class HabitStorageStack extends cdk.Stack {
     })
 
     httpApi.addRoutes({
-      path: '/createHabit/{userId}/{deviceId}/{habitName}/{habitType}',
-      methods: [apigwv2.HttpMethod.GET],
+      path: '/createHabit/{userId}/{deviceId}/{habitName}/{habitType}/{deviceSide}',
+      methods: [apigwv2.HttpMethod.GET, apigwv2.HttpMethod.PUT],
       integration: createHabitLambdaIntegration,
     })
   }
