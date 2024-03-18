@@ -32,7 +32,7 @@ export const handler = async (event) => {
     }
 
     // Validates if the deviceside exists on the device
-    if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 12) {
+    if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 11) {
       body = 'invalid deviceSide. Must be a number between 0 and 12'
       return body
     }
