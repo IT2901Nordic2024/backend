@@ -3,6 +3,6 @@
 module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/lambda'],
-  testMatch: ['**/*.spec.js'],
+  testMatch: ['**/*.spec.mjs'],
   transform: {},
 }
