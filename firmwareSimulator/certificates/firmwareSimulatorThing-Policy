@@ -1,0 +1,28 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iot:Publish",
+        "iot:Receive",
+        "iot:PublishRetain",
+        "iot:Subscribe"
+      ],
+      "Resource": [
+        "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}",
+        "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}/updates"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Subscribe",
+      "Resource": "arn:aws:iot:*:*:topicfilter/${iot:Connection.Thing.ThingName}/updates"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Connect",
+      "Resource": "arn:aws:iot:*:*:client/${iot:Connection.Thing.ThingName}"
+    }
+  ]
+}
