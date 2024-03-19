@@ -25,31 +25,56 @@ beforeEach(() => {
   ddbMock.reset()
 })
 
-const event = {
+const successfulEvent = {
   routeKey: 'GET /habits/{userId}',
   pathParameters: '0',
 }
 
-const successfulGet = {
-  TableName: 'HabitTable',
-  Key: {
-    userId: 0,
-  },
-}
-
-describe('gets all habits', () => {
+describe('gets all habits from user 0', () => {
   it('should get user names from the DynamoDB', async () => {
     //ddbMock.on(GetCommand).resolves(true)
     ddbMock.on(GetCommand).resolves({
-      Item: { respone: 'successful response' },
+      $metadata: {
+        privateMetadata: 'very private metadata',
+      },
+      Item: { response: 'response' },
     })
-    const response = await handler(event)
-    expect(response).toBe({
+    const response = await handler(successfulEvent)
+    expect(response).toEqual({
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: { respone: 'successful response' },
+      body: '{"response":"response"}',
     })
+  })
+})
+
+const unsupportedRouteGet = {
+  routeKey: 'GET /unsupported-route/{userId}',
+  pathParameters: '0',
+}
+
+describe('Does not work with unsupported route', () => {
+  it('fails unsupported route succesfully', async () => {
+    //ddbMock.on(GetCommand).resolves(true)
+    ddbMock.on(GetCommand).resolves({
+      $metadata: {
+        privateMetadata: 'very private metadata',
+      },
+      Item: { response: 'response' },
+    })
+    const response = await handler(unsupportedRouteGet)
+    expect(response).toEqual({
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: '"Unsupported route: \\"GET /unsupported-route/{userId}\\""',
+    })
+  })
+
+  it('Handles spaces in the URL correctly', async () => {
+    // TODO
   })
 })
