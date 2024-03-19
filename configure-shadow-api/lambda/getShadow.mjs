@@ -2,10 +2,7 @@ import { IoTDataPlaneClient, GetThingShadowCommand } from '@aws-sdk/client-iot-d
 
 export const handler = async (event) => {
   // client for requesting shadow
-  const client = new IoTDataPlaneClient({
-    //logger: console,
-    endpoint: 'https://a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com',
-  })
+  const client = new IoTDataPlaneClient({})
   // Create empty response
   let response = ''
 

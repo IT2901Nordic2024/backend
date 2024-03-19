@@ -1,6 +1,7 @@
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { Construct } from 'constructs'
+import * as iam from 'aws-cdk-lib/aws-iam'
 
 /**
  * This file contains the table for storing diffrent habits, and a handler for interracting with it
@@ -14,6 +15,25 @@ export class HabitStorage extends Construct {
 
   constructor(scope: Construct, id: string) {
     super(scope, id)
+
+    // Creating role for createHabit
+    const createHabitHandlerRole = new iam.Role(this, 'CreateHabitHandlerRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      roleName: 'CreateHabitHandlerRole',
+    })
+
+    // Attaching policy to createHabit-role
+    createHabitHandlerRole.attachInlinePolicy(
+      new iam.Policy(this, 'IotShadowRestPolicy', {
+        policyName: 'IotShadowRestPolicy',
+        statements: [
+          new iam.PolicyStatement({
+            actions: ['iot:GetThingShadow', 'iot:UpdateThingShadow'],
+            resources: ['arn:aws:iot:eu-north-1:339713040007:thing/*'],
+          }),
+        ],
+      }),
+    )
 
     // Creating DynamoDB table. Sort key is included in case more than one row is needed
     const habitTable = new dynamodb.Table(this, 'HabitTable', {
@@ -38,6 +58,7 @@ export class HabitStorage extends Construct {
       handler: 'createHabit.handler',
       code: lambda.Code.fromAsset('lambda'),
       functionName: 'CreateHabit',
+      role: createHabitHandlerRole,
 
       environment: {
         HABIT_TABLE_NAME: habitTable.tableName,

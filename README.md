@@ -2,6 +2,10 @@
 
 ## For non-backend devs
 
+### General info
+
+Each of the stacks below has its own API-id. The ids can be found in the AWS API Gateway console. Ask your local backend dev if you can find the API id, and he will happily help you.
+
 ### habit-storage
 
 This stack uses API Gateway, DynamoDB and Lambda to get and update the users habit. Format for different HTTP routes below
@@ -22,13 +26,14 @@ https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/habits/{userId}
 
 **Adding a new habit for a user**
 
-https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/createHabit/{userId}/{deviceId}/{habitName}/{habitType}
+https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/createHabit/{userId}/{deviceId}/{habitName}/{habitType}/{deviceSide}
 
 - "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you dont fin the ID
 - {userId} is the id of the user you want to add a new habit to. Currently, we only have one user with id 0
 - {deviceId} is the id of the device the user wants to track this habit with
 - {habitName} is the name of the habit the user want to track
 - {habitType} is the type tracking the user want to do for the habit. Currently we only support "count" and "time"
+- {deviceSide} is the side of the device you want to connect to. This is 0-indexed and works with all numbers from 0 to 11
 - The "{}" brackets should not be included in the url, just write 0/TestDK/treehugging/time
 
 ### configure-shadow-api
