@@ -25,16 +25,19 @@ export const handler = async (event) => {
   const habitTypes = ['count', 'time']
 
   try {
+    // Validates if all the pathParameters are covered
+    //console.log(event.cat)
+    if (event.routeKey == undefined || event.pathParameters == undefined) {
+      throw 'routeKey or pathParameters are undefined'
+    }
     // Validates if the type of tracking is supported
     if (!habitTypes.includes(event.pathParameters.habitType)) {
-      body = 'invalid habitType. Valid habitTypes are ' + habitTypes
-      return body
+      throw `invalid habitType. Valid habitTypes are ${habitTypes[0]} and ${habitTypes[1]}. habitType ${event.pathParameters.habitType} was provided`
     }
 
     // Validates if the deviceside exists on the device
     if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 11) {
-      body = 'invalid deviceSide. Must be a number between 0 and 12'
-      return body
+      throw `invalid deviceSide. Must be a number between 0 and 12. DeviceSide ${event.pathParameters.deviceSide} was provided`
     }
 
     // creating habitId. It is just the timestamp for when this was invoked
@@ -62,7 +65,7 @@ export const handler = async (event) => {
     const newHabit = {
       habitId: habitId,
       habitName: event.pathParameters.habitName,
-      type: event.pathParameters.habitType,
+      habitType: event.pathParameters.habitType,
       deviceId: event.pathParameters.deviceId,
     }
 
