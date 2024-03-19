@@ -1,0 +1,44 @@
+{
+  "collectionVersion": "httpiness/JSON/0.11",
+  "uuid": "e611f86b-6157-4f92-b551-3eab98c92c3f",
+  "authChildren": [],
+  "dirChildren": [],
+  "reqtChildren": [
+    {
+      "name": "getHabit{userId}",
+      "rawRequest": {
+        "method": "GET",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/habits/${userId}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "createHabit",
+      "rawRequest": {
+        "method": "PUT",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/createHabit/${userId}/${deviceId}/${habitName}/${habitType}/${deviceSide}",
+        "headers": [],
+        "body": null
+      }
+    }
+  ],
+  "parameters": {
+    "API_ID": "******sensitive******",
+    "userId": "0",
+    "deviceId": "MyIotThing",
+    "habitName": "fishing",
+    "habitType": "time",
+    "deviceSide": "4"
+  },
+  "parameterPresets": [
+    {
+      "name": "Development",
+      "macros": []
+    },
+    {
+      "name": "Production",
+      "macros": []
+    }
+  ]
+}
