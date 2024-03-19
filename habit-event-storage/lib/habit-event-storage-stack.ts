@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
-import { aws_iot } from 'aws-cdk-lib'
+import { aws_iot, aws_iam } from 'aws-cdk-lib'
 import * as path from 'path'
 
 export class HabitEventStorageStack extends cdk.Stack {
@@ -25,17 +25,27 @@ export class HabitEventStorageStack extends cdk.Stack {
         'Lambda function that translates incomming messages in protocol buffer format into messages in JSON format.',
     })
 
+    /**
+     * The TopicRule that triggers the lambda function every time an mqtt message
+     * is sent to the 'firmwareSimulatorThing/updates' topic.
+     */
     const protocolBuffersToJSONRule = new aws_iot.CfnTopicRule(this, 'ProtocolBuffersToJSONRule', {
       topicRulePayload: {
         sql: "SELECT * FROM 'firmwareSimulatorThing/updates'",
         actions: [
           {
             lambda: {
-              functionArn: protocolBuffersToJSONLambda.functionArn,
+              functionArn: protocolBuffersToJSONLambda.functionArn, // Specifying the lambda function to be activated
             },
           },
         ],
       },
+    })
+
+    // Giving aws iot the rights to run the lambda function
+    protocolBuffersToJSONLambda.addPermission('protocolBuffersToJSONRule', {
+      principal: new aws_iam.ServicePrincipal('iot.amazonaws.com'),
+      sourceArn: protocolBuffersToJSONRule.attrArn,
     })
   }
 }
