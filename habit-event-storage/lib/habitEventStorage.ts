@@ -1,6 +1,12 @@
 import { Construct } from 'constructs'
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
+import { HttpApi } from './httpApi'
+
+export type httpApiProps = {
+  getHabitEventFunction: lambda.Function
+  updateHabitEventFunction: lambda.Function
+}
 
 export class HabitEventStorage extends Construct {
   public readonly getHabitEventFunction: lambda.Function
@@ -39,6 +45,10 @@ export class HabitEventStorage extends Construct {
     table.grantReadData(getHabitEventFunction)
     table.grantReadWriteData(updateHabitEventFunction)
 
-    const httpApi = new HabitEventStorage(this, 'habitEventStorage')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const httpApi = new HttpApi(this, 'habitEventStorage', {
+      getHabitEventFunction: getHabitEventFunction,
+      updateHabitEventFunction: updateHabitEventFunction,
+    })
   }
 }
