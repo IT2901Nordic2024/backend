@@ -149,6 +149,8 @@ class HabitTracker:
                     payload = payload,
                     qos = mqtt5.QoS.AT_LEAST_ONCE
                 ))
+                print("payload {}".format(payload))
+                print("Sent to topic {}".format(mqtt_topic))
             case _:
                 raise Exception("The provided format must either be JSON or proto_buff")
     

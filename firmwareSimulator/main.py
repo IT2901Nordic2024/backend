@@ -1,4 +1,4 @@
-from HabitTracker import HabitTracker
+from habitTracker import HabitTracker
 
 
 #---------------------------------------------------------------------------
