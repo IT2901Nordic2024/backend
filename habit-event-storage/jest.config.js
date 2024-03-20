@@ -1,8 +1,8 @@
+/* global module */
+
 module.exports = {
   testEnvironment: 'node',
-  roots: ['<rootDir>/test'],
-  testMatch: ['**/*.test.ts'],
-  transform: {
-    '^.+\\.tsx?$': 'ts-jest'
-  }
-};
+  roots: ['<rootDir>/lambda'],
+  testMatch: ['**/*.test.mjs'],
+  transform: {},
+}
