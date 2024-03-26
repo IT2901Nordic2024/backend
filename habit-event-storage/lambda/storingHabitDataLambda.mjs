@@ -12,7 +12,7 @@ export const handler = async (event, context) => {
     let message = habit_data_message.decode(event)
     console.log(message)
   })*/
-
+  console.log('Hello World')
   console.log(event)
   return event
 }

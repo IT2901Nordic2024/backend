@@ -6,12 +6,12 @@
       "Action": [
         "iot:Publish",
         "iot:Receive",
-        "iot:PublishRetain",
-        "iot:Subscribe"
+        "iot:PublishRetain"
       ],
       "Resource": [
         "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}",
-        "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}/updates"
+        "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}/updates",
+        "arn:aws:iot:*:*:topic/habitTrackerData/0"
       ]
     },
     {
