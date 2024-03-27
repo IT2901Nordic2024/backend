@@ -8,7 +8,9 @@ import json
 from concurrent.futures import Future
 import time
 from fromFirmwareToBackend_pb2 import habit_data as firmwareMessage
-from google.protobuf.text_format import MessageToString, MessageToBytes
+
+import base64
+
 
 class HabitTracker:
     """Class that represents the dodecahedron habit tracker"""
@@ -142,14 +144,14 @@ class HabitTracker:
                 ))
                 print("Message published")
             case "proto_buff":
-                payload = MessageToBytes(firmwareMessage(device_timestamp=message["deviceTimestamp"], habit_id=message["habitId"], data=message["value"]))
+                payload = firmwareMessage(device_timestamp=message["deviceTimestamp"], habit_id=message["habitId"], data=message["value"]).SerializeToString()
                 print("publishing message in protocol buffers format")
                 self.client.publish(mqtt5.PublishPacket(
                     topic = mqtt_topic,
                     payload = payload,
                     qos = mqtt5.QoS.AT_LEAST_ONCE
                 ))
-                print("payload {}".format(payload))
+                print("payload: {}".format(payload))
                 print("Sent to topic {}".format(mqtt_topic))
             case _:
                 raise Exception("The provided format must either be JSON or proto_buff")

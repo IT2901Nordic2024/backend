@@ -1,4 +1,4 @@
-const PROTO_FILE = 'habit-event-storage\\proto-files\\fromFirmwareToBackend.proto'
+//const PROTO_FILE = 'habit-event-storage\\proto-files\\fromFirmwareToBackend.proto'
 
 export const handler = async (event, context) => {
   /*protobuf.load(PROTO_FILE, function (err, root) {
