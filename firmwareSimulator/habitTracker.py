@@ -143,6 +143,9 @@ class HabitTracker:
                     qos = mqtt5.QoS.AT_LEAST_ONCE
                 ))
                 print("Message published")
+
+            # For more information about how to send protobuf messages with python see:
+            # https://www.freecodecamp.org/news/googles-protocol-buffers-in-python/
             case "proto_buff":
                 payload = firmwareMessage(device_timestamp=message["deviceTimestamp"], habit_id=message["habitId"], data=message["value"]).SerializeToString()
                 print("publishing message in protocol buffers format")

@@ -97,11 +97,17 @@ export class HabitEventStorageStack extends cdk.Stack {
      *
      * The sql query
      * decodes a message (binary payload) that is encoded in base64,
-     * and that is a proto(col buffer) message,
+     * and that is a prototcol buffer message,
      * uses the protocolBuffersDescriptorFilesBucket,
      * specifically the fromFirmwareToBackend.desc in the bucket,
      * habit_data is the message specified in the .proto file,
      * checks for messages sent to the 'habitTrackerData/+', where + is a wildecard standing for the deviceID of the habit tracker device.
+     * Republishes to the topic 'lambdaOutput in case of success and in case of error
+     *
+     * Remember to use `` strings in the SQL if you want to insert variables using${}
+     * Use bucket.bucketName to get the actual name of the bucket as it is registered in aws
+     * as AWS often adds some letters to the bucket name 8something like a unique id)
+     *
      *
      * Sources:
      * https://www.youtube.com/watch?v=WrU_zh7ofys&t=33s (The format of the sql request in this video is no longer up to date, at least in resulted in errors here)
@@ -141,33 +147,6 @@ export class HabitEventStorageStack extends cdk.Stack {
         awsIotSqlVersion: '2016-03-23',
       },
     })
-
-    /**
-     * Allowing protocolBuffersToJSONRule to read from the 'habitTrackerData/+' topic
-     */
-
-    /*
-    //Defining the IAM role
-    const readFromMQTTTopicRole = new aws_iam.Role(this, 'readFromMQTTTopicRole', {
-      assumedBy: new aws_iam.ServicePrincipal('iot.amazonaws.com'),
-    })
-
-    // Defining policy granting necessary permission(s)
-    const readFromMQTTTopicPolicy = new aws_iam.Policy(this, 'readFromMQTTTopicPolicy', {
-      statements: [
-        new aws_iam.PolicyStatement({
-          actions: ['iot:Receive'],
-          resources: [protocolBuffersToJSONRule.attrArn],
-        }),
-      ],
-    })
-
-    // Adding the policy to the role created above
-    readFromMQTTTopicRole.attachInlinePolicy(readFromMQTTTopicPolicy)
-
-    // Overriding the roleArn property of protocolBuffersToJSONRule with the roleArn of the IAM role from above, thereby granting the necessary permissions to the rule
-    protocolBuffersToJSONRule.addPropertyOverride('roleArn', readFromMQTTTopicRole.roleArn)
-    */
 
     /**
      * Allowing storingHabitDataLambda to be called / invoked by protocolBuffersToJSONRule
