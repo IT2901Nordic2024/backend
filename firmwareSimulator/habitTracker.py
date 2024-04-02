@@ -9,7 +9,7 @@ from concurrent.futures import Future
 import time
 from fromFirmwareToBackend_pb2 import habit_data as firmwareMessage
 
-import base64
+
 
 
 class HabitTracker:
