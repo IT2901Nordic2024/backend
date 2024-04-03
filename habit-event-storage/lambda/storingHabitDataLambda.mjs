@@ -1,4 +1,4 @@
-const PROTO_FILE = 'habit-event-storage\\proto-files\\fromFirmwareToBackend.proto'
+//const PROTO_FILE = 'habit-event-storage\\proto-files\\fromFirmwareToBackend.proto'
 
 export const handler = async (event, context) => {
   /*protobuf.load(PROTO_FILE, function (err, root) {
@@ -12,7 +12,7 @@ export const handler = async (event, context) => {
     let message = habit_data_message.decode(event)
     console.log(message)
   })*/
-
+  console.log('Hello World')
   console.log(event)
   return event
 }
