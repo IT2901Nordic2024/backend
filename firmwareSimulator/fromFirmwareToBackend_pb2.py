@@ -14,13 +14,13 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x66romFirmwareToBackend.proto\"F\n\nhabit_data\x12\x18\n\x10\x64\x65vice_timestamp\x18\x01 \x01(\x05\x12\x10\n\x08habit_id\x18\x02 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x66romFirmwareToBackend.proto\x12\nhabit_data\"F\n\nhabit_data\x12\x18\n\x10\x64\x65vice_timestamp\x18\x01 \x01(\x05\x12\x10\n\x08habit_id\x18\x02 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'fromFirmwareToBackend_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_HABIT_DATA']._serialized_start=31
-  _globals['_HABIT_DATA']._serialized_end=101
+  _globals['_HABIT_DATA']._serialized_start=43
+  _globals['_HABIT_DATA']._serialized_end=113
 # @@protoc_insertion_point(module_scope)

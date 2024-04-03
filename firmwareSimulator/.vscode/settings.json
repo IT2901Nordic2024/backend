@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./protocol_buffers_messages/descriptors"
+    ]
+}
