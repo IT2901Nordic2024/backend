@@ -1,5 +1,5 @@
 import { mockClient } from 'aws-sdk-client-mock'
-import { handler } from './getHabits.mjs'
+import { handler } from '../lambda/getHabits.mjs'
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { beforeEach, describe, it, expect } from '@jest/globals'
 
