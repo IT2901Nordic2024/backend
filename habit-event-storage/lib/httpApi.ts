@@ -21,19 +21,19 @@ export class HttpApi extends Construct {
       props.updateHabitEventFunction
     )
     api.addRoutes({
-      path: '/habitEvents{userId}',
+      path: '/habitEvents/{userId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: getHabitEventIntegration,
     })
 
     api.addRoutes({
-      path: '/habitEvents{userId}/{habitId}',
+      path: '/habitEvents/{userId}/{habitId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: getHabitEventIntegration,
     })
 
     api.addRoutes({
-      path: '/habitEvents{userId}/{habitId}/{habitEventId}',
+      path: '/habitEvents/{userId}/{habitId}/{habitEventId}',
       methods: [apigwv2.HttpMethod.PUT],
       integration: updateHabitEventIntegration,
     })
