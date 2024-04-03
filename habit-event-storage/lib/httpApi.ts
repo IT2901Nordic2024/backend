@@ -20,20 +20,25 @@ export class HttpApi extends Construct {
       'GetHabitEventIntegration',
       props.updateHabitEventFunction
     )
+    const getHabitEventFromUserIntegration = new HttpLambdaIntegration(
+      'GetHabitEventFromUserIntegration',
+      props.getHabitEventsFromUserFunction
+    )
+
     api.addRoutes({
-      path: '/habitEvents/{userId}',
+      path: '/getHabitEvents/{userId}/{habitId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: getHabitEventIntegration,
     })
 
     api.addRoutes({
-      path: '/habitEvents/{userId}/{habitId}',
+      path: '/getHabitEvents/{userId}',
       methods: [apigwv2.HttpMethod.GET],
-      integration: getHabitEventIntegration,
+      integration: getHabitEventFromUserIntegration,
     })
 
     api.addRoutes({
-      path: '/habitEvents/{userId}/{habitId}/{habitEventId}',
+      path: '/getHabitEvents/{userId}/{habitId}/{habitEventId}',
       methods: [apigwv2.HttpMethod.PUT],
       integration: updateHabitEventIntegration,
     })

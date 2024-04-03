@@ -5,11 +5,13 @@ import { HttpApi } from './httpApi'
 
 export type httpApiProps = {
   getHabitEventFunction: lambda.Function
+  getHabitEventsFromUserFunction: lambda.Function
   updateHabitEventFunction: lambda.Function
 }
 
 export class HabitEventStorage extends Construct {
   public readonly getHabitEventFunction: lambda.Function
+  public readonly getHabitEventsFromUserFunction: lambda.Function
   public readonly updateHabitEventFunction: lambda.Function
 
   constructor(scope: Construct, id: string) {
@@ -22,6 +24,7 @@ export class HabitEventStorage extends Construct {
     })
 
     const getHabitEventFunction = new lambda.Function(this, 'GetHabitEventFunction', {
+      functionName: 'getHabitEventById',
       handler: 'getHabitEvents.handler',
       code: lambda.Code.fromAsset('lambda'),
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -30,7 +33,18 @@ export class HabitEventStorage extends Construct {
       },
     })
 
+    const getHabitEventsFromUserFunction = new lambda.Function(this, 'GetHabitEventFromUserFunction', {
+      functionName: 'getHabitEventsFromUser',
+      handler: 'getHabitEventByUser.handler',
+      code: lambda.Code.fromAsset('lambda'),
+      runtime: lambda.Runtime.NODEJS_20_X,
+      environment: {
+        TABLENAME: table.tableName,
+      },
+    })
+
     const updateHabitEventFunction = new lambda.Function(this, 'UpdateHabitEventFunction', {
+      functionName: 'UpdateHabitEvent',
       handler: 'updateHabitEvents.handler',
       code: lambda.Code.fromAsset('lambda'),
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -40,15 +54,18 @@ export class HabitEventStorage extends Construct {
     })
 
     this.getHabitEventFunction = getHabitEventFunction
+    this.getHabitEventsFromUserFunction = getHabitEventsFromUserFunction
     this.updateHabitEventFunction = updateHabitEventFunction
 
     table.grantReadData(getHabitEventFunction)
+    table.grantReadData(getHabitEventsFromUserFunction)
     table.grantReadWriteData(updateHabitEventFunction)
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const httpApi = new HttpApi(this, 'habitEventStorage', {
       getHabitEventFunction: getHabitEventFunction,
       updateHabitEventFunction: updateHabitEventFunction,
+      getHabitEventsFromUserFunction: getHabitEventsFromUserFunction,
     })
   }
 }
