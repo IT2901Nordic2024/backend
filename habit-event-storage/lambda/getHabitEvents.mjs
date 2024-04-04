@@ -3,6 +3,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb'
 
+// Initializing database clients for sending requests
 const client = new DynamoDBClient()
 const dynamo = new DynamoDBDocumentClient(client)
 
@@ -20,6 +21,7 @@ export const handler = async (event) => {
   }
 
   try {
+    // Validates if habitId and userId are numbers
     if (!isInt(event.pathParameters.userId)) {
       throw 'userId must be a number'
     }
@@ -28,6 +30,7 @@ export const handler = async (event) => {
       throw 'habitId must be a number'
     }
 
+    // Sends get-rquest to database and stores the response in body
     body = await dynamo.send(
       new GetCommand({
         TableName: process.env.TABLENAME,
@@ -37,13 +40,17 @@ export const handler = async (event) => {
         },
       })
     )
+
+    // Extracts relevant data from body
     body = body.Item
   } catch (error) {
+    // Returns error if somethin gwent wrong
     statusCode = 400
     body = error
   } finally {
     body = JSON.stringify(body)
   }
 
+  // Returns final response
   return { statusCode, body, headers }
 }

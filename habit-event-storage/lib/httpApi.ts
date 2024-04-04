@@ -7,6 +7,7 @@ export class HttpApi extends Construct {
   constructor(scope: Construct, id: string, props: httpApiProps) {
     super(scope, id)
 
+    // Creates the API with necessary cors settings to access from rontend
     const api = new apigwv2.HttpApi(this, 'HabitEventStorageHTTP', {
       corsPreflight: {
         allowOrigins: ['*'],
@@ -15,6 +16,7 @@ export class HttpApi extends Construct {
       apiName: 'HabitEventStorageHTTP',
     })
 
+    // Creates integrations from all lambdafunctions
     const getHabitEventIntegration = new HttpLambdaIntegration('GetHabitEventIntegration', props.getHabitEventFunction)
     const updateHabitEventIntegration = new HttpLambdaIntegration(
       'GetHabitEventIntegration',
@@ -25,6 +27,7 @@ export class HttpApi extends Construct {
       props.getHabitEventsFromUserFunction
     )
 
+    // Adds LInks different integrations to different api-routes
     api.addRoutes({
       path: '/getHabitEvents/{userId}/{habitId}',
       methods: [apigwv2.HttpMethod.GET],

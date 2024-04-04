@@ -3,6 +3,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
 
+// Initializing database client
 const client = new DynamoDBClient()
 const dynamo = new DynamoDBDocumentClient(client)
 
@@ -13,7 +14,7 @@ const isInt = (testString) => {
 
 export const handler = async (event) => {
   // Initiating response we will send back to sender
-  console.log(event.pathParameters)
+
   let body
   let statusCode = 200
   const headers = {
@@ -21,10 +22,12 @@ export const handler = async (event) => {
   }
 
   try {
+    // Throw error if userId isnt a integer
     if (!isInt(event.pathParameters.userId)) {
       throw 'userId must be a number'
     }
 
+    // Sends query to database and stores response in body
     body = await dynamo.send(
       new QueryCommand({
         TableName: process.env.TABLENAME,
@@ -36,13 +39,17 @@ export const handler = async (event) => {
       })
     )
 
+    // Extracts relevant data from body
     body = body.Items
   } catch (error) {
+    // Returns error if something went wrong
     statusCode = 400
     body = error
   } finally {
+    // Finishing touch
     body = JSON.stringify(body)
   }
 
+  // Returns data
   return { statusCode, body, headers }
 }

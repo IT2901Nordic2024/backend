@@ -3,6 +3,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { HttpApi } from './httpApi'
 
+// Type for the httpAPI below
 export type httpApiProps = {
   getHabitEventFunction: lambda.Function
   getHabitEventsFromUserFunction: lambda.Function
@@ -10,6 +11,7 @@ export type httpApiProps = {
 }
 
 export class HabitEventStorage extends Construct {
+  // Makes the functions readable for outside constructs
   public readonly getHabitEventFunction: lambda.Function
   public readonly getHabitEventsFromUserFunction: lambda.Function
   public readonly updateHabitEventFunction: lambda.Function
@@ -17,12 +19,14 @@ export class HabitEventStorage extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id)
 
+    // Creates table with partitionKey and sortKey
     const table = new dynamodb.Table(this, 'HabitEventTable', {
       tableName: 'HabitEventTable',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.NUMBER },
       sortKey: { name: 'habitId', type: dynamodb.AttributeType.NUMBER },
     })
 
+    // Creates all lambdafunctions for interracting with the database
     const getHabitEventFunction = new lambda.Function(this, 'GetHabitEventFunction', {
       functionName: 'getHabitEventById',
       handler: 'getHabitEvents.handler',
@@ -57,11 +61,12 @@ export class HabitEventStorage extends Construct {
     this.getHabitEventsFromUserFunction = getHabitEventsFromUserFunction
     this.updateHabitEventFunction = updateHabitEventFunction
 
+    // Grants all functions necessary access to the database
     table.grantReadData(getHabitEventFunction)
     table.grantReadData(getHabitEventsFromUserFunction)
     table.grantReadWriteData(updateHabitEventFunction)
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // creates HTTP API that uses the lambdafucntions to interract with the database
     const httpApi = new HttpApi(this, 'habitEventStorage', {
       getHabitEventFunction: getHabitEventFunction,
       updateHabitEventFunction: updateHabitEventFunction,
