@@ -11,7 +11,7 @@ export class HabitEventStorageStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    const habitEventStorag = new HabitEventStorage(this, 'habitEventStorage')
+    const habitEventStorage = new HabitEventStorage(this, 'habitEventStorage')
 
     // The code that defines your stack goes here
 
