@@ -46,6 +46,14 @@ https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/getHabitEvents/{userId}/
 
 - "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is ConfigureShadow. Ask you local Backend expert if you dont fin the ID
 - {userId} is the id of the user you want to add a new habit to. Currently, we only have one user with id 0
+- {habitId} is the id of the new habit you want to track
+
+**Getting all habit events from specific user**
+
+https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/getHabitEvents/{userId}
+
+- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is ConfigureShadow. Ask you local Backend expert if you dont fin the ID
+- {userId} is the id of the user you want to add a new habit to. Currently, we only have one user with id 0
 
 ### configure-shadow-api
 
@@ -58,7 +66,7 @@ https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/updateshadow/{deviceId}/
 - "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is ConfigureShadow. Ask you local Backend expert if you dont fin the ID
 - {deviceId} is ID of device you want to update
 - {updatedSide} is the device side you want to add a new habit to
-- {relatedActivityId} is the ID of the new habit you want to track
+- {relatedHabitId} is the ID of the new habit you want to track
 - The "{}" brackets should not be included in the url, just write someDeviceId/5/456
 
 **Getting device shadow**
