@@ -1,6 +1,6 @@
 # Imports
 import keyboard
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 from awscrt import  mqtt5
 from awsiot import mqtt5_client_builder
@@ -23,9 +23,9 @@ class HabitTracker:
             "name":"coffee"
         },
         1:{
-            "id": "",
-            "type":"",
-            "name":""
+            "id": 124,
+            "type":"timer",
+            "name":"jogging"
         },
         2:{
             "id": "",
@@ -127,37 +127,74 @@ class HabitTracker:
         print("Connection failed with exception:{}".format(lifecycle_connection_failure.exception))
 
 
-    def publish_message(self, format, mqtt_topic, habit_id, data):
-        message = {
-            "deviceTimestamp": int(round(datetime.timestamp(datetime.now()))),
-            "habitId": habit_id,
-            "value": data
-        }
+    def publish_message(self, format, mqtt_topic, habit_id, data, type):
+        
+        match type:
+            case "count":
+                message = {
+                    "device_timestamp": int(round(datetime.timestamp(datetime.now()))),
+                    "habit_id": habit_id,
+                    "data": data
+                }
 
-        match format:
-            case "JSON":
-                print("publishing message in JSON format")
-                self.client.publish(mqtt5.PublishPacket(
-                    topic = mqtt_topic,
-                    payload = json.dumps(message),
-                    qos = mqtt5.QoS.AT_LEAST_ONCE
-                ))
-                print("Message published")
+                match format:
+                    case "JSON":
+                        print("publishing message in JSON format")
+                        self.client.publish(mqtt5.PublishPacket(
+                            topic = mqtt_topic,
+                            payload = json.dumps(message),
+                            qos = mqtt5.QoS.AT_LEAST_ONCE
+                        ))
+                        print("Message published")
 
-            # For more information about how to send protobuf messages with python see:
-            # https://www.freecodecamp.org/news/googles-protocol-buffers-in-python/
-            case "proto_buff":
-                payload = firmwareMessage(device_timestamp=message["deviceTimestamp"], habit_id=message["habitId"], data=message["value"]).SerializeToString()
-                print("publishing message in protocol buffers format")
-                self.client.publish(mqtt5.PublishPacket(
-                    topic = mqtt_topic,
-                    payload = payload,
-                    qos = mqtt5.QoS.AT_LEAST_ONCE
-                ))
-                print("payload: {}".format(payload))
-                print("Sent to topic {}".format(mqtt_topic))
-            case _:
-                raise Exception("The provided format must either be JSON or proto_buff")
+                    # For more information about how to send protobuf messages with python see:
+                    # https://www.freecodecamp.org/news/googles-protocol-buffers-in-python/
+                    case "proto_buff":
+                        payload = firmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], data=message["data"]).SerializeToString()
+                        print("publishing message in protocol buffers format")
+                        self.client.publish(mqtt5.PublishPacket(
+                            topic = mqtt_topic,
+                            payload = payload,
+                            qos = mqtt5.QoS.AT_LEAST_ONCE
+                        ))
+                        print("payload: {}".format(payload))
+                        print("Sent to topic {}".format(mqtt_topic))
+                    case _:
+                        raise Exception("The provided format must either be JSON or proto_buff")
+            
+            case "timer":
+                message = {
+                    "device_timestamp": int(round(datetime.timestamp(datetime.now()))),
+                    "habit_id": habit_id,
+                    "start_timestamp": int(round(datetime.timestamp(datetime.now()))),
+                    "stop_timestamp": int(round(datetime.timestamp(datetime.now() - timedelta(hours=0, minutes=5)))) # Subtracks 5 min from current time
+                    }
+                match format:
+                    case "JSON":
+                        print("publishing message in JSON format")
+                        self.client.publish(mqtt5.PublishPacket(
+                            topic = mqtt_topic,
+                            payload = json.dumps(message),
+                            qos = mqtt5.QoS.AT_LEAST_ONCE
+                        ))
+                        print("Message published")
+
+                    # For more information about how to send protobuf messages with python see:
+                    # https://www.freecodecamp.org/news/googles-protocol-buffers-in-python/
+                    case "proto_buff":
+                        payload = firmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], start_timestamp=message["start_timestamp"], stop_timestamp=message["stop_timestamp"]).SerializeToString()
+                        print("publishing message in protocol buffers format")
+                        self.client.publish(mqtt5.PublishPacket(
+                            topic = mqtt_topic,
+                            payload = payload,
+                            qos = mqtt5.QoS.AT_LEAST_ONCE
+                        ))
+                        print("payload: {}".format(payload))
+                        print("Sent to topic {}".format(mqtt_topic))
+                    case _:
+                        raise Exception("The provided format must either be JSON or proto_buff")
+
+
     
     def subscribe(self,topic):
         """Method that allows the HabitTracker to subscribe to an MQTT5 topic.
@@ -263,7 +300,7 @@ class HabitTracker:
 
             #-------------------MQTT-------------------
                 #self.start_connection() # Start connection to MQTT broker
-                self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data)
+                self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data, type=habit_type)
                 time.sleep(1)
                 print("Press ESCAPE to terminate program or Enter a side to interact with: ")
 
