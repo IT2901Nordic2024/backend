@@ -36,6 +36,17 @@ https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/createHabit/{userId}/{de
 - {deviceSide} is the side of the device you want to connect to. This is 0-indexed and works with all numbers from 0 to 11
 - The "{}" brackets should not be included in the url, just write 0/TestDK/treehugging/time
 
+### habit-event-storage
+
+This contains all the habit events for the users
+
+**Getting data from user with a specific habitId**
+
+https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/getHabitEvents/{userId}/{habitId}
+
+- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is ConfigureShadow. Ask you local Backend expert if you dont fin the ID
+- {userId} is the id of the user you want to add a new habit to. Currently, we only have one user with id 0
+
 ### configure-shadow-api
 
 This is an API for configuring the shadow of a users device. Format for HTTP request below
