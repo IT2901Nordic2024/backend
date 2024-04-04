@@ -5,9 +5,7 @@ import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane' // ES Modules import
 
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
-const ddbclient = new DynamoDBClient({
-  logger: console.log(),
-})
+const ddbclient = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(ddbclient)
 const tableName = process.env.HABIT_TABLE_NAME
 

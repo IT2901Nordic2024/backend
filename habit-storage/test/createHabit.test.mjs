@@ -1,5 +1,5 @@
 import { mockClient } from 'aws-sdk-client-mock'
-import { handler } from './createHabit.mjs'
+import { handler } from '../lambda/createHabit.mjs'
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane'
 import { expect, describe, beforeEach, it } from '@jest/globals'

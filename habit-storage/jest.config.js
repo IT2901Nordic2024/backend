@@ -2,7 +2,7 @@
 
 module.exports = {
   testEnvironment: 'node',
-  roots: ['<rootDir>/lambda'],
+  roots: ['<rootDir>/test'],
   testMatch: ['**/*.test.mjs'],
   transform: {},
 }

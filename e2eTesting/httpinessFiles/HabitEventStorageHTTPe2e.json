@@ -1,0 +1,41 @@
+{
+  "collectionVersion": "httpiness/JSON/0.11",
+  "uuid": "bda53af0-d721-49b2-aa6a-e95ce4e4bd88",
+  "authChildren": [],
+  "dirChildren": [],
+  "reqtChildren": [
+    {
+      "name": "Get habit by userId and habitId",
+      "rawRequest": {
+        "method": "GET",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/getHabitEvents/${userId}/${habitId}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "Get habit by userId",
+      "rawRequest": {
+        "method": "GET",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/getHabitEvents/${userId}",
+        "headers": [],
+        "body": null
+      }
+    }
+  ],
+  "parameters": {
+    "API_ID": "******sensitive******",
+    "userId": "0",
+    "habitId": "1"
+  },
+  "parameterPresets": [
+    {
+      "name": "Development",
+      "macros": []
+    },
+    {
+      "name": "Production",
+      "macros": []
+    }
+  ]
+}
