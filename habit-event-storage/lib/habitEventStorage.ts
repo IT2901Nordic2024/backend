@@ -35,7 +35,7 @@ export class HabitEventStorage extends Construct {
 
     const getHabitEventsFromUserFunction = new lambda.Function(this, 'GetHabitEventFromUserFunction', {
       functionName: 'getHabitEventsFromUser',
-      handler: 'getHabitEventByUser.handler',
+      handler: 'getHabitEventFromUser.handler',
       code: lambda.Code.fromAsset('lambda'),
       runtime: lambda.Runtime.NODEJS_20_X,
       environment: {
