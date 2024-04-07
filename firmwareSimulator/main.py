@@ -1,3 +1,4 @@
+
 from habitTracker import HabitTracker
 
 
@@ -21,6 +22,7 @@ tracker = HabitTracker(client_id="firmwareSimulatorThing",
 
 print("Start")
 print("Creating client")
+
 tracker.create_client()
 print("Client created")
 tracker.start_connection()
