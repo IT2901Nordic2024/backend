@@ -11,6 +11,7 @@ export class HabitStorage extends Construct {
   // Making handler and table public for all
   public readonly table: dynamodb.Table
   public readonly getHabitsHandler: lambda.Function
+  public readonly getHabitsWithSideHandler: lambda.Function
   public readonly createHabitHandler: lambda.Function
 
   constructor(scope: Construct, id: string) {
@@ -42,12 +43,24 @@ export class HabitStorage extends Construct {
     })
 
     // Handler for accessing DynamoDB table
-    const getHabitsHandler = new lambda.Function(this, 'postHandler', {
+    const getHabitsHandler = new lambda.Function(this, 'GetHabitsHandler', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getHabits.handler',
       code: lambda.Code.fromAsset('lambda'),
-      functionName: 'getHabits',
+      functionName: 'GetHabits',
 
+      environment: {
+        HABIT_TABLE_NAME: habitTable.tableName,
+      },
+    })
+
+    // TODO: Update role or give this an exclusive role
+    const getHabitWithSide = new lambda.Function(this, 'GetHabitWithSideFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'getHabitsWithSide.handler',
+      code: lambda.Code.fromAsset('lambda'),
+      functionName: 'GetHabitWithSide',
+      role: createHabitHandlerRole,
       environment: {
         HABIT_TABLE_NAME: habitTable.tableName,
       },
@@ -69,9 +82,11 @@ export class HabitStorage extends Construct {
     this.table = habitTable
     this.getHabitsHandler = getHabitsHandler
     this.createHabitHandler = createHabitHandler
+    this.getHabitsWithSideHandler = getHabitWithSide
 
     // Granting handler read and write access to the table
     habitTable.grantReadWriteData(this.getHabitsHandler)
     habitTable.grantReadWriteData(this.createHabitHandler)
+    habitTable.grantReadData(this.getHabitsWithSideHandler)
   }
 }
