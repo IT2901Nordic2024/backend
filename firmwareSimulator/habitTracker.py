@@ -166,8 +166,8 @@ class HabitTracker:
                 message = {
                     "device_timestamp": int(round(datetime.timestamp(datetime.now()))),
                     "habit_id": habit_id,
-                    "start_timestamp": int(round(datetime.timestamp(datetime.now()))),
-                    "stop_timestamp": int(round(datetime.timestamp(datetime.now() - timedelta(hours=0, minutes=5)))) # Subtracks 5 min from current time
+                    "start_timestamp": int(round(datetime.timestamp(datetime.now() - timedelta(hours=0, minutes=5))),  # Subtracks 5 min from current time
+                    "stop_timestamp": int(round(datetime.timestamp(datetime.now()))) 
                     }
                 match format:
                     case "JSON":
