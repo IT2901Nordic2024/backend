@@ -162,7 +162,7 @@ class HabitTracker:
                     case _:
                         raise Exception("The provided format must either be JSON or proto_buff")
             
-            case "timer":
+            case "time":
                 message = {
                     "device_timestamp": int(round(datetime.timestamp(datetime.now()))),
                     "habit_id": habit_id,
