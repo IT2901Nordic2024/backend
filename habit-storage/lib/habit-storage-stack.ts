@@ -42,7 +42,7 @@ export class HabitStorageStack extends cdk.Stack {
     })
 
     httpApi.addRoutes({
-      path: '/getHabitsWithSide/{userId}/{thingName}',
+      path: '/getHabitsWithSide/{userId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: getHabitsWithSideIntegration,
     })

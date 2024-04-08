@@ -42,11 +42,10 @@ export const handler = async (event) => {
   // Create variable for storing habit
   let response
 
-  // Getting unnamed thing shadow, or send error messager
+  // Getting unnamed thing shadow from deviceId associated with the user
   try {
-    // Getting shadow of relate thing
     const command = new GetThingShadowCommand({
-      thingName: event.pathParameters.thingName,
+      thingName: body.deviceId,
     })
     response = await iotClient.send(command)
   } catch (err) {
