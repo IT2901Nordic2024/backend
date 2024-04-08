@@ -37,8 +37,8 @@ export class HabitStorage extends Construct {
     )
 
     // Creating DynamoDB table. Sort key is included in case more than one row is needed
-    const habitTable = new dynamodb.Table(this, 'HabitTable', {
-      tableName: 'HabitTable',
+    const userDataTable = new dynamodb.Table(this, 'UserDataTable', {
+      tableName: 'UserDataTable',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.NUMBER },
     })
 
@@ -50,7 +50,7 @@ export class HabitStorage extends Construct {
       functionName: 'GetHabits',
 
       environment: {
-        HABIT_TABLE_NAME: habitTable.tableName,
+        HABIT_TABLE_NAME: userDataTable.tableName,
       },
     })
 
@@ -62,7 +62,7 @@ export class HabitStorage extends Construct {
       functionName: 'GetHabitWithSide',
       role: createHabitHandlerRole,
       environment: {
-        HABIT_TABLE_NAME: habitTable.tableName,
+        HABIT_TABLE_NAME: userDataTable.tableName,
       },
     })
 
@@ -74,19 +74,19 @@ export class HabitStorage extends Construct {
       role: createHabitHandlerRole,
 
       environment: {
-        HABIT_TABLE_NAME: habitTable.tableName,
+        HABIT_TABLE_NAME: userDataTable.tableName,
       },
     })
 
     // Setting the table and handler for this construct
-    this.table = habitTable
+    this.table = userDataTable
     this.getHabitsHandler = getHabitsHandler
     this.createHabitHandler = createHabitHandler
     this.getHabitsWithSideHandler = getHabitWithSide
 
     // Granting handler read and write access to the table
-    habitTable.grantReadWriteData(this.getHabitsHandler)
-    habitTable.grantReadWriteData(this.createHabitHandler)
-    habitTable.grantReadData(this.getHabitsWithSideHandler)
+    userDataTable.grantReadWriteData(this.getHabitsHandler)
+    userDataTable.grantReadWriteData(this.createHabitHandler)
+    userDataTable.grantReadData(this.getHabitsWithSideHandler)
   }
 }
