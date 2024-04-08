@@ -10,21 +10,15 @@ Each of the stacks below has its own API-id. The ids can be found in the AWS API
 
 This stack uses API Gateway, DynamoDB and Lambda to get and update the users habit. Format for different HTTP routes below
 
-**Getting all data from all users**
+**Getting all userdata (including habits) from user**
 
-https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/habits
-
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you dont fin the ID
-
-**Getting data from a specific user**
-
-https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/habits/{userId}
+https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/getHabitsWithSide/{userId}
 
 - "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you dont fin the ID
-- {userId} is the id of the user you want to get the data from. Currently, we only have one user with id 0
-- The "{}" brackets should not be included in the url, just write someDeviceId/5/456
+- {userId} is the id of the user you want to get the data from. Currently, we only have one user with id 0. His name is Frode
+- The "{}" brackets should not be included in the url, just write getHabitsWithSide/0
 
-**Adding a new habit for a user**
+**Adding a new habit to a user**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/createHabit/{userId}/{deviceId}/{habitName}/{habitType}/{deviceSide}
 

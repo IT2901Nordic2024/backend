@@ -2,7 +2,7 @@
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
-import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane' // ES Modules import
+import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane'
 
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
 const ddbclient = new DynamoDBClient({})
@@ -63,7 +63,7 @@ export const handler = async (event) => {
     const newHabit = {
       habitId: habitId,
       habitName: event.pathParameters.habitName,
-      habitType: event.pathParameters.habitType,
+      habitType: event.pathParameters.habitType.toUpperCase(),
       deviceId: event.pathParameters.deviceId,
     }
 

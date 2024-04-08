@@ -11,6 +11,7 @@ export class HabitStorage extends Construct {
   // Making handler and table public for all
   public readonly table: dynamodb.Table
   public readonly getHabitsHandler: lambda.Function
+  public readonly getHabitsWithSideHandler: lambda.Function
   public readonly createHabitHandler: lambda.Function
 
   constructor(scope: Construct, id: string) {
@@ -36,20 +37,33 @@ export class HabitStorage extends Construct {
     )
 
     // Creating DynamoDB table. Sort key is included in case more than one row is needed
-    const habitTable = new dynamodb.Table(this, 'HabitTable', {
-      tableName: 'HabitTable',
+    const userDataTable = new dynamodb.Table(this, 'UserDataTable', {
+      tableName: 'UserDataTable',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.NUMBER },
     })
 
     // Handler for accessing DynamoDB table
-    const getHabitsHandler = new lambda.Function(this, 'postHandler', {
+    // TODO: DELETE THIS AFTER CONFIRMING IT IS NOT USED IN FRONTEND
+    const getHabitsHandler = new lambda.Function(this, 'GetHabitsHandler', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getHabits.handler',
       code: lambda.Code.fromAsset('lambda'),
-      functionName: 'getHabits',
+      functionName: 'GetHabits',
 
       environment: {
-        HABIT_TABLE_NAME: habitTable.tableName,
+        HABIT_TABLE_NAME: userDataTable.tableName,
+      },
+    })
+
+    // TODO: Update role or give this an exclusive role
+    const getHabitWithSide = new lambda.Function(this, 'GetHabitWithSideFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'getHabitsWithSide.handler',
+      code: lambda.Code.fromAsset('lambda'),
+      functionName: 'GetHabitWithSide',
+      role: createHabitHandlerRole,
+      environment: {
+        HABIT_TABLE_NAME: userDataTable.tableName,
       },
     })
 
@@ -61,17 +75,19 @@ export class HabitStorage extends Construct {
       role: createHabitHandlerRole,
 
       environment: {
-        HABIT_TABLE_NAME: habitTable.tableName,
+        HABIT_TABLE_NAME: userDataTable.tableName,
       },
     })
 
     // Setting the table and handler for this construct
-    this.table = habitTable
+    this.table = userDataTable
     this.getHabitsHandler = getHabitsHandler
     this.createHabitHandler = createHabitHandler
+    this.getHabitsWithSideHandler = getHabitWithSide
 
     // Granting handler read and write access to the table
-    habitTable.grantReadWriteData(this.getHabitsHandler)
-    habitTable.grantReadWriteData(this.createHabitHandler)
+    userDataTable.grantReadWriteData(this.getHabitsHandler)
+    userDataTable.grantReadWriteData(this.createHabitHandler)
+    userDataTable.grantReadData(this.getHabitsWithSideHandler)
   }
 }

@@ -18,14 +18,19 @@ export class HabitStorageStack extends cdk.Stack {
     })
 
     //Integration for lambda function
-    const getHabitsLambdaIntegration = new HttpLambdaIntegration('getHabitEvents', habitStorage.getHabitsHandler)
+    const getHabitsLambdaIntegration = new HttpLambdaIntegration('GetHabitEvents', habitStorage.getHabitsHandler)
     const createHabitLambdaIntegration = new HttpLambdaIntegration(
       'CreateHabitIntegration',
       habitStorage.createHabitHandler,
     )
+    const getHabitsWithSideIntegration = new HttpLambdaIntegration(
+      'GetHabitsWithSideIntegration',
+      habitStorage.getHabitsWithSideHandler,
+    )
 
     //Adding integration to relevant API routes
     httpApi.addRoutes({
+      // TODO: REMOVE THIS AFTER ASKING FRONTEND IF THEY USE IT /getHabitsWithSide/{userId}
       path: '/habits',
       methods: [apigwv2.HttpMethod.GET],
       integration: getHabitsLambdaIntegration,
@@ -34,7 +39,7 @@ export class HabitStorageStack extends cdk.Stack {
     httpApi.addRoutes({
       path: '/habits/{userId}',
       methods: [apigwv2.HttpMethod.GET],
-      integration: getHabitsLambdaIntegration,
+      integration: getHabitsWithSideIntegration,
     })
 
     httpApi.addRoutes({

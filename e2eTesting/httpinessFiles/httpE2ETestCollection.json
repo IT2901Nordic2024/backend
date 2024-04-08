@@ -5,7 +5,7 @@
   "dirChildren": [],
   "reqtChildren": [
     {
-      "name": "getHabit{userId}",
+      "name": "getHabit",
       "rawRequest": {
         "method": "GET",
         "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/habits/${userId}",
