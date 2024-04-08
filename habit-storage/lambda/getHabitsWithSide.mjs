@@ -8,7 +8,7 @@ import { IoTDataPlaneClient, GetThingShadowCommand } from '@aws-sdk/client-iot-d
 const iotClient = new IoTDataPlaneClient({})
 const ddbclient = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(ddbclient)
-const tableName = process.env.HABIT_TABLE_NAME
+const tableName = process.env.USER_DATA_TABLENAME
 
 export const handler = async (event) => {
   // Initiating response we will send back to sender

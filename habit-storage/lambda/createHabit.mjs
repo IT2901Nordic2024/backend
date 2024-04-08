@@ -7,7 +7,7 @@ import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-io
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
 const ddbclient = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(ddbclient)
-const tableName = process.env.HABIT_TABLE_NAME
+const tableName = process.env.USER_DATA_TABLENAME
 
 const iotClient = new IoTDataPlaneClient({})
 

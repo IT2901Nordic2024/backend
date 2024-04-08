@@ -51,7 +51,7 @@ export class HabitStorage extends Construct {
       functionName: 'GetHabits',
 
       environment: {
-        HABIT_TABLE_NAME: userDataTable.tableName,
+        USER_DATA_TABLENAME: userDataTable.tableName,
       },
     })
 
@@ -63,7 +63,7 @@ export class HabitStorage extends Construct {
       functionName: 'GetHabitWithSide',
       role: createHabitHandlerRole,
       environment: {
-        HABIT_TABLE_NAME: userDataTable.tableName,
+        USER_DATA_TABLENAME: userDataTable.tableName,
       },
     })
 
@@ -75,7 +75,7 @@ export class HabitStorage extends Construct {
       role: createHabitHandlerRole,
 
       environment: {
-        HABIT_TABLE_NAME: userDataTable.tableName,
+        USER_DATA_TABLENAME: userDataTable.tableName,
       },
     })
 
