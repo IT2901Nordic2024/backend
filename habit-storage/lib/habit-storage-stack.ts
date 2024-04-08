@@ -30,13 +30,14 @@ export class HabitStorageStack extends cdk.Stack {
 
     //Adding integration to relevant API routes
     httpApi.addRoutes({
+      // TODO: REMOVE THIS AFTER FRONTEND HAS STARTED USING /getHabitsWithSide/{userId}
       path: '/habits',
       methods: [apigwv2.HttpMethod.GET],
       integration: getHabitsLambdaIntegration,
     })
 
     httpApi.addRoutes({
-      path: '/habits/{userId}',
+      path: '/habits/{userId}', // TODO: REMOVE THIS AFTER FRONTEND HAS STARTED USING /getHabitsWithSide/{userId}
       methods: [apigwv2.HttpMethod.GET],
       integration: getHabitsLambdaIntegration,
     })
