@@ -1,9 +1,11 @@
 
-™
+ê
 fromFirmwareToBackend.proto
-habit_data"f
+habit_data"¶
 
 habit_data)
 device_timestamp (RdeviceTimestamp
 habit_id (RhabitId
-data (Rdatabproto3
+data (Rdata'
+start_timestamp (RstartTimestamp%
+stop_timestamp (RstopTimestampbproto3
