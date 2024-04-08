@@ -43,6 +43,7 @@ export class HabitStorage extends Construct {
     })
 
     // Handler for accessing DynamoDB table
+    // TODO: DELETE THIS AFTER CONFIRMING IT IS NOT USED IN FRONTEND
     const getHabitsHandler = new lambda.Function(this, 'GetHabitsHandler', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getHabits.handler',
