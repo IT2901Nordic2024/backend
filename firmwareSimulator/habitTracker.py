@@ -1,6 +1,6 @@
 # Imports
 import keyboard
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 from awscrt import  mqtt5
 from awsiot import mqtt5_client_builder
@@ -23,9 +23,9 @@ class HabitTracker:
             "name":"coffee"
         },
         1:{
-            "id": "",
-            "type":"",
-            "name":""
+            "id": 124,
+            "type":"time",
+            "name":"jogging"
         },
         2:{
             "id": "",
@@ -127,12 +127,49 @@ class HabitTracker:
         print("Connection failed with exception:{}".format(lifecycle_connection_failure.exception))
 
 
-    def publish_message(self, format, mqtt_topic, habit_id, data):
-        message = {
-            "deviceTimestamp": int(round(datetime.timestamp(datetime.now()))),
-            "habitId": habit_id,
-            "value": data
-        }
+    def publish_message(self, format, mqtt_topic, habit_id, data, habit_type):
+        """Method that publishes a message to an AWS MQTT topic either in JSOn format or in protocol buffers format.
+        -----------
+        Parameters:
+        -----------
+
+        format:     (string) The format the message is to be published in. Either 'JSON' or 'proto_buff'
+        mqtt_topic: (string) The MQTT topic the message is to be published to.
+        habit_id:   (int)    The number identifying the habit 
+        data:       (tuple)  some form of data to be sent. In case of the habit type "count" it might be the number of increments / the amount of counted incidents,
+                             in the case of the "time" type of habit, it contains the start_timestamp, the stop_timestamp and some additional data.
+                             It is assumed that data is the first element, irrespective of the habit type, star_timestamp is the 2nd element
+                             and stop_timestamp is the 3rd element.
+        habit_type: (string) The type of habit, for instance "count" or "time"
+           
+        """
+        device_timestamp = int(round(datetime.timestamp(datetime.now()))) # The timestamp of when the message is sent from the device
+
+        match habit_type:
+            case "count":
+                # For JSON format
+                message = {
+                    "device_timestamp": device_timestamp,
+                    "habit_id": habit_id,
+                    "data": data[0] # The data is a the first element in the data array 
+                }
+                # For protocol buffers format
+                payload = firmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], data=message["data"]).SerializeToString()
+                
+            case "time":
+                # For JSON format
+                message = {
+                    "device_timestamp": device_timestamp,
+                    "habit_id": habit_id,
+                    "start_timestamp": data[1],
+                    "stop_timestamp": data[2]
+                }
+                
+                # For protocol buffers format
+                payload = firmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], start_timestamp=message["start_timestamp"], stop_timestamp=message["stop_timestamp"]).SerializeToString()
+            
+            case _:
+                raise Exception("The provided habit_type ({}) is not recognised".format(habit_type))
 
         match format:
             case "JSON":
@@ -147,7 +184,6 @@ class HabitTracker:
             # For more information about how to send protobuf messages with python see:
             # https://www.freecodecamp.org/news/googles-protocol-buffers-in-python/
             case "proto_buff":
-                payload = firmwareMessage(device_timestamp=message["deviceTimestamp"], habit_id=message["habitId"], data=message["value"]).SerializeToString()
                 print("publishing message in protocol buffers format")
                 self.client.publish(mqtt5.PublishPacket(
                     topic = mqtt_topic,
@@ -158,6 +194,8 @@ class HabitTracker:
                 print("Sent to topic {}".format(mqtt_topic))
             case _:
                 raise Exception("The provided format must either be JSON or proto_buff")
+            
+
     
     def subscribe(self,topic):
         """Method that allows the HabitTracker to subscribe to an MQTT5 topic.
@@ -229,13 +267,18 @@ class HabitTracker:
     
     def execute_habit(self, habit_type):
         """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
+        The output is returned as a list.
         It was necessary to call the input variable for habitType, because type is a python keyword."""
         match habit_type:
             case "count":
-                return 1                                 # Returns an increment value of 1
-            case "timer":
+                counted = 1
+                return (counted,)                                 # Returns an increment value of 1 as a tuple
+            case "time":
                 now = datetime.now()
-                return int(round(datetime.timestamp(now)))  # Returns the current timestamp as integer
+                start_timestamp = int(round(datetime.timestamp(now - timedelta(hours=0, minutes=5))))  # Start before stop: Subtracks 5 min from current time
+                stop_timestamp = int(round(datetime.timestamp(now)))
+                data = None # Change when there is actual data to be sent (additionally to the timestamps)
+                return (data, start_timestamp, stop_timestamp)  # Returns the bot timestamps as values in a tuple, data is the first element in the tuple (for consistency with the "count" case)
             case _:                                      
                 raise Exception("This habit type does not exist")   # Throws an error if the provided habit type does not exist
 
@@ -263,7 +306,7 @@ class HabitTracker:
 
             #-------------------MQTT-------------------
                 #self.start_connection() # Start connection to MQTT broker
-                self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data)
+                self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data, habit_type=habit_type)
                 time.sleep(1)
                 print("Press ESCAPE to terminate program or Enter a side to interact with: ")
 
