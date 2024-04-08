@@ -5,9 +5,9 @@ from habitTracker import HabitTracker
 #---------------------------------------------------------------------------
 #                                       Constants                     
 #---------------------------------------------------------------------------
-CERT_FILEPATH = "certificates\\firmwareSimulatorThing.cert.pem"
-PRI_KEY_FILEPATH = "certificates\\firmwareSimulatorThing.private.key"
-CA_FILEPATH = "certificates\\root.pem"
+CERT_FILEPATH = "firmwareSimulator\\certificates\\firmwareSimulatorThing.cert.pem"
+PRI_KEY_FILEPATH = "firmwareSimulator\\certificates\\firmwareSimulatorThing.private.key"
+CA_FILEPATH = "firmwareSimulator\\certificates\\root.pem"
 AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
 
 
