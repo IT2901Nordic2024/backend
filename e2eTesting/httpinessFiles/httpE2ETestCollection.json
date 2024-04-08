@@ -26,7 +26,7 @@
       "name": "getHabitsWithSide",
       "rawRequest": {
         "method": "GET",
-        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/getHabitsWithSide/${userId}/${thingName}",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/getHabitsWithSide/${userId}",
         "headers": [],
         "body": null
       }
@@ -38,8 +38,7 @@
     "deviceId": "MyIotThing",
     "habitName": "fishing",
     "habitType": "time",
-    "deviceSide": "4",
-    "thingName": "firmwareSimulatorThing"
+    "deviceSide": "4"
   },
   "parameterPresets": [
     {
