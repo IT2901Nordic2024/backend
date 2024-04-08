@@ -63,7 +63,7 @@ export const handler = async (event) => {
     const newHabit = {
       habitId: habitId,
       habitName: event.pathParameters.habitName,
-      habitType: event.pathParameters.habitType,
+      habitType: event.pathParameters.habitType.toUpperCase(),
       deviceId: event.pathParameters.deviceId,
     }
 

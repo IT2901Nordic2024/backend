@@ -76,8 +76,10 @@ export const handler = async (event) => {
   const habits = body.habits
 
   // Matches every habit with every device-side to see if their ids match. If yes, add side = index to the habit
+  // Also changes all habittypes to lowercase, due to firmware wanting it to be upper case in database
   habits.forEach((habit) => {
     let index = 0
+    habit.habitType = habit.habitType.toLowerCase()
     sides.forEach((side) => {
       if (habit.habitId == side) {
         habit.side = index
