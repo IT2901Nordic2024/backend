@@ -5,7 +5,7 @@
   "dirChildren": [],
   "reqtChildren": [
     {
-      "name": "getHabit{userId}",
+      "name": "getHabit",
       "rawRequest": {
         "method": "GET",
         "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/habits/${userId}",
@@ -21,6 +21,15 @@
         "headers": [],
         "body": null
       }
+    },
+    {
+      "name": "getHabitsWithSide",
+      "rawRequest": {
+        "method": "GET",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/getHabitsWithSide/${userId}/${thingName}",
+        "headers": [],
+        "body": null
+      }
     }
   ],
   "parameters": {
@@ -29,7 +38,8 @@
     "deviceId": "MyIotThing",
     "habitName": "fishing",
     "habitType": "time",
-    "deviceSide": "4"
+    "deviceSide": "4",
+    "thingName": "firmwareSimulatorThing"
   },
   "parameterPresets": [
     {
