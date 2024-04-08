@@ -21,15 +21,6 @@
         "headers": [],
         "body": null
       }
-    },
-    {
-      "name": "getHabitsWithSide",
-      "rawRequest": {
-        "method": "GET",
-        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/getHabitsWithSide/${userId}",
-        "headers": [],
-        "body": null
-      }
     }
   ],
   "parameters": {
