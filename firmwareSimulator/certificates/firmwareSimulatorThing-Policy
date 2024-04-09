@@ -11,7 +11,7 @@
       "Resource": [
         "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}",
         "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}/updates",
-        "arn:aws:iot:*:*:topic/habitTrackerData/0"
+        "arn:aws:iot:*:*:topic/habitTrackerData/firmwareSimulatorThing"
       ]
     },
     {

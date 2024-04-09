@@ -15,6 +15,7 @@ export class HabitEventStorage extends Construct {
   public readonly getHabitEventFunction: lambda.Function
   public readonly getHabitEventsFromUserFunction: lambda.Function
   public readonly updateHabitEventFunction: lambda.Function
+  public readonly habitEventTable: dynamodb.Table
 
   constructor(scope: Construct, id: string) {
     super(scope, id)
@@ -60,6 +61,7 @@ export class HabitEventStorage extends Construct {
     this.getHabitEventFunction = getHabitEventFunction
     this.getHabitEventsFromUserFunction = getHabitEventsFromUserFunction
     this.updateHabitEventFunction = updateHabitEventFunction
+    this.habitEventTable = table
 
     // Grants all functions necessary access to the database
     table.grantReadData(getHabitEventFunction)

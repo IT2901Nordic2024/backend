@@ -5,7 +5,6 @@ import { aws_iot, aws_iam, aws_s3_deployment, Stack } from 'aws-cdk-lib'
 import * as path from 'path'
 import * as s3 from 'aws-cdk-lib/aws-s3'
 import { HabitEventStorage } from './habitEventStorage'
-import { write } from 'fs'
 
 export class HabitEventStorageStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -58,6 +57,23 @@ export class HabitEventStorageStack extends cdk.Stack {
     //        DECODING AND STORING INCOMMING MESSAGES FROM HABIT TRACKER
     //---------------------------------------------------------------------------
 
+    // Role with permission to interact with our dynamoDB tables
+    const interactWithDynamoDBRole = new aws_iam.Role(this, 'interactWithDynamoDBRole', {
+      assumedBy: new aws_iam.ServicePrincipal('lambda.amazonaws.com'),
+    })
+
+    const interactWithDynamoDBPolicy = new aws_iam.Policy(this, 'interactWithDynamoDBPolicy', {
+      statements: [
+        new aws_iam.PolicyStatement({
+          actions: ['dynamodb:Query', 'dynamodb:UpdateTable'],
+          resources: [],
+        }),
+      ],
+    })
+
+    // Granting lambda function read and write access to habitEventtable
+    //habitEventStorage.habitEventTable.grantReadWriteData(storingHabitDataLambda)
+
     /**
      * Lambda function that translates incomming messages in protocol buffer format into
      * messages in JSON.
@@ -67,6 +83,10 @@ export class HabitEventStorageStack extends cdk.Stack {
 
       runtime: lambda.Runtime.NODEJS_20_X, // the runtime environment for the lambda function
       handler: 'storingHabitDataLambda.handler', // The name of the method that lambda calls to execute this function. It is the filename.nameOfHandlerMethod
+      environment: {
+        HABIT_EVENT_TABLENAME: habitEventStorage.habitEventTable.tableName, // DynamoDB table for storing habits
+        USER_DATA_TABLENAME: 'UserDataTable', // DynamoDB table for users and their devices
+      },
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')), // Gets the source code of the lambda function from the lambda directory/folder
       functionName: 'storingHabitDataLambda', // Name of the function,
       description:
@@ -114,6 +134,7 @@ export class HabitEventStorageStack extends cdk.Stack {
      * https://www.youtube.com/watch?v=WrU_zh7ofys&t=33s (The format of the sql request in this video is no longer up to date, at least in resulted in errors here)
      * https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-from.html
      * https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-functions.html#iot-sql-decode-base64 (The format here is what worked)
+     * https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-select.html
      * https://protobuf.dev/
      * https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_iot.CfnTopicRule.html
      * https://docs.aws.amazon.com/iot/latest/developerguide/republish-rule-action.html
@@ -122,7 +143,7 @@ export class HabitEventStorageStack extends cdk.Stack {
      */
     const protocolBuffersToJSONRule = new aws_iot.CfnTopicRule(this, 'ProtocolBuffersToJSONRule', {
       topicRulePayload: {
-        sql: `SELECT VALUE decode(*, 'proto', '${protocolBuffersDescriptorFilesBucket.bucketName}','fromFirmwareToBackend.desc','fromFirmwareToBackend','habit_data') FROM 'habitTrackerData/+'`,
+        sql: `SELECT decode(*, 'proto', '${protocolBuffersDescriptorFilesBucket.bucketName}','fromFirmwareToBackend.desc','fromFirmwareToBackend','habit_data') AS payload, topic(2) AS deviceId  FROM 'habitTrackerData/+'`,
         actions: [
           {
             lambda: {

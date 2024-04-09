@@ -19,12 +19,12 @@ class HabitTracker:
         self._dodecahedron = { 
         0:{
             "id": 123,
-            "type":"count",
+            "type":"COUNT",
             "name":"coffee"
         },
         1:{
             "id": 124,
-            "type":"time",
+            "type":"TIME",
             "name":"jogging"
         },
         2:{
@@ -146,7 +146,7 @@ class HabitTracker:
         device_timestamp = int(round(datetime.timestamp(datetime.now()))) # The timestamp of when the message is sent from the device
 
         match habit_type:
-            case "count":
+            case "COUNT":
                 # For JSON format
                 message = {
                     "device_timestamp": device_timestamp,
@@ -156,7 +156,7 @@ class HabitTracker:
                 # For protocol buffers format
                 payload = firmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], data=message["data"]).SerializeToString()
                 
-            case "time":
+            case "TIME":
                 # For JSON format
                 message = {
                     "device_timestamp": device_timestamp,
@@ -270,10 +270,10 @@ class HabitTracker:
         The output is returned as a list.
         It was necessary to call the input variable for habitType, because type is a python keyword."""
         match habit_type:
-            case "count":
+            case "COUNT":
                 counted = 1
                 return (counted,)                                 # Returns an increment value of 1 as a tuple
-            case "time":
+            case "TIME":
                 now = datetime.now()
                 start_timestamp = int(round(datetime.timestamp(now - timedelta(hours=0, minutes=5))))  # Start before stop: Subtracks 5 min from current time
                 stop_timestamp = int(round(datetime.timestamp(now)))
