@@ -17,7 +17,16 @@
       "name": "createHabit",
       "rawRequest": {
         "method": "PUT",
-        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/createHabit/${userId}/${deviceId}/${habitName}/${habitType}/${deviceSide}",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/editHabit/${userId}/${habitId}/${habitName}/${habitType}/${deviceSide}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "editHabit",
+      "rawRequest": {
+        "method": "PUT",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/createHabit/${userId}/${habitId}/${habitName}/${habitType}/${deviceSide}",
         "headers": [],
         "body": null
       }
@@ -26,7 +35,7 @@
   "parameters": {
     "API_ID": "******sensitive******",
     "userId": "0",
-    "deviceId": "MyIotThing",
+    "habitId": "",
     "habitName": "fishing",
     "habitType": "time",
     "deviceSide": "4"
