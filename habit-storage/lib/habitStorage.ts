@@ -13,6 +13,7 @@ export class HabitStorage extends Construct {
   public readonly getHabitsHandler: lambda.Function
   public readonly getHabitsWithSideHandler: lambda.Function
   public readonly createHabitHandler: lambda.Function
+  public readonly editHabitHandler: lambda.Function
 
   constructor(scope: Construct, id: string) {
     super(scope, id)
@@ -41,6 +42,26 @@ export class HabitStorage extends Construct {
       tableName: 'UserDataTable',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.NUMBER },
     })
+
+    const indexName: dynamodb.GlobalSecondaryIndexProps = {
+      // REMOVE NOW
+      indexName: 'indexName',
+      partitionKey: {
+        name: 'deviceId',
+        type: dynamodb.AttributeType.STRING,
+      },
+    }
+
+    const deviceIdIndex: dynamodb.GlobalSecondaryIndexProps = {
+      indexName: 'deviceIdIndex',
+      partitionKey: {
+        name: 'deviceId',
+        type: dynamodb.AttributeType.STRING,
+      },
+    }
+
+    userDataTable.addGlobalSecondaryIndex(indexName) // REMOVE NOW
+    userDataTable.addGlobalSecondaryIndex(deviceIdIndex)
 
     // Handler for accessing DynamoDB table
     // TODO: DELETE THIS AFTER CONFIRMING IT IS NOT USED IN FRONTEND
@@ -79,15 +100,29 @@ export class HabitStorage extends Construct {
       },
     })
 
+    const editHabitHandler = new lambda.Function(this, 'EditHabitHandler', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset('lambda'),
+      handler: 'editHabit.handler',
+      functionName: 'EditHabitHandler',
+      role: createHabitHandlerRole,
+
+      environment: {
+        USER_DATA_TABLENAME: userDataTable.tableName,
+      },
+    })
+
     // Setting the table and handler for this construct
     this.table = userDataTable
     this.getHabitsHandler = getHabitsHandler
     this.createHabitHandler = createHabitHandler
     this.getHabitsWithSideHandler = getHabitWithSide
+    this.editHabitHandler = editHabitHandler
 
     // Granting handler read and write access to the table
     userDataTable.grantReadWriteData(this.getHabitsHandler)
     userDataTable.grantReadWriteData(this.createHabitHandler)
+    userDataTable.grantReadWriteData(this.editHabitHandler)
     userDataTable.grantReadData(this.getHabitsWithSideHandler)
   }
 }

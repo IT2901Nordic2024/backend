@@ -27,6 +27,7 @@ export class HabitStorageStack extends cdk.Stack {
       'GetHabitsWithSideIntegration',
       habitStorage.getHabitsWithSideHandler,
     )
+    const editHabitIntegration = new HttpLambdaIntegration('EditHabitIntegration', habitStorage.editHabitHandler)
 
     //Adding integration to relevant API routes
     httpApi.addRoutes({
@@ -44,8 +45,14 @@ export class HabitStorageStack extends cdk.Stack {
 
     httpApi.addRoutes({
       path: '/createHabit/{userId}/{deviceId}/{habitName}/{habitType}/{deviceSide}',
-      methods: [apigwv2.HttpMethod.GET, apigwv2.HttpMethod.PUT],
+      methods: [apigwv2.HttpMethod.PUT],
       integration: createHabitLambdaIntegration,
+    })
+
+    httpApi.addRoutes({
+      path: '/editHabit/{userId}/{deviceId}/{habitId}/{habitName}/{deviceSide}',
+      methods: [apigwv2.HttpMethod.PUT],
+      integration: editHabitIntegration,
     })
   }
 }

@@ -14,7 +14,6 @@ const isInt = (testString) => {
 
 export const handler = async (event) => {
   // Initiating response we will send back to sender
-
   let body
   let statusCode = 200
   const headers = {

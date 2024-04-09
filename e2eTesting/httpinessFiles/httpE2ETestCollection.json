@@ -17,7 +17,7 @@
       "name": "createHabit",
       "rawRequest": {
         "method": "PUT",
-        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/editHabit/${userId}/${habitId}/${habitName}/${habitType}/${deviceSide}",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/createHabit/${userId}/${deviceId}/${habitName}/${habitType}/${deviceSide}",
         "headers": [],
         "body": null
       }
@@ -26,7 +26,7 @@
       "name": "editHabit",
       "rawRequest": {
         "method": "PUT",
-        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/createHabit/${userId}/${habitId}/${habitName}/${habitType}/${deviceSide}",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/editHabit/${userId}/${deviceId}/${habitId}/${habitName}/${deviceSide}",
         "headers": [],
         "body": null
       }
@@ -35,10 +35,11 @@
   "parameters": {
     "API_ID": "******sensitive******",
     "userId": "0",
-    "habitId": "",
-    "habitName": "fishing",
+    "deviceId": "MyIotThing",
+    "habitName": "sleeping",
     "habitType": "time",
-    "deviceSide": "4"
+    "deviceSide": "4",
+    "habitId": "1712587398547"
   },
   "parameterPresets": [
     {
