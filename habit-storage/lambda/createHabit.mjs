@@ -64,7 +64,6 @@ export const handler = async (event) => {
       habitId: habitId,
       habitName: event.pathParameters.habitName,
       habitType: event.pathParameters.habitType.toUpperCase(),
-      deviceId: event.pathParameters.deviceId,
     }
 
     // Sends a message to DynamoDB, making it add newHabit to a users habits
