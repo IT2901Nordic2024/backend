@@ -4,7 +4,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane'
 
-// Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
+// Initiates client communicating with DynamoDB and IoT Core. tableName tells us what table to communicate with
 const ddbclient = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(ddbclient)
 const tableName = process.env.USER_DATA_TABLENAME
@@ -17,9 +17,11 @@ export const handler = async (event) => {
   const headers = {
     'Content-Type': 'application/json',
   }
+  // Initiates habits and habitIndex to make them accessible outside of conditional statements where they are set
   let habits
   let habitIndex = null
 
+  // Updates deiceSide in shadow, only if a numbered deviceSide is sent
   if (isInt(event.pathParameters.deviceSide)) {
     try {
       // Validates if the deviceside exists on the device
@@ -53,6 +55,7 @@ export const handler = async (event) => {
     }
   }
 
+  // Only gets a users habits if habitName isn't noChange
   if (event.habitName != 'noChange') {
     try {
       // Extracts a users habits into variable habits
@@ -82,6 +85,7 @@ export const handler = async (event) => {
     }
   }
 
+  // Will not update habitName if the habit isnt found, or the previous if-statement doesnt fire
   if (habitIndex != null) {
     try {
       // Data habit that will be added to the table
@@ -89,10 +93,9 @@ export const handler = async (event) => {
         habitId: event.pathParameters.habitId,
         habitName: event.pathParameters.habitName,
         habitType: habits[habitIndex].habitType,
-        deviceId: event.pathParameters.deviceId,
       }
 
-      // Sends a message to DynamoDB, making it add newHabit to a users habits
+      // Sends a message to DynamoDB, replacing the old habit with a new one
       await dynamo.send(
         new UpdateCommand({
           TableName: tableName,
@@ -102,7 +105,6 @@ export const handler = async (event) => {
           UpdateExpression: `SET habits[${habitIndex}] = :newHabit`,
           ExpressionAttributeValues: {
             ':newHabit': editedHabit,
-            //':i': habitIndex,
           },
         }),
       )
@@ -115,6 +117,7 @@ export const handler = async (event) => {
     }
   }
 
+  // Return message if nothing goes wrong
   body = 'The habit was successfully edited'
 
   // Returning response to sender
