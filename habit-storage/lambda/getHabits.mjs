@@ -6,7 +6,7 @@ import { DynamoDBDocumentClient, ScanCommand, GetCommand } from '@aws-sdk/lib-dy
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
 const client = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(client)
-const tableName = process.env.HABIT_TABLE_NAME
+const tableName = process.env.USER_DATA_TABLENAME
 
 export const handler = async (event) => {
   // Initiating response we will send back to sender

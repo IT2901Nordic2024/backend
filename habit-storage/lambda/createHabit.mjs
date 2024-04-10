@@ -7,7 +7,7 @@ import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-io
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
 const ddbclient = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(ddbclient)
-const tableName = process.env.HABIT_TABLE_NAME
+const tableName = process.env.USER_DATA_TABLENAME
 
 const iotClient = new IoTDataPlaneClient({})
 
@@ -35,7 +35,7 @@ export const handler = async (event) => {
 
     // Validates if the deviceside exists on the device
     if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 11) {
-      throw `invalid deviceSide. Must be a number between 0 and 12. DeviceSide ${event.pathParameters.deviceSide} was provided`
+      throw `invalid deviceSide. Must be a number between 0 and 11. DeviceSide ${event.pathParameters.deviceSide} was provided`
     }
 
     // creating habitId. It is just the timestamp for when this was invoked
@@ -64,7 +64,6 @@ export const handler = async (event) => {
       habitId: habitId,
       habitName: event.pathParameters.habitName,
       habitType: event.pathParameters.habitType.toUpperCase(),
-      deviceId: event.pathParameters.deviceId,
     }
 
     // Sends a message to DynamoDB, making it add newHabit to a users habits

@@ -67,7 +67,7 @@ describe('works with the correct deviceSide and habitType', () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: '"invalid deviceSide. Must be a number between 0 and 12. DeviceSide -1 was provided"',
+      body: '"invalid deviceSide. Must be a number between 0 and 11. DeviceSide -1 was provided"',
     })
   })
 
@@ -85,7 +85,7 @@ describe('works with the correct deviceSide and habitType', () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: '"invalid deviceSide. Must be a number between 0 and 12. DeviceSide 12 was provided"',
+      body: '"invalid deviceSide. Must be a number between 0 and 11. DeviceSide 12 was provided"',
     })
   })
 
