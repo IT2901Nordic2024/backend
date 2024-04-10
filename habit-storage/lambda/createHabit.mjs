@@ -35,7 +35,7 @@ export const handler = async (event) => {
 
     // Validates if the deviceside exists on the device
     if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 11) {
-      throw `invalid deviceSide. Must be a number between 0 and 12. DeviceSide ${event.pathParameters.deviceSide} was provided`
+      throw `invalid deviceSide. Must be a number between 0 and 11. DeviceSide ${event.pathParameters.deviceSide} was provided`
     }
 
     // creating habitId. It is just the timestamp for when this was invoked
