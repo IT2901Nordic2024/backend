@@ -8,7 +8,6 @@ import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-io
 const ddbclient = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(ddbclient)
 const tableName = process.env.USER_DATA_TABLENAME
-
 const iotClient = new IoTDataPlaneClient({})
 
 export const handler = async (event) => {
@@ -23,54 +22,9 @@ export const handler = async (event) => {
 
   if (isInt(event.pathParameters.deviceSide)) {
     try {
-      // Validates if all the pathParameters are covered
-      //console.log(event.cat)
-      if (event.routeKey == undefined || event.pathParameters == undefined) {
-        throw 'routeKey or pathParameters are undefined'
-      }
-
       // Validates if the deviceside exists on the device
       if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 11) {
-        throw `invalid deviceSide. Must be a number between 0 and 12. DeviceSide ${event.pathParameters.deviceSide} was provided`
-      }
-
-      //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
-      await iotClient.send(
-        new UpdateThingShadowCommand({
-          thingName: event.pathParameters.deviceId,
-          payload: new Uint8Array(
-            Buffer.from(
-              JSON.stringify({
-                state: {
-                  desired: {
-                    [event.pathParameters.deviceSide]: event.pathParameters.habitId,
-                  },
-                },
-              }),
-            ),
-          ),
-        }),
-      )
-    } catch (error) {
-      statusCode = 400
-      body.error = error
-      body.failure = 'Failure when updating deviceShadow'
-      body = JSON.stringify(body)
-      return { statusCode, body, headers }
-    }
-  }
-
-  if (event.pathParameters.deviceSide == 'none') {
-    try {
-      // Validates if all the pathParameters are covered
-      //console.log(event.cat)
-      if (event.routeKey == undefined || event.pathParameters == undefined) {
-        throw 'routeKey or pathParameters are undefined'
-      }
-
-      // Validates if the deviceside exists on the device
-      if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 11) {
-        throw `invalid deviceSide. Must be a number between 0 and 12. DeviceSide ${event.pathParameters.deviceSide} was provided`
+        throw `invalid deviceSide. Must be a number between 0 and 11. DeviceSide ${event.pathParameters.deviceSide} was provided`
       }
 
       //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
@@ -101,6 +55,7 @@ export const handler = async (event) => {
 
   if (event.habitName != 'noChange') {
     try {
+      // Extracts a users habits into variable habits
       habits = await dynamo.send(
         new GetCommand({
           TableName: tableName,
@@ -120,7 +75,7 @@ export const handler = async (event) => {
       })
     } catch (error) {
       statusCode = 400
-      // body.error = error
+      body.error = error
       body.failure = 'Failure when getting habits from user'
       body = JSON.stringify(body)
       return { statusCode, body, headers }
@@ -138,7 +93,7 @@ export const handler = async (event) => {
       }
 
       // Sends a message to DynamoDB, making it add newHabit to a users habits
-      body = await dynamo.send(
+      await dynamo.send(
         new UpdateCommand({
           TableName: tableName,
           Key: {
@@ -153,14 +108,14 @@ export const handler = async (event) => {
       )
     } catch (error) {
       statusCode = 400
-      // body.error = error
+      body.error = error
       body.failure = 'Failure when updating habit'
       body = JSON.stringify(body)
       return { statusCode, body, headers }
     }
   }
 
-  body = JSON.stringify(body)
+  body = 'The habit was successfully edited'
 
   // Returning response to sender
   return {
