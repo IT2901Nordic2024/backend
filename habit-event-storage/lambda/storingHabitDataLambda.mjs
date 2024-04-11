@@ -9,7 +9,7 @@
  */
 
 import { DynamoDB, DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { PutCommand, DynamoDBDocumentClient, UpdateCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { PutCommand, DynamoDBDocumentClient, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 
 export const handler = async (event, context) => {
   console.log('Event:', event)
@@ -45,8 +45,10 @@ export const handler = async (event, context) => {
     },
   })
 
-  const userID = await docClient.send(getUserID)
-  console.log(userID)
+  const user = await docClient.send(getUserID)
+  const userID = user.Items[0].userId
+  console.log('userID:', userID)
+  console.log('userID type: ', typeof userID)
 
   /**
    * Update habit event data
@@ -54,18 +56,25 @@ export const handler = async (event, context) => {
    *
    * Sources:
    * https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.UpdateItem.html
+   * https://how.wtf/dynamodb-error-key-element-does-not-match-the-schema.html
    *
-   * 
+   *   */
+
   const updateHabitEvent = new UpdateCommand({
     TableName: habitEventTableName,
     Key: {
-      userId: { N: userID },
+      userId: userID,
+      habitId: event.payload.habitId,
     },
-    UpdateExpression: '',
+    UpdateExpression: 'SET habitEvents = list_append(habitEvents,:habitEvent)',
+    ExpressionAttributeValues: {
+      ':habitEvent': [delete event.payload.habitId], // Remove habit_id from payload before storing it in the database, because it should not be stored under habitEvents
+    },
   })
-  */
+
+  const response = await docClient.send(updateHabitEvent)
+  console.log('response:', response)
 
   console.log('Hello World')
-  console.log(event)
   return event
 }
