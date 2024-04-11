@@ -85,8 +85,12 @@ export class HabitEventStorageStack extends cdk.Stack {
         'Lambda function that stores incomming messages from the habit tracker after they have been decoded by the topic rule protocolBuffersToJSONRule ',
     })
 
-    // Defining and attaching policies for and to storingHabitDataLambda roles
-
+    /**
+     * Defining and attaching policies for and to storingHabitDataLambda roles
+     *
+     * Sources:
+     * https://repost.aws/questions/QUcNO84Fg7QM2ayUQnI20wHA/how-do-you-add-permission-for-a-scheduled-lambda-function-to-query-a-dynamodb-table
+     *  */
     const storingHabitDataLambdaInteractionPolicy = new aws_iam.Policy(
       this,
       'storingHabitDataLambdaInteractionPolicy',
@@ -108,7 +112,7 @@ export class HabitEventStorageStack extends cdk.Stack {
             sid: 'UserDataTableInteractions',
             effect: aws_iam.Effect.ALLOW,
             actions: ['dynamodb:Query'],
-            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:table/UserDataTable'],
+            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:table/UserDataTable/*'],
           }),
         ],
       }
