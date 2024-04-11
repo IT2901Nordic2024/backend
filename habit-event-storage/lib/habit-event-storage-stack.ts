@@ -57,18 +57,9 @@ export class HabitEventStorageStack extends cdk.Stack {
     //        DECODING AND STORING INCOMMING MESSAGES FROM HABIT TRACKER
     //---------------------------------------------------------------------------
 
-    // Role with permission to interact with our dynamoDB tables
-    const interactWithDynamoDBRole = new aws_iam.Role(this, 'interactWithDynamoDBRole', {
+    // Roles for storingHabitDataLambda
+    const storingHabitDataLambdaRole = new aws_iam.Role(this, 'storingHabitDataLambdaRole', {
       assumedBy: new aws_iam.ServicePrincipal('lambda.amazonaws.com'),
-    })
-
-    const interactWithDynamoDBPolicy = new aws_iam.Policy(this, 'interactWithDynamoDBPolicy', {
-      statements: [
-        new aws_iam.PolicyStatement({
-          actions: ['dynamodb:Query', 'dynamodb:UpdateTable'],
-          resources: [],
-        }),
-      ],
     })
 
     // Granting lambda function read and write access to habitEventtable
@@ -87,11 +78,43 @@ export class HabitEventStorageStack extends cdk.Stack {
         HABIT_EVENT_TABLENAME: habitEventStorage.habitEventTable.tableName, // DynamoDB table for storing habits
         USER_DATA_TABLENAME: 'UserDataTable', // DynamoDB table for users and their devices
       },
+      role: storingHabitDataLambdaRole,
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')), // Gets the source code of the lambda function from the lambda directory/folder
       functionName: 'storingHabitDataLambda', // Name of the function,
       description:
         'Lambda function that stores incomming messages from the habit tracker after they have been decoded by the topic rule protocolBuffersToJSONRule ',
     })
+
+    // Defining and attaching policies for and to storingHabitDataLambda roles
+
+    const storingHabitDataLambdaInteractionPolicy = new aws_iam.Policy(
+      this,
+      'storingHabitDataLambdaInteractionPolicy',
+      {
+        statements: [
+          new aws_iam.PolicyStatement({
+            sid: 'CloudWatchLogging',
+            effect: aws_iam.Effect.ALLOW,
+            actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents', 'logs:DescribeLogStreams'],
+            resources: [storingHabitDataLambda.logGroup.logGroupArn],
+          }),
+          new aws_iam.PolicyStatement({
+            sid: 'habitEventTableInteractions',
+            effect: aws_iam.Effect.ALLOW,
+            actions: ['dynamodb:Query', 'dynamodb:UpdateItem'],
+            resources: [habitEventStorage.habitEventTable.tableArn],
+          }),
+          new aws_iam.PolicyStatement({
+            sid: 'UserDataTableInteractions',
+            effect: aws_iam.Effect.ALLOW,
+            actions: ['dynamodb:Query'],
+            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:table/UserDataTable'],
+          }),
+        ],
+      }
+    )
+
+    storingHabitDataLambdaRole.attachInlinePolicy(storingHabitDataLambdaInteractionPolicy)
 
     //Role with permission to write to mqtt topic 'lambdaOutput'
     const writeToMQTTRole = new aws_iam.Role(this, 'writeToMQTTRole', {
