@@ -12,7 +12,7 @@ This stack uses API Gateway, DynamoDB and Lambda to get and update the users hab
 
 **Getting all userdata (including habits) from user**
 
-https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/getHabitsWithSide/{userId}
+https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/habits/{userId}
 
 - "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you dont fin the ID
 - {userId} is the id of the user you want to get the data from. Currently, we only have one user with id 0. His name is Frode
