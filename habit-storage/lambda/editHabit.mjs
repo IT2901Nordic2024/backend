@@ -64,7 +64,6 @@ export const handler = async (event) => {
           ),
         }),
       )
-      console.log(`Successfully updated side ${event.pathParameters.deviceSide}`)
     } catch (error) {
       statusCode = 400
       body.error = error
