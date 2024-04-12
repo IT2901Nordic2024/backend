@@ -1,5 +1,6 @@
 
 from habitTracker import HabitTracker
+from config_pb2 import Config as ConfigMessage
 
 
 #---------------------------------------------------------------------------
@@ -28,7 +29,7 @@ print("Client created")
 tracker.start_connection()
 print("Connection established")
 tracker.subscribe("firmwareSimulatorThing/updates")
-tracker.interaction_listener("proto_buff","habitTrackerData/0")
+tracker.interaction_listener("proto_buff","habitTrackerData/firmwareSimulatorThing")
 
 
 #---------------------------------------------------------------------------
