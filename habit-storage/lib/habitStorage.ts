@@ -34,6 +34,14 @@ export class HabitStorage extends Construct {
             actions: ['iot:GetThingShadow', 'iot:UpdateThingShadow'],
             resources: ['arn:aws:iot:eu-north-1:339713040007:thing/*'],
           }),
+          new iam.PolicyStatement({
+            actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents', 'logs:DescribeLogStreams'],
+            resources: ['arn:aws:logs:*:*:*'],
+          }),
+          new iam.PolicyStatement({
+            actions: ['dynamodb:DeleteItem'],
+            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:table/HabitEventTable'],
+          }),
         ],
       }),
     )
