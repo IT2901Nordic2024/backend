@@ -1,8 +1,9 @@
 import { mockClient } from 'aws-sdk-client-mock'
 import { handler } from '../lambda/editHabit.mjs'
 import { DynamoDBDocumentClient, UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
-import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane'
+import { GetThingShadowCommand, IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane'
 import { expect, describe, beforeEach, it } from '@jest/globals'
+import { Buffer } from 'buffer'
 
 // Making mocks of the different clients
 const ddbMock = mockClient(DynamoDBDocumentClient)
@@ -10,12 +11,16 @@ const iotMock = mockClient(IoTDataPlaneClient)
 
 let event
 let userData
+let shadow
 
 beforeEach(() => {
   event = baseEvent()
-  ddbMock.on(GetCommand).resolves(baseUserData())
+  shadow = baseShadow()
+  userData = baseUserData()
+  ddbMock.on(GetCommand).resolves(userData)
   ddbMock.on(UpdateCommand).resolves()
   iotMock.on(UpdateThingShadowCommand).resolves()
+  iotMock.on(GetThingShadowCommand).resolves({ payload: new Uint8Array(Buffer.from(JSON.stringify(shadow))) })
 })
 
 describe('editHabit when editing side and name', () => {
@@ -118,4 +123,22 @@ const baseUserData = () => {
     },
   }
   return userData
+}
+
+const baseShadow = () => {
+  shadow = {
+    state: {
+      desired: {
+        1: 1,
+        2: 9,
+        3: 3,
+        4: 0,
+        5: 5,
+        6: 6,
+        7: 7,
+        8: 4,
+      },
+    },
+  }
+  return shadow
 }

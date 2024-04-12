@@ -13,7 +13,14 @@ export class HabitStorageStack extends cdk.Stack {
     //Creating API, and configures CORS to allow GET methods
     const httpApi = new apigwv2.HttpApi(this, 'HabitStorageHTTP', {
       corsPreflight: {
-        allowMethods: [apigwv2.CorsHttpMethod.GET, apigwv2.CorsHttpMethod.PUT],
+        allowMethods: [
+          apigwv2.CorsHttpMethod.GET,
+          apigwv2.CorsHttpMethod.PUT,
+          apigwv2.CorsHttpMethod.DELETE,
+          apigwv2.CorsHttpMethod.OPTIONS,
+        ],
+        allowOrigins: ['*'],
+        allowHeaders: ['*'],
       },
     })
 
@@ -28,6 +35,7 @@ export class HabitStorageStack extends cdk.Stack {
       habitStorage.getHabitsWithSideHandler,
     )
     const editHabitIntegration = new HttpLambdaIntegration('EditHabitIntegration', habitStorage.editHabitHandler)
+    const deleteHabitIntegration = new HttpLambdaIntegration('DeleteHabitIntegration', habitStorage.deleteHabitHandler)
 
     //Adding integration to relevant API routes
     httpApi.addRoutes({
@@ -53,6 +61,12 @@ export class HabitStorageStack extends cdk.Stack {
       path: '/editHabit/{userId}/{deviceId}/{habitId}/{habitName}/{deviceSide}',
       methods: [apigwv2.HttpMethod.PUT],
       integration: editHabitIntegration,
+    })
+
+    httpApi.addRoutes({
+      path: '/deleteHabit/{userId}/{habitId}',
+      methods: [apigwv2.HttpMethod.DELETE],
+      integration: deleteHabitIntegration,
     })
   }
 }

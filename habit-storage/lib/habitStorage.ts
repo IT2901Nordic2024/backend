@@ -14,6 +14,7 @@ export class HabitStorage extends Construct {
   public readonly getHabitsWithSideHandler: lambda.Function
   public readonly createHabitHandler: lambda.Function
   public readonly editHabitHandler: lambda.Function
+  public readonly deleteHabitHandler: lambda.Function
 
   constructor(scope: Construct, id: string) {
     super(scope, id)
@@ -33,6 +34,14 @@ export class HabitStorage extends Construct {
             actions: ['iot:GetThingShadow', 'iot:UpdateThingShadow'],
             resources: ['arn:aws:iot:eu-north-1:339713040007:thing/*'],
           }),
+          new iam.PolicyStatement({
+            actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents', 'logs:DescribeLogStreams'],
+            resources: ['arn:aws:logs:*:*:*'],
+          }),
+          new iam.PolicyStatement({
+            actions: ['dynamodb:DeleteItem'],
+            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:table/HabitEventTable'],
+          }),
         ],
       }),
     )
@@ -43,15 +52,6 @@ export class HabitStorage extends Construct {
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.NUMBER },
     })
 
-    const indexName: dynamodb.GlobalSecondaryIndexProps = {
-      // REMOVE NOW
-      indexName: 'indexName',
-      partitionKey: {
-        name: 'deviceId',
-        type: dynamodb.AttributeType.STRING,
-      },
-    }
-
     const deviceIdIndex: dynamodb.GlobalSecondaryIndexProps = {
       indexName: 'deviceIdIndex',
       partitionKey: {
@@ -60,7 +60,6 @@ export class HabitStorage extends Construct {
       },
     }
 
-    userDataTable.addGlobalSecondaryIndex(indexName) // REMOVE NOW
     userDataTable.addGlobalSecondaryIndex(deviceIdIndex)
 
     // Handler for accessing DynamoDB table
@@ -112,17 +111,32 @@ export class HabitStorage extends Construct {
       },
     })
 
+    const deleteHabitHandler = new lambda.Function(this, 'DeleteHabitHandler', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset('lambda'),
+      handler: 'deleteHabit.handler',
+      functionName: 'DeleteHabitHandler',
+      role: createHabitHandlerRole,
+
+      environment: {
+        USER_DATA_TABLENAME: userDataTable.tableName,
+        HABIT_EVENT_TABLENAME: 'HabitEventTable',
+      },
+    })
+
     // Setting the table and handler for this construct
     this.table = userDataTable
     this.getHabitsHandler = getHabitsHandler
     this.createHabitHandler = createHabitHandler
     this.getHabitsWithSideHandler = getHabitWithSide
     this.editHabitHandler = editHabitHandler
+    this.deleteHabitHandler = deleteHabitHandler
 
     // Granting handler read and write access to the table
     userDataTable.grantReadWriteData(this.getHabitsHandler)
     userDataTable.grantReadWriteData(this.createHabitHandler)
     userDataTable.grantReadWriteData(this.editHabitHandler)
     userDataTable.grantReadData(this.getHabitsWithSideHandler)
+    userDataTable.grantReadWriteData(this.deleteHabitHandler)
   }
 }

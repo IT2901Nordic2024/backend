@@ -2,7 +2,7 @@
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, UpdateCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
-import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane'
+import { GetThingShadowCommand, IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane'
 
 // Initiates client communicating with DynamoDB and IoT Core. tableName tells us what table to communicate with
 const ddbclient = new DynamoDBClient({})
@@ -20,6 +20,8 @@ export const handler = async (event) => {
   // Initiates habits and habitIndex to make them accessible outside of conditional statements where they are set
   let habits
   let habitIndex = null
+  let iotShadow
+  let oldDeviceSide = 'lazy_backend'
 
   // Updates deiceSide in shadow, only if a numbered deviceSide is sent
   if (isInt(event.pathParameters.deviceSide)) {
@@ -27,6 +29,21 @@ export const handler = async (event) => {
       // Validates if the deviceside exists on the device
       if (Number(event.pathParameters.deviceSide) < 0 || Number(event.pathParameters.deviceSide) > 11) {
         throw `invalid deviceSide. Must be a number between 0 and 11. DeviceSide ${event.pathParameters.deviceSide} was provided`
+      }
+
+      iotShadow = await iotClient.send(
+        new GetThingShadowCommand({
+          thingName: event.pathParameters.deviceId,
+        }),
+      )
+
+      // Converting raw Uint8Array to human readable JSON
+      iotShadow = JSON.parse(String.fromCharCode.apply(null, iotShadow.payload)).state.desired
+
+      for (let i = 0; i < 12; i++) {
+        if (iotShadow[Number(i)] == event.pathParameters.habitId) {
+          oldDeviceSide = String(i)
+        }
       }
 
       //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
@@ -38,7 +55,8 @@ export const handler = async (event) => {
               JSON.stringify({
                 state: {
                   desired: {
-                    [event.pathParameters.deviceSide]: event.pathParameters.habitId,
+                    [oldDeviceSide]: 0,
+                    [event.pathParameters.deviceSide]: Number(event.pathParameters.habitId),
                   },
                 },
               }),
@@ -56,7 +74,7 @@ export const handler = async (event) => {
   }
 
   // Only gets a users habits if habitName isn't noChange
-  if (event.habitName != 'noChange') {
+  if (event.pathParameters.habitName != 'noChange') {
     try {
       // Extracts a users habits into variable habits
       habits = await dynamo.send(
