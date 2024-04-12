@@ -1,5 +1,3 @@
-/* eslint-disable no-unreachable */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* global process */
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
@@ -50,7 +48,7 @@ export const handler = async (event) => {
     body.index = habitIndex
   } catch (error) {
     statusCode = 400
-    body.error = error
+    body.error = error.message
     body.failure = 'Problem when geting userdata'
     body = JSON.stringify(body)
     return { statusCode, body, headers }
@@ -72,7 +70,7 @@ export const handler = async (event) => {
     body.side = deviceSide
   } catch (error) {
     statusCode = 400
-    body.error = error
+    body.error = error.message
     body.failure = 'Problem when getting thing shadow'
     body = JSON.stringify(body)
     return { statusCode, body, headers }
@@ -99,7 +97,7 @@ export const handler = async (event) => {
       )
     } catch (error) {
       statusCode = 400
-      body.error = error
+      body.error = error.message
       body.failure = 'Problem when updating thing shadow'
       body = JSON.stringify(body)
       return { statusCode, body, headers }
@@ -119,7 +117,7 @@ export const handler = async (event) => {
     )
   } catch (error) {
     statusCode = 400
-    body.error = error
+    body.error = error.message
     body.failure = 'Problem when deleting habitevent data'
     body = JSON.stringify(body)
     return { statusCode, body, headers }
@@ -138,7 +136,7 @@ export const handler = async (event) => {
     )
   } catch (error) {
     statusCode = 400
-    body.error = error
+    body.error = error.message
     body.failure = 'Problem when deleting from habit from user data'
     body = JSON.stringify(body)
     return { statusCode, body, headers }
@@ -154,6 +152,6 @@ export const handler = async (event) => {
   }
 }
 
-const charCodeToJSON = (input) => {
+export const charCodeToJSON = (input) => {
   return JSON.parse(String.fromCharCode.apply(null, input))
 }
