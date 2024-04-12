@@ -43,6 +43,15 @@ https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/editHabit/{userId}/{devi
 - {deviceSide} is the side of the device you want to connect to. This is 0-indexed and works with all numbers from 0 to 11
 - The "{}" brackets should not be included in the url, just write 0/MyIotThing/174324234/treehugging/4
 
+**Deleting a user's habit's name or deviceSide**
+
+https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/deleteHabit/{userId}/{habitId}
+
+- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you dont fin the ID
+- {userId} is the id of the user you want to add a new habit to. Currently, we only have one user with id 0
+- {habitId} is the id of the habit you want to remove
+- The "{}" brackets should not be included in the url, just write 0/MyIotThing/174324234/treehugging/4
+
 ### habit-event-storage
 
 This contains all the habit events for the users
