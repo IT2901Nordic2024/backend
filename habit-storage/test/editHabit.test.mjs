@@ -130,22 +130,13 @@ const baseShadow = () => {
     state: {
       desired: {
         1: 1,
-        2: 1712832060123,
+        2: 9,
         3: 3,
         4: 0,
         5: 5,
         6: 6,
-        7: 1712846903588,
-        8: 'dd',
-        welcome: 'aws-iot',
-        BackendApollo: 'LandedOnEarthAgain',
-        deviceSide: 'dd',
-        dd: '8',
-        undefined: 0,
-        lazy_backend: 0,
-      },
-      reported: {
-        welcome: 'aws-iot',
+        7: 7,
+        8: 4,
       },
     },
   }
