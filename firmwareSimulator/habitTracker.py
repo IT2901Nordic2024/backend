@@ -8,6 +8,7 @@ import json
 from concurrent.futures import Future
 import time
 from fromFirmwareToBackend_pb2 import habit_data as firmwareMessage
+from config_pb2 import Config
 
 
 
@@ -20,64 +21,52 @@ class HabitTracker:
         0:{
             "id": 123,
             "type":"COUNT",
-            "name":"coffee"
         },
         1:{
             "id": 124,
             "type":"TIME",
-            "name":"jogging"
         },
         2:{
             "id": "",
             "type":"",
-            "name":""
         },
         3:{
             "id": "",
             "type":"",
-            "name":""
         },
         4:{
             "id": "",
             "type":"",
-            "name":""
         },
         5:{
             "id": "",
             "type":"",
-            "name":""
         },
         6:{
             "id": "",
             "type":"",
-            "name":""
         }
         ,
         7:{
             "id": "",
             "type":"",
-            "name":""
         },
         8:{
             "id": "",
             "type":"",
-            "name":""
         }
         ,
         9:{
             "id": "",
             "type":"",
-            "name":""
         },
         10:{
             "id": "",
             "type":"",
-            "name":""
         },
         11:{
             "id": "",
             "type":"",
-            "name":""
         }
     }
         self.client_id = client_id
@@ -113,6 +102,15 @@ class HabitTracker:
         publish_packet = publish_packet_data.publish_packet
         assert isinstance(publish_packet, mqtt5.PublishPacket)
         print("Received message from topic {}: {}".format(publish_packet.topic,publish_packet.payload))
+        
+        # Decoding the incomming message and passing the elements of the decoded version to the update_sides function
+        # It is assumed that any incomming message is a config message used to configure the dodecahedron
+        # Check the config.proto file in the protocol_buffers_messages folder to see the assumed structure of those config messages.
+        message = b'\x08\xb9`\x10\x02\x18\x03 \x01'
+        
+        config = Config()
+        config.ParseFromString(message)
+        self.update_sides(habit_id=config.id, side=config.side, habit_type=config.type)
 
     def on_lifecycle_stopped(self, lifecycle_stopped_data:mqtt5.LifecycleStoppedData):
         print("Lifecycle Stopped")
@@ -204,7 +202,7 @@ class HabitTracker:
         subscribe_future = self.client.subscribe(subscribe_packet=mqtt5.SubscribePacket(
             subscriptions=[mqtt5.Subscription(
                 topic_filter=topic,
-                qos=mqtt5.QoS.AT_LEAST_ONCE
+                qos=mqtt5.QoS.AT_LEAST_ONCE,
             )]
         ))
         print("subscribe_future: ", subscribe_future.__dict__)
@@ -239,6 +237,28 @@ class HabitTracker:
     #                Dodecahedron interaction methods           #
     #                             Start                         #
     ############################################################# 
+
+
+    def update_sides(self, habit_id, side, habit_type):
+        """A method that takes in the configuration received from the AWS IoT device shadow
+        and then updates the specified side of the dodecahedron accordingly.
+        
+        -----------
+        Parameters:
+        -----------
+        side:       (integer) The side which is to be updated
+        habit_id:   (integer) The id of the habit to be assigned to the specified side
+        habit_type  (integer) The type of the habit, such as COUNT or TIME
+        
+        """
+        print("side: ", side)
+        print("habit_id:", habit_id)
+        print("habit_type: ", habit_type)
+
+        print("side before: ", self._dodecahedron.get(side))
+        self._dodecahedron.get(side).update({"id":habit_id, "type": habit_type})
+        print("side after: ", self._dodecahedron.get(side))
+
     
     def value_transformer(self, value):
         """Function that takes in a value and does something with it.
