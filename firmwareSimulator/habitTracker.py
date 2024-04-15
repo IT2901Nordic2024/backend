@@ -19,58 +19,8 @@ class HabitTracker:
     """Class that represents the dodecahedron habit tracker"""
     def __init__(self, client_id, end_point, certficate_file_path, private_key_file_path, root_pem_file_path):
         # The initial representation of the dodecahedron and its sides in this simulator
-        self._dodecahedron = { 
-        0:{
-            "id": 123,
-            "type":"COUNT",
-        },
-        1:{
-            "id": 124,
-            "type":"TIME",
-        },
-        2:{
-            "id": "",
-            "type":"",
-        },
-        3:{
-            "id": "",
-            "type":"",
-        },
-        4:{
-            "id": "",
-            "type":"",
-        },
-        5:{
-            "id": "",
-            "type":"",
-        },
-        6:{
-            "id": "",
-            "type":"",
-        }
-        ,
-        7:{
-            "id": "",
-            "type":"",
-        },
-        8:{
-            "id": "",
-            "type":"",
-        }
-        ,
-        9:{
-            "id": "",
-            "type":"",
-        },
-        10:{
-            "id": "",
-            "type":"",
-        },
-        11:{
-            "id": "",
-            "type":"",
-        }
-    }
+        with open('firmwareSimulator/dodecahedron/dodecahedron.json', 'r') as dodecahedron_json_data:
+            self._dodecahedron = json.load(dodecahedron_json_data)
         self.client_id = client_id
         self.end_point = end_point
         self.certficate_file_path = certficate_file_path
@@ -259,22 +209,27 @@ class HabitTracker:
             print("type name: ", config_pb2.Type.Name(config.type)) 
         except:
             raise Exception("ERROR: Decoding payload failed")
+        
+
 
         # Updating the dodecahedron
-        print("side before: ", self._dodecahedron.get(config.side))
-        self._dodecahedron.get(config.side).update({"id":config.id, "type": config_pb2.Type.Name(config.type)})
-        print("side after: ", self._dodecahedron.get(config.side))
+        print("side before: ", self._dodecahedron.get(str(config.side)))
+        self._dodecahedron.get(str(config.side)).update({"id":config.id, "type": config_pb2.Type.Name(config.type)})
+        print("side after: ", self._dodecahedron.get(str(config.side)))
+        # writing dodecahedron dictionary to JSON file
+        with open('firmwareSimulator/dodecahedron/dodecahedron.json','w') as dodecahedron_json_data:
+            json.dump(self._dodecahedron,dodecahedron_json_data, indent=4)
 
 
     
-    def value_transformer(self, value):
-        """Function that takes in a value and does something with it.
-        At the moment that is to transform its string value to an integer value
-        and return that or to throw an error if that does not work."""
-        try:
-            return int(value)  # If a number key is pressed return its value as a number
-        except:
-            print("Invalid input! Input must be a number.")   # Otherwise show the user that the wrong input was provided
+#    def value_transformer(self, value):
+#        """Function that takes in a value and does something with it.
+#        At the moment that is to transform its string value to an integer value
+#        and return that or to throw an error if that does not work."""
+#        try:
+#            return int(value)  # If a number key is pressed return its value as a number
+#        except:
+#            print("Invalid input! Input must be a number.")   # Otherwise show the user that the wrong input was provided
     
     def get_habit_type(self,side):
         """Function that takes an integer, that represents a side of the dodecahedron habit tracker, as input and 
@@ -294,7 +249,7 @@ class HabitTracker:
     
     def execute_habit(self, habit_type):
         """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
-        The output is returned as a list.
+        The output is returned as a tuple.
         It was necessary to call the input variable for habitType, because type is a python keyword."""
         match habit_type:
             case "COUNT":
@@ -324,11 +279,11 @@ class HabitTracker:
                 key_buffer.clear()    # Clearing the buffer to make way for new entries
 
             #------Preparing data to be sent to AWS IoT core------
-                habit = self.value_transformer(value=side)  # Passing on the side selection and storing the returned value
-                print("type of habit: ", type(habit))
-                print("habit: ", habit)
-                habit_id = self.get_habit_id(side=habit)    # The id of the habit
-                habit_type = self.get_habit_type(side=habit)# The type of habit
+                #habit = self.value_transformer(value=side)  # Passing on the side selection and storing the returned value
+                print("type of side: ", type(side))
+                print("side: ", side)
+                habit_id = self.get_habit_id(side=side)    # The id of the habit
+                habit_type = self.get_habit_type(side=side)# The type of habit
                 habit_data = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
 
             #-------------------MQTT-------------------
