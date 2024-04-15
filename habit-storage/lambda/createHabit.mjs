@@ -7,14 +7,14 @@ import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-io
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
 const ddbclient = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(ddbclient)
-const UserDataTableName = process.env.USER_DATA_TABLENAME
-const habitEventTableName = process.env.HABIT_EVENT_TABLENAME
+const userDataTableName = process.env.USER_DATA_TABLENAME
+const habitEventTableName = 'HabitEventTable'
 
 const iotClient = new IoTDataPlaneClient({})
 
 export const handler = async (event) => {
   // Initiating response we will send back to sender
-  let body
+  let body = {}
   let statusCode = 200
   const headers = {
     'Content-Type': 'application/json',
@@ -26,12 +26,19 @@ export const handler = async (event) => {
   // creating habitId. It is just the timestamp for when this was invoked
   const habitId = Date.now()
 
+  // Data habit that will be added to the table
+  const newHabit = {
+    habitId: habitId,
+    habitName: event.pathParameters.habitName,
+    habitType: event.pathParameters.habitType.toUpperCase(),
+  }
+
   try {
     // Validates if all the pathParameters are covered
-    //console.log(event.cat)
     if (event.routeKey == undefined || event.pathParameters == undefined) {
       throw 'routeKey or pathParameters are undefined'
     }
+
     // Validates if the type of tracking is supported
     if (!habitTypes.includes(event.pathParameters.habitType)) {
       throw `invalid habitType. Valid habitTypes are ${habitTypes[0]} and ${habitTypes[1]}. habitType ${event.pathParameters.habitType} was provided`
@@ -42,17 +49,25 @@ export const handler = async (event) => {
       throw `invalid deviceSide. Must be a number between 0 and 11. DeviceSide ${event.pathParameters.deviceSide} was provided`
     }
 
-    await ddbclient.send(
+    await dynamo.send(
       new PutCommand({
         TableName: habitEventTableName,
         Item: {
-          userId: event.pathParameters.habitId,
+          userId: Number(event.pathParameters.userId),
           habitId: habitId,
           habitEvents: [],
         },
       }),
     )
+  } catch (error) {
+    statusCode = 400
+    body.error = error
+    body.failure = 'Failure when creating item in HabitEventTable'
+    body = JSON.stringify(body)
+    return { statusCode, body, headers }
+  }
 
+  try {
     //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
     await iotClient.send(
       new UpdateThingShadowCommand({
@@ -70,18 +85,19 @@ export const handler = async (event) => {
         ),
       }),
     )
+  } catch (error) {
+    statusCode = 400
+    body.error = error
+    body.failure = 'Failure when updating device shadow'
+    body = JSON.stringify(body)
+    return { statusCode, body, headers }
+  }
 
-    // Data habit that will be added to the table
-    const newHabit = {
-      habitId: habitId,
-      habitName: event.pathParameters.habitName,
-      habitType: event.pathParameters.habitType.toUpperCase(),
-    }
-
+  try {
     // Sends a message to DynamoDB, making it add newHabit to a users habits
     await dynamo.send(
       new UpdateCommand({
-        TableName: UserDataTableName,
+        TableName: userDataTableName,
         Key: {
           userId: Number(event.pathParameters.userId),
         },
@@ -91,15 +107,16 @@ export const handler = async (event) => {
         },
       }),
     )
-
-    body = 'All actions completed successfully'
-  } catch (err) {
+  } catch (error) {
     statusCode = 400
-    body = err
-  } finally {
-    // Makes the body recieved usable
+    body.error = error
+    body.failure = 'Failure when adding habit to user data'
     body = JSON.stringify(body)
+    return { statusCode, body, headers }
   }
+
+  body = 'All actions completed successfully'
+  body = JSON.stringify(body)
 
   // Returning response to sender
   return {
