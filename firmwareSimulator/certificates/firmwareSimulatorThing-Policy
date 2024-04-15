@@ -11,13 +11,13 @@
       "Resource": [
         "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}",
         "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}/updates",
-        "arn:aws:iot:*:*:topic/habitTrackerData/firmwareSimulatorThing"
+        "arn:aws:iot:*:*:topic/habitTrackerData/firmwareSimulatorThing/events"
       ]
     },
     {
       "Effect": "Allow",
       "Action": "iot:Subscribe",
-      "Resource": "arn:aws:iot:*:*:topicfilter/${iot:Connection.Thing.ThingName}/updates"
+      "Resource": "arn:aws:iot:*:*:topicfilter/habitTrackerData/${iot:Connection.Thing.ThingName}/config"
     },
     {
       "Effect": "Allow",
