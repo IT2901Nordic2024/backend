@@ -96,6 +96,7 @@ export class HabitStorage extends Construct {
 
       environment: {
         USER_DATA_TABLENAME: userDataTable.tableName,
+        HABIT_EVENT_TABLENAME: 'HabitEventTable',
       },
     })
 
