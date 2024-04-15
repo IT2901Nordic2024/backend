@@ -29,7 +29,7 @@ print("Client created")
 tracker.start_connection()
 print("Connection established")
 tracker.subscribe("firmwareSimulatorThing/updates")
-tracker.interaction_listener("proto_buff","habitTrackerData/firmwareSimulatorThing")
+tracker.interaction_listener("proto_buff","habitTrackerData/firmwareSimulatorThing/events")
 
 
 #---------------------------------------------------------------------------

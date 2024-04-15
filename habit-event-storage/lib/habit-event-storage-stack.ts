@@ -170,7 +170,7 @@ export class HabitEventStorageStack extends cdk.Stack {
      */
     const protocolBuffersToJSONRule = new aws_iot.CfnTopicRule(this, 'ProtocolBuffersToJSONRule', {
       topicRulePayload: {
-        sql: `SELECT decode(*, 'proto', '${protocolBuffersDescriptorFilesBucket.bucketName}','fromFirmwareToBackend.desc','fromFirmwareToBackend','habit_data') AS payload, topic(2) AS deviceId  FROM 'habitTrackerData/+'`,
+        sql: `SELECT decode(*, 'proto', '${protocolBuffersDescriptorFilesBucket.bucketName}','fromFirmwareToBackend.desc','fromFirmwareToBackend','habit_data') AS payload, topic(2) AS deviceId  FROM 'habitTrackerData/+/events'`,
         actions: [
           {
             lambda: {
