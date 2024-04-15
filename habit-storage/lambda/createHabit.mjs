@@ -49,6 +49,7 @@ export const handler = async (event) => {
       throw `invalid deviceSide. Must be a number between 0 and 11. DeviceSide ${event.pathParameters.deviceSide} was provided`
     }
 
+    // Adds a item to HabitEventTable, so we can store habitEvents at a later time
     await dynamo.send(
       new PutCommand({
         TableName: habitEventTableName,
@@ -115,6 +116,7 @@ export const handler = async (event) => {
     return { statusCode, body, headers }
   }
 
+  // Return message to confirm everything was successful
   body = 'All actions completed successfully'
   body = JSON.stringify(body)
 
