@@ -40,7 +40,7 @@ export class HabitStorage extends Construct {
           }),
           new iam.PolicyStatement({
             actions: ['dynamodb:*'],
-            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:table/HabitEventTable'],
+            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:*'],
           }),
         ],
       }),
