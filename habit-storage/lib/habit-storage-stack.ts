@@ -14,13 +14,17 @@ export class HabitStorageStack extends cdk.Stack {
     const httpApi = new apigwv2.HttpApi(this, 'HabitStorageHTTP', {
       corsPreflight: {
         allowMethods: [
-          apigwv2.CorsHttpMethod.GET,
-          apigwv2.CorsHttpMethod.PUT,
           apigwv2.CorsHttpMethod.DELETE,
+          apigwv2.CorsHttpMethod.GET,
+          apigwv2.CorsHttpMethod.POST,
+          apigwv2.CorsHttpMethod.PUT,
           apigwv2.CorsHttpMethod.OPTIONS,
+          apigwv2.CorsHttpMethod.HEAD,
+          apigwv2.CorsHttpMethod.PATCH,
         ],
         allowOrigins: ['*'],
         allowHeaders: ['*'],
+        allowCredentials: false,
       },
     })
 
