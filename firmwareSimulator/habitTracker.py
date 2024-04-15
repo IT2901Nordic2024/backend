@@ -8,6 +8,9 @@ import json
 from concurrent.futures import Future
 import time
 from fromFirmwareToBackend_pb2 import habit_data as firmwareMessage
+from config_pb2 import Config
+import config_pb2
+
 
 
 
@@ -15,71 +18,9 @@ from fromFirmwareToBackend_pb2 import habit_data as firmwareMessage
 class HabitTracker:
     """Class that represents the dodecahedron habit tracker"""
     def __init__(self, client_id, end_point, certficate_file_path, private_key_file_path, root_pem_file_path):
-        # The representation of the dodecahedron and its sides in this simulator
-        self._dodecahedron = { 
-        0:{
-            "id": 123,
-            "type":"COUNT",
-            "name":"coffee"
-        },
-        1:{
-            "id": 124,
-            "type":"TIME",
-            "name":"jogging"
-        },
-        2:{
-            "id": "",
-            "type":"",
-            "name":""
-        },
-        3:{
-            "id": "",
-            "type":"",
-            "name":""
-        },
-        4:{
-            "id": "",
-            "type":"",
-            "name":""
-        },
-        5:{
-            "id": "",
-            "type":"",
-            "name":""
-        },
-        6:{
-            "id": "",
-            "type":"",
-            "name":""
-        }
-        ,
-        7:{
-            "id": "",
-            "type":"",
-            "name":""
-        },
-        8:{
-            "id": "",
-            "type":"",
-            "name":""
-        }
-        ,
-        9:{
-            "id": "",
-            "type":"",
-            "name":""
-        },
-        10:{
-            "id": "",
-            "type":"",
-            "name":""
-        },
-        11:{
-            "id": "",
-            "type":"",
-            "name":""
-        }
-    }
+        # The initial representation of the dodecahedron and its sides in this simulator
+        with open('firmwareSimulator/dodecahedron/dodecahedron.json', 'r') as dodecahedron_json_data:
+            self._dodecahedron = json.load(dodecahedron_json_data)
         self.client_id = client_id
         self.end_point = end_point
         self.certficate_file_path = certficate_file_path
@@ -113,6 +54,17 @@ class HabitTracker:
         publish_packet = publish_packet_data.publish_packet
         assert isinstance(publish_packet, mqtt5.PublishPacket)
         print("Received message from topic {}: {}".format(publish_packet.topic,publish_packet.payload))
+        
+        # Decoding the incomming message and passing the elements of the decoded version to the update_sides function
+        # It is assumed that any incomming message is a config message used to configure the dodecahedron
+        # Check the config.proto file in the protocol_buffers_messages folder to see the assumed structure of those config messages.
+        self.update_sides(publish_packet.payload)
+        
+        # For testing purposes comment out self.update_sides(publish_packet.payload) and uncomment the two lines below.
+        # message = b'\x08\xb9`\x10\x02\x18\x03 \x01'
+        # self.update_sides(message)
+
+        
 
     def on_lifecycle_stopped(self, lifecycle_stopped_data:mqtt5.LifecycleStoppedData):
         print("Lifecycle Stopped")
@@ -204,7 +156,7 @@ class HabitTracker:
         subscribe_future = self.client.subscribe(subscribe_packet=mqtt5.SubscribePacket(
             subscriptions=[mqtt5.Subscription(
                 topic_filter=topic,
-                qos=mqtt5.QoS.AT_LEAST_ONCE
+                qos=mqtt5.QoS.AT_LEAST_ONCE,
             )]
         ))
         print("subscribe_future: ", subscribe_future.__dict__)
@@ -239,15 +191,49 @@ class HabitTracker:
     #                Dodecahedron interaction methods           #
     #                             Start                         #
     ############################################################# 
-    
-    def value_transformer(self, value):
-        """Function that takes in a value and does something with it.
-        At the moment that is to transform its string value to an integer value
-        and return that or to throw an error if that does not work."""
+
+
+    def update_sides(self,payload):
+        """A method that takes in the configuration received from the AWS IoT device shadow,
+        decodes it and then updates the specified side of the dodecahedron accordingly.
+        
+        -----------
+        Parameters:
+        -----------
+        payload:       (byte string) The information given by the user with which the dodecahedron is to be updated with.
+
+        
+        """
+
+        config = Config()
         try:
-            return int(value)  # If a number key is pressed return its value as a number
+            config.ParseFromString(payload)
+            print("decoded payload: ", config)
+            print("type value: ", config.type)
+            print("type name: ", config_pb2.Type.Name(config.type)) 
         except:
-            print("Invalid input! Input must be a number.")   # Otherwise show the user that the wrong input was provided
+            raise Exception("ERROR: Decoding payload failed")
+        
+
+
+        # Updating the dodecahedron
+        print("side before: ", self._dodecahedron.get(str(config.side)))
+        self._dodecahedron.get(str(config.side)).update({"id":config.id, "type": config_pb2.Type.Name(config.type)})
+        print("side after: ", self._dodecahedron.get(str(config.side)))
+        # writing dodecahedron dictionary to JSON file
+        with open('firmwareSimulator/dodecahedron/dodecahedron.json','w') as dodecahedron_json_data:
+            json.dump(self._dodecahedron,dodecahedron_json_data, indent=4)
+
+
+    
+#    def value_transformer(self, value):
+#        """Function that takes in a value and does something with it.
+#        At the moment that is to transform its string value to an integer value
+#        and return that or to throw an error if that does not work."""
+#        try:
+#            return int(value)  # If a number key is pressed return its value as a number
+#        except:
+#            print("Invalid input! Input must be a number.")   # Otherwise show the user that the wrong input was provided
     
     def get_habit_type(self,side):
         """Function that takes an integer, that represents a side of the dodecahedron habit tracker, as input and 
@@ -256,18 +242,18 @@ class HabitTracker:
         if side in list(self._dodecahedron.keys()):
             return self._dodecahedron.get(side).get("type")
         else:
-            raise Exception("The provided input does not correspond to any side of the device / dodecahedron")
+            raise Exception("ERROR: The provided input does not correspond to any side of the device / dodecahedron")
     
     def get_habit_id(self,side):
         """Method that gets the id of the habit associated with the provided side"""
         if side in list(self._dodecahedron.keys()):
             return self._dodecahedron.get(side).get("id")
         else:
-            raise Exception("The provided input does not correspond to any side of the device / dodecahedron")
+            raise Exception("ERROR: The provided input does not correspond to any side of the device / dodecahedron")
     
     def execute_habit(self, habit_type):
         """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
-        The output is returned as a list.
+        The output is returned as a tuple.
         It was necessary to call the input variable for habitType, because type is a python keyword."""
         match habit_type:
             case "COUNT":
@@ -280,7 +266,7 @@ class HabitTracker:
                 data = None # Change when there is actual data to be sent (additionally to the timestamps)
                 return (data, start_timestamp, stop_timestamp)  # Returns the bot timestamps as values in a tuple, data is the first element in the tuple (for consistency with the "count" case)
             case _:                                      
-                raise Exception("This habit type does not exist")   # Throws an error if the provided habit type does not exist
+                raise Exception("ERROR: This habit type does not exist")   # Throws an error if the provided habit type does not exist
 
 
     def interaction_listener(self, message_format, mqtt_topic):
@@ -297,11 +283,11 @@ class HabitTracker:
                 key_buffer.clear()    # Clearing the buffer to make way for new entries
 
             #------Preparing data to be sent to AWS IoT core------
-                habit = self.value_transformer(value=side)  # Passing on the side selection and storing the returned value
-                print("type of habit: ", type(habit))
-                print("habit: ", habit)
-                habit_id = self.get_habit_id(side=habit)    # The id of the habit
-                habit_type = self.get_habit_type(side=habit)# The type of habit
+                #habit = self.value_transformer(value=side)  # Passing on the side selection and storing the returned value
+                print("type of side: ", type(side))
+                print("side: ", side)
+                habit_id = self.get_habit_id(side=side)    # The id of the habit
+                habit_type = self.get_habit_type(side=side)# The type of habit
                 habit_data = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
 
             #-------------------MQTT-------------------
