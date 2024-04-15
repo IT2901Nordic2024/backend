@@ -58,9 +58,13 @@ class HabitTracker:
         # Decoding the incomming message and passing the elements of the decoded version to the update_sides function
         # It is assumed that any incomming message is a config message used to configure the dodecahedron
         # Check the config.proto file in the protocol_buffers_messages folder to see the assumed structure of those config messages.
-        message = b'\x08\xb9`\x10\x02\x18\x03 \x01'
+        self.update_sides(publish_packet.payload)
+        
+        # For testing purposes comment out self.update_sides(publish_packet.payload) and uncomment the two lines below.
+        # message = b'\x08\xb9`\x10\x02\x18\x03 \x01'
+        # self.update_sides(message)
 
-        self.update_sides(message)
+        
 
     def on_lifecycle_stopped(self, lifecycle_stopped_data:mqtt5.LifecycleStoppedData):
         print("Lifecycle Stopped")
