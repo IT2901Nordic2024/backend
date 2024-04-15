@@ -39,8 +39,8 @@ export class HabitStorage extends Construct {
             resources: ['arn:aws:logs:*:*:*'],
           }),
           new iam.PolicyStatement({
-            actions: ['dynamodb:DeleteItem'],
-            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:table/HabitEventTable'],
+            actions: ['dynamodb:*'],
+            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:*'],
           }),
         ],
       }),
@@ -96,6 +96,7 @@ export class HabitStorage extends Construct {
 
       environment: {
         USER_DATA_TABLENAME: userDataTable.tableName,
+        HABIT_EVENT_TABLENAME: 'HabitEventTable',
       },
     })
 

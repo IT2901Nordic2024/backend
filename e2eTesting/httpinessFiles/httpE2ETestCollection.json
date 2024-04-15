@@ -43,11 +43,11 @@
   ],
   "parameters": {
     "API_ID": "******sensitive******",
-    "userId": "0",
+    "userId": "1",
     "deviceId": "MyIotThing",
-    "habitName": "Fishing",
+    "habitName": "Treehugging",
     "habitType": "time",
-    "deviceSide": "nooo",
+    "deviceSide": "4",
     "habitId": "4"
   },
   "parameterPresets": [
