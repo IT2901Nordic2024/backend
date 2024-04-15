@@ -1,13 +1,14 @@
 /* global process, Buffer */
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, UpdateCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { IoTDataPlaneClient, UpdateThingShadowCommand } from '@aws-sdk/client-iot-data-plane'
 
 // Initiates client communicating with DynamoDB. tableName tells us what table to communicate with
 const ddbclient = new DynamoDBClient({})
 const dynamo = DynamoDBDocumentClient.from(ddbclient)
-const tableName = process.env.USER_DATA_TABLENAME
+const UserDataTableName = process.env.USER_DATA_TABLENAME
+const habitEventTableName = process.env.HABIT_EVENT_TABLENAME
 
 const iotClient = new IoTDataPlaneClient({})
 
@@ -21,6 +22,9 @@ export const handler = async (event) => {
 
   // The types of habits this function can add
   const habitTypes = ['count', 'time']
+
+  // creating habitId. It is just the timestamp for when this was invoked
+  const habitId = Date.now()
 
   try {
     // Validates if all the pathParameters are covered
@@ -38,8 +42,16 @@ export const handler = async (event) => {
       throw `invalid deviceSide. Must be a number between 0 and 11. DeviceSide ${event.pathParameters.deviceSide} was provided`
     }
 
-    // creating habitId. It is just the timestamp for when this was invoked
-    const habitId = Date.now()
+    await ddbclient.send(
+      new PutCommand({
+        TableName: habitEventTableName,
+        Item: {
+          userId: event.pathParameters.habitId,
+          habitId: habitId,
+          habitEvents: [],
+        },
+      }),
+    )
 
     //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
     await iotClient.send(
@@ -69,7 +81,7 @@ export const handler = async (event) => {
     // Sends a message to DynamoDB, making it add newHabit to a users habits
     await dynamo.send(
       new UpdateCommand({
-        TableName: tableName,
+        TableName: UserDataTableName,
         Key: {
           userId: Number(event.pathParameters.userId),
         },
