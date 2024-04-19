@@ -7,7 +7,7 @@ from awsiot import mqtt5_client_builder
 import json
 from concurrent.futures import Future
 import time
-from fromFirmwareToBackend_pb2 import habit_data as firmwareMessage
+from fromFirmwareToBackend_pb2 import habit_data as FirmwareMessage
 from config_pb2 import Config
 import config_pb2
 
@@ -15,11 +15,12 @@ import config_pb2
 
 
 
-class HabitTracker:
+
+class FirmwareSimulator:
     """Class that represents the dodecahedron habit tracker"""
-    def __init__(self, client_id, end_point, certficate_file_path, private_key_file_path, root_pem_file_path):
+    def __init__(self, client_id:str, end_point:str, certficate_file_path:str, private_key_file_path:str, root_pem_file_path:str, path_to_dodecahedron_json:str):
         # The initial representation of the dodecahedron and its sides in this simulator
-        with open('firmwareSimulator/dodecahedron/dodecahedron.json', 'r') as dodecahedron_json_data:
+        with open(path_to_dodecahedron_json, 'r') as dodecahedron_json_data:
             self._dodecahedron = json.load(dodecahedron_json_data)
         self.client_id = client_id
         self.end_point = end_point
@@ -50,7 +51,7 @@ class HabitTracker:
             client_id = self.client_id
         )
 
-    def on_publish_received(self, publish_packet_data):
+    def on_publish_received(self, publish_packet_data)->None:
         publish_packet = publish_packet_data.publish_packet
         assert isinstance(publish_packet, mqtt5.PublishPacket)
         print("Received message from topic {}: {}".format(publish_packet.topic,publish_packet.payload))
@@ -66,20 +67,20 @@ class HabitTracker:
 
         
 
-    def on_lifecycle_stopped(self, lifecycle_stopped_data:mqtt5.LifecycleStoppedData):
+    def on_lifecycle_stopped(self, lifecycle_stopped_data:mqtt5.LifecycleStoppedData)->None:
         print("Lifecycle Stopped")
         self.future_stopped.set_result(lifecycle_stopped_data)
     
-    def on_lifecycle_connection_succes(self, lifecycle_connection_succes_data: mqtt5.LifecycleConnectSuccessData):
+    def on_lifecycle_connection_succes(self, lifecycle_connection_succes_data: mqtt5.LifecycleConnectSuccessData)->None:
         print("Lifecycle Connection Success")
         self.future_connection_success.set_result(lifecycle_connection_succes_data)
     
-    def on_lifecycle_connection_failure(self, lifecycle_connection_failure: mqtt5.LifecycleConnectFailureData):
+    def on_lifecycle_connection_failure(self, lifecycle_connection_failure: mqtt5.LifecycleConnectFailureData)->None:
         print("Lifecycle Connection Failure")
         print("Connection failed with exception:{}".format(lifecycle_connection_failure.exception))
 
 
-    def publish_message(self, format, mqtt_topic, habit_id, data, habit_type):
+    def publish_message(self, format:str, mqtt_topic:str, habit_id:int, data:tuple, habit_type:str)->None:
         """Method that publishes a message to an AWS MQTT topic either in JSOn format or in protocol buffers format.
         -----------
         Parameters:
@@ -106,7 +107,7 @@ class HabitTracker:
                     "data": data[0] # The data is a the first element in the data array 
                 }
                 # For protocol buffers format
-                payload = firmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], data=message["data"]).SerializeToString()
+                payload = FirmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], data=message["data"]).SerializeToString()
                 
             case "TIME":
                 # For JSON format
@@ -118,7 +119,7 @@ class HabitTracker:
                 }
                 
                 # For protocol buffers format
-                payload = firmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], start_timestamp=message["start_timestamp"], stop_timestamp=message["stop_timestamp"]).SerializeToString()
+                payload = FirmwareMessage(device_timestamp=message["device_timestamp"], habit_id=message["habit_id"], start_timestamp=message["start_timestamp"], stop_timestamp=message["stop_timestamp"]).SerializeToString()
             
             case _:
                 raise Exception("The provided habit_type ({}) is not recognised".format(habit_type))
@@ -149,9 +150,16 @@ class HabitTracker:
             
 
     
-    def subscribe(self,topic):
+    def subscribe(self,topic:str)->None:
         """Method that allows the HabitTracker to subscribe to an MQTT5 topic.
-        The method takes as its input the topic the HabitTracker is to subscribe to."""
+        
+        -----------
+        Parameters:
+        -----------
+
+        topic:  (string) The MQTT topic the firmwareSimulator is to subscribe to.
+        
+        """
         print("Trying to subscribe to {}".format(topic))
         subscribe_future = self.client.subscribe(subscribe_packet=mqtt5.SubscribePacket(
             subscriptions=[mqtt5.Subscription(
@@ -166,18 +174,25 @@ class HabitTracker:
         except:
             print("subscribe future failed: ", subscribe_future.__dict__)
 
-    def unsubscribe(self, topic):
+    def unsubscribe(self, topic:str)->None:
         """A method that allows the HabitTracker to unsubscribe from an MQTT5 topic.
-        The method takes as its input the topic the HabitTracker is to unsubscribe from."""
+        
+        -----------
+        Parameters:
+        -----------
+
+        topic:  (string) The MQTT topic the firmwareSimulator is to unsubscribe from.
+        
+        """
         unsubscribe_future = self.client.unsubscribe(unsubscribe_packet=mqtt5.UnsubackPacket(
             topic_filters=[topic]))
         unsuback = unsubscribe_future.result(timeout=100)
         print("Unsubscribed from {}, with {}".format(topic, unsuback.reason_codes))
     
-    def start_connection(self):
+    def start_connection(self)->None:
         self.client.start()
     
-    def stop_connection(self):
+    def stop_connection(self)->None:
         self.client.stop()
 
     #############################################################
@@ -193,7 +208,7 @@ class HabitTracker:
     ############################################################# 
 
 
-    def update_sides(self,payload):
+    def update_sides(self,payload)->None:
         """A method that takes in the configuration received from the AWS IoT device shadow,
         decodes it and then updates the specified side of the dodecahedron accordingly.
         
@@ -226,32 +241,38 @@ class HabitTracker:
 
 
     
-#    def value_transformer(self, value):
-#        """Function that takes in a value and does something with it.
-#        At the moment that is to transform its string value to an integer value
-#        and return that or to throw an error if that does not work."""
-#        try:
-#            return int(value)  # If a number key is pressed return its value as a number
-#        except:
-#            print("Invalid input! Input must be a number.")   # Otherwise show the user that the wrong input was provided
-    
-    def get_habit_type(self,side):
-        """Function that takes an integer, that represents a side of the dodecahedron habit tracker, as input and 
-        returns the type of habit associated with that side. If the input does not match any side of the dodecahedron, the 
-        function throws an error."""
+    def get_habit_type(self,side:str)->str:
+        """Method that returns the type of habit associated with that side.
+        If the input does not match any side of the dodecahedron, the function throws an error.
+        
+        -----------
+        Parameters:
+        -----------
+        
+        side: (string) The side of the dodecahedron from which we want to get the habit type associated with that side.
+        
+        """
         if side in list(self._dodecahedron.keys()):
             return self._dodecahedron.get(side).get("type")
         else:
             raise Exception("ERROR: The provided input does not correspond to any side of the device / dodecahedron")
     
-    def get_habit_id(self,side):
-        """Method that gets the id of the habit associated with the provided side"""
+    def get_habit_id(self,side:str)->str:
+        """Method that gets the id of the habit associated with the provided side
+        
+        -----------
+        Parameters:
+        -----------
+        
+        side: (string) The side of the dodecahedron from which we want to get the habit id of the habit associated with that side.
+        
+        """
         if side in list(self._dodecahedron.keys()):
             return self._dodecahedron.get(side).get("id")
         else:
             raise Exception("ERROR: The provided input does not correspond to any side of the device / dodecahedron")
     
-    def execute_habit(self, habit_type):
+    def execute_habit(self, habit_type:str)->tuple[int,int,int]:
         """Function that takes in one input, the habit type, for instance count, and performs the corresponding actions and returns the output.
         The output is returned as a tuple.
         It was necessary to call the input variable for habitType, because type is a python keyword."""
@@ -261,15 +282,15 @@ class HabitTracker:
                 return (counted,)                                 # Returns an increment value of 1 as a tuple
             case "TIME":
                 now = datetime.now()
-                start_timestamp = int(round(datetime.timestamp(now - timedelta(hours=0, minutes=5))))  # Start before stop: Subtracks 5 min from current time
-                stop_timestamp = int(round(datetime.timestamp(now)))
-                data = None # Change when there is actual data to be sent (additionally to the timestamps)
+                start_timestamp:int = int(round(datetime.timestamp(now - timedelta(hours=0, minutes=5))))  # Start before stop: Subtracks 5 min from current time
+                stop_timestamp:int = int(round(datetime.timestamp(now)))
+                data:int = None # Change when there is actual data to be sent (additionally to the timestamps)
                 return (data, start_timestamp, stop_timestamp)  # Returns the bot timestamps as values in a tuple, data is the first element in the tuple (for consistency with the "count" case)
             case _:                                      
                 raise Exception("ERROR: This habit type does not exist")   # Throws an error if the provided habit type does not exist
 
 
-    def interaction_listener(self, message_format, mqtt_topic):
+    def interaction_listener(self, message_format:str, mqtt_topic:str)->None:
         key_buffer = [] # Stores the user input
 
         print("Press ESCAPE to terminate program or Enter a side to interact with: ")
@@ -283,15 +304,12 @@ class HabitTracker:
                 key_buffer.clear()    # Clearing the buffer to make way for new entries
 
             #------Preparing data to be sent to AWS IoT core------
-                #habit = self.value_transformer(value=side)  # Passing on the side selection and storing the returned value
-                print("type of side: ", type(side))
                 print("side: ", side)
-                habit_id = self.get_habit_id(side=side)    # The id of the habit
-                habit_type = self.get_habit_type(side=side)# The type of habit
+                habit_id = self.get_habit_id(side=side)    
+                habit_type = self.get_habit_type(side=side)
                 habit_data = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
 
             #-------------------MQTT-------------------
-                #self.start_connection() # Start connection to MQTT broker
                 self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data, habit_type=habit_type)
                 time.sleep(1)
                 print("Press ESCAPE to terminate program or Enter a side to interact with: ")
