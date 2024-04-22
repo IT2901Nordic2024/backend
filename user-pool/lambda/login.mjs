@@ -13,43 +13,48 @@ export const handler = async (event) => {
   }
 
   const client = new CognitoIdentityProviderClient({})
-  let userDataTableName = process.env.USERDATA_TABLENAME
   let clientId = process.env.USERPOOL_ID
+  let userData
+  let loginResponse
 
-  let loginResponse = await client.send(
-    new InitiateAuthCommand({
-      AuthFlow: 'USER_PASSWORD_AUTH',
-      ClientId: clientId,
-      AuthParameters: {
-        USERNAME: 'Kittyover8',
-        PASSWORD: 'Passord123!!',
-      },
-      AuthenticationResult: {
-        // AuthenticationResultType
-        AccessToken: 'STRING_VALUE',
-        ExpiresIn: Number('int'),
-        TokenType: 'STRING_VALUE',
-        RefreshToken: 'STRING_VALUE',
-        IdToken: 'STRING_VALUE',
-        NewDeviceMetadata: {
-          // NewDeviceMetadataType
-          DeviceKey: 'STRING_VALUE',
-          DeviceGroupKey: 'STRING_VALUE',
+  try {
+    // Logs in and gets AccessToken for user. This will be used to get userId in next api-call
+    loginResponse = await client.send(
+      new InitiateAuthCommand({
+        AuthFlow: 'USER_PASSWORD_AUTH',
+        ClientId: clientId,
+        AuthParameters: {
+          USERNAME: event.pathParameters.username,
+          PASSWORD: event.pathParameters.password,
         },
-      },
-    }),
-  )
-
-  const input = {
-    // GetUserRequest
-    AccessToken: loginResponse.AuthenticationResult.AccessToken,
-    USERNAME: 'Kittyover8',
+      }),
+    )
+  } catch (error) {
+    statusCode = 400
+    body.failure = 'Authenticationfailure'
+    body.error = error
+    body = JSON.stringify(body)
+    return { statusCode, body, headers }
   }
-  const command = new GetUserCommand(input)
-  const response = await client.send(command)
 
-  body.userAttributes = response.UserAttributes
-  body.userName = response.Username
+  // Gets userdata with accesstoken from previous API call
+  try {
+    userData = await client.send(
+      new GetUserCommand({
+        AccessToken: loginResponse.AuthenticationResult.AccessToken,
+        USERNAME: event.pathParameters.username,
+      }),
+    )
+  } catch (error) {
+    statusCode = 400
+    body.failure = 'Failure when getting userdata'
+    body.error = error
+    body = JSON.stringify(body)
+    return { statusCode, body, headers }
+  }
+
+  body.userAttributes = userData.UserAttributes
+  body.userName = userData.Username
   body.AccessToken = loginResponse.AuthenticationResult.AccessToken
 
   return { statusCode, body, headers }

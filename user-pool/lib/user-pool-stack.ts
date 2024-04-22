@@ -112,7 +112,7 @@ export class UserPoolStack extends cdk.Stack {
       integration: signupIntegration,
     })
     httpApi.addRoutes({
-      path: '/verifyUser/{username}/{verificationCode}',
+      path: '/verifyUser/{username}/{confirmationCode}',
       methods: [apigwv2.HttpMethod.POST],
       integration: verifyuserIntegration,
     })

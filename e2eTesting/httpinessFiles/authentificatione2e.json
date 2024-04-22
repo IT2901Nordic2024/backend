@@ -17,7 +17,7 @@
       "name": "verify user",
       "rawRequest": {
         "method": "POST",
-        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/signup/${username}/${verificationCode}",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/signup/${username}/${confirmationCode}",
         "headers": [],
         "body": null
       }
@@ -38,7 +38,7 @@
     "email": "",
     "deviceId": "",
     "password": "",
-    "verificationCode": ""
+    "confirmationCode": ""
   },
   "parameterPresets": [
     {

@@ -9,15 +9,25 @@ export const handler = async (event) => {
   const headers = {
     'Content-Type': 'application/json',
   }
+  let confirmSignUpCommandResponse
 
-  body = await client.send(
-    new ConfirmSignUpCommand({
-      // ConfirmSignUpRequest
-      ClientId: process.env.USERPOOL_ID, // required
-      Username: 'Kittyover8', // required
-      ConfirmationCode: '888578', // required
-    }),
-  )
+  try {
+    confirmSignUpCommandResponse = await client.send(
+      new ConfirmSignUpCommand({
+        // ConfirmSignUpRequest
+        ClientId: process.env.USERPOOL_ID,
+        Username: event.pathParameters.username,
+        ConfirmationCode: event.pathParameters.confirmationCode,
+      }),
+    )
+  } catch (error) {
+    statusCode = 400
+    body.error = error
+    body.failure = 'Userconfirmation failure'
+    body = JSON.stringify(body)
+    return { statusCode, body, headers }
+  }
+
   body = 'User confirmed!'
   return { statusCode, body, headers }
 }
