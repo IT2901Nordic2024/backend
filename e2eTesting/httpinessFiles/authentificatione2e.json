@@ -1,0 +1,53 @@
+{
+  "collectionVersion": "httpiness/JSON/0.11",
+  "uuid": "8d5d1880-827e-41ae-a886-e9366057b0b4",
+  "authChildren": [],
+  "dirChildren": [],
+  "reqtChildren": [
+    {
+      "name": "signup",
+      "rawRequest": {
+        "method": "POST",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/signup/${username}/${email}/${deviceId}/${password}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "verify user",
+      "rawRequest": {
+        "method": "POST",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/signup/${username}/${verificationCode}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "login",
+      "rawRequest": {
+        "method": "GET",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/login/${username}/${password}",
+        "headers": [],
+        "body": null
+      }
+    }
+  ],
+  "parameters": {
+    "API_ID": "",
+    "username": "",
+    "email": "",
+    "deviceId": "",
+    "password": "",
+    "verificationCode": ""
+  },
+  "parameterPresets": [
+    {
+      "name": "Development",
+      "macros": []
+    },
+    {
+      "name": "Production",
+      "macros": []
+    }
+  ]
+}
