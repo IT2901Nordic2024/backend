@@ -9,12 +9,16 @@ if __name__ == '__main__':
     #---------------------------------------------------------------------------
     #                              Authentication Constants                  
     #---------------------------------------------------------------------------
-    CERT_FILEPATH = "../firmwareSimulator/certificates/firmwareSimulatorThing.cert.pem"
-    PRI_KEY_FILEPATH = "../firmwareSimulator/certificates/firmwareSimulatorThing.private.key"
-    CA_FILEPATH = "../firmwareSimulator/certificates/root.pem"
-    AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
+    #CERT_FILEPATH = "../firmwareSimulator/certificates/firmwareSimulatorThing.cert.pem"
+    #PRI_KEY_FILEPATH = "../firmwareSimulator/certificates/firmwareSimulatorThing.private.key"
+    #CA_FILEPATH = "../firmwareSimulator/certificates/root.pem"
+    #AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
     PATH_TO_DODECAHEDRON = "../firmwareSimulator/dodecahedron/dodecahedron.json"
-
+    CERT_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.cert.pem"
+    PRI_KEY_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.private.key"
+    ROOT_PEM_FILE_PATH = "../firmwareSimulator/certificates2/root.pem"
+    AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
+    PUB_KEY_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.public.key"
 
     #---------------------------------------------------------------------------
     #                                      Habit tracker                   
@@ -22,9 +26,9 @@ if __name__ == '__main__':
 
     tracker = FirmwareSimulator(client_id="firmwareSimulatorThing",
                         end_point=AWS_ENDPOINT,
-                        certficate_file_path=CERT_FILEPATH,
-                        private_key_file_path=PRI_KEY_FILEPATH,
-                        root_pem_file_path=CA_FILEPATH,
+                        certficate_file_path=CERT_FILE_PATH,
+                        private_key_file_path=PRI_KEY_FILE_PATH,
+                        root_pem_file_path=ROOT_PEM_FILE_PATH,
                         path_to_dodecahedron_json=PATH_TO_DODECAHEDRON)
 
 
@@ -37,8 +41,8 @@ if __name__ == '__main__':
     print("Client created")
     tracker.start_connection()
     print("Connection established")
-    tracker.subscribe("firmwareSimulatorThing/updates")
-    tracker.interaction_listener("proto_buff","habitTrackerData/firmwareSimulatorThing/events")
+    #tracker.subscribe("FirmwareSimulatorThing/updates")
+    tracker.interaction_listener("proto_buff","habitTrackerData/FirmwareSimulatorThing/events")
 
 
 #---------------------------------------------------------------------------

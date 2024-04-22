@@ -45,7 +45,7 @@ class FirmwareSimulator:
             pri_key_filepath= self.private_key_file_path,
             ca_filepath = self.root_pem_file_path,
             on_publish_received = self.on_publish_received,
-            on_lifecycle_stopped = self. on_lifecycle_stopped,
+            on_lifecycle_stopped = self.on_lifecycle_stopped,
             on_lifecycle_connection_succes = self.on_lifecycle_connection_succes,
             on_lifecycle_connection_failure = self.on_lifecycle_connection_failure,
             client_id = self.client_id
