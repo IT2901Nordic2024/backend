@@ -1,41 +1,56 @@
 import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
-} from "@aws-sdk/client-cognito-identity-provider";
+  GetUserCommand,
+} from '@aws-sdk/client-cognito-identity-provider'
 
 export const handler = async (event) => {
   // Initiating response we will send back to sender
-  let body = {};
-  let statusCode = 200;
+  let body = {}
+  let statusCode = 200
   const headers = {
-    "Content-Type": "application/json",
-  };
+    'Content-Type': 'application/json',
+  }
 
-  const client = new CognitoIdentityProviderClient({});
+  const client = new CognitoIdentityProviderClient({})
+  let userDataTableName = process.env.USERDATA_TABLENAME
+  let clientId = process.env.USERPOOL_ID
 
-  body = await client.send(
+  let loginResponse = await client.send(
     new InitiateAuthCommand({
-      AuthFlow: "USER_PASSWORD_AUTH",
-      ClientId: "3cggp662kebg9bjo5qoi2r4c6g",
+      AuthFlow: 'USER_PASSWORD_AUTH',
+      ClientId: clientId,
       AuthParameters: {
-        USERNAME: "FRODE_FRYDFULL",
-        PASSWORD: "Password123",
+        USERNAME: 'Kittyover8',
+        PASSWORD: 'Passord123!!',
       },
       AuthenticationResult: {
         // AuthenticationResultType
-        AccessToken: "STRING_VALUE",
-        ExpiresIn: Number("int"),
-        TokenType: "STRING_VALUE",
-        RefreshToken: "STRING_VALUE",
-        IdToken: "STRING_VALUE",
+        AccessToken: 'STRING_VALUE',
+        ExpiresIn: Number('int'),
+        TokenType: 'STRING_VALUE',
+        RefreshToken: 'STRING_VALUE',
+        IdToken: 'STRING_VALUE',
         NewDeviceMetadata: {
           // NewDeviceMetadataType
-          DeviceKey: "STRING_VALUE",
-          DeviceGroupKey: "STRING_VALUE",
+          DeviceKey: 'STRING_VALUE',
+          DeviceGroupKey: 'STRING_VALUE',
         },
       },
-    })
-  );
+    }),
+  )
 
-  return { statusCode, body, headers };
-};
+  const input = {
+    // GetUserRequest
+    AccessToken: loginResponse.AuthenticationResult.AccessToken,
+    USERNAME: 'Kittyover8',
+  }
+  const command = new GetUserCommand(input)
+  const response = await client.send(command)
+
+  body.userAttributes = response.UserAttributes
+  body.userName = response.Username
+  body.AccessToken = loginResponse.AuthenticationResult.AccessToken
+
+  return { statusCode, body, headers }
+}
