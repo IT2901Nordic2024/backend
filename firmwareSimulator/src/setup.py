@@ -1,3 +1,4 @@
+import io
 import boto3
 import boto3.session
 import requests
@@ -16,6 +17,7 @@ class FirmwareSimulatorThingSetup:
         self.session = boto3.session.Session(region_name=self.region_name)
         self.iot_client = self.session.client('iot')
         self.account_id:str = self.session.client('sts').get_caller_identity()['Account'] # sts stands for AWS Security Token Service
+        self.iot_data_client = self.session.client('iot-data')
 
     def create_certificates(self) -> tuple[str,str]:
         """Method that generates the private_key, public_key, certificate and the root_ca1_pem.
@@ -93,7 +95,7 @@ class FirmwareSimulatorThingSetup:
         # publish_receive_publishretain_resource_ARN:str = "arn:aws:iot:" + self.region_name + ":" + self.account_id + ":topic/habit-tracker-data/${iot:Connection.Thing.ThingName}/events"
         publish_receive_publishretain_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/" + config.PUBLISH_MQTT_TOPIC # using "*" for region and account_id, because the connection is refused for some reason otherwise.
         connect_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name # using "*" for region and account_id, because the connection is refused for some reason otherwise.
-
+        update_thing_shadow_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name
         # Policy document
         firmare_simulator_policy_document:dict = {
 
@@ -127,6 +129,11 @@ class FirmwareSimulatorThingSetup:
 
                                                     "Resource": connect_resource_ARN
 
+                                                    },
+                                                    {
+                                                        "Effect": "Allow",
+                                                        "Action":["iot:UpdateThingShadow"],
+                                                        "Resource": update_thing_shadow_ARN
                                                     }
 
                                                 ]
@@ -194,6 +201,23 @@ class FirmwareSimulatorThingSetup:
         attach_thing_principal_response:dict = self.iot_client.attach_thing_principal(
             thingName = self.thing_name,
             principal = certificate_ARN
+        )
+
+    def update_or_create_device_shadow(self)-> None:
+        """Method that uses the dodecahedron file specified in config.PATH_TO_DODECAHEDRON
+        to create a thing shadow for the thing created with this setup class.
+        The dodecahedron json file is here used to create an initial state for the shadow."""
+        with open(config.PATH_TO_DODECAHEDRON, 'r') as dodecahedron_json_file:
+            original_json = dodecahedron_json_file.read()
+
+        # Modifies the dodecahedron json to meet AWS requirements for uploading payload
+        desired_json = {"desired":json.loads(original_json)}
+        modified_json = {"state":desired_json}               
+        modified_json = json.dumps(modified_json)
+
+        update_or_create_response = self.iot_data_client.update_thing_shadow(
+            thingName = self.thing_name,
+            payload = modified_json
         )
 
     def list_all_aws_iot_policies(self) -> dict:
@@ -296,11 +320,12 @@ if __name__ == '__main__':
                                                             thing_name=config.THING_NAME)
     
 
+    thing_ARN,thing_ID = FirmwareSimulatorThing.create_firmware_simulator_aws_thing()
+    FirmwareSimulatorThing.update_or_create_device_shadow()
     certificate_ARN, certificateID = FirmwareSimulatorThing.create_certificates()
     policy_name:str = FirmwareSimulatorThing.create_policy(policy_name=config.POLICY_NAME)
-    thing_ARN,thing_ID = FirmwareSimulatorThing.create_firmware_simulator_aws_thing()
     FirmwareSimulatorThing.attach_policy_and_thing_principal_to_firmware_simulator_aws_thing(policy_name=policy_name, certificate_ARN=certificate_ARN)
-
+    
     print("===================SETUP COMPLETED===================")
 
 
