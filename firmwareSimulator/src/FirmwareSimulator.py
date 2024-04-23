@@ -77,6 +77,8 @@ class FirmwareSimulator:
     
     def on_lifecycle_connection_failure(self, lifecycle_connection_failure: mqtt5.LifecycleConnectFailureData)->None:
         print("Lifecycle Connection Failure")
+        print("connack packet: ", lifecycle_connection_failure.connack_packet)
+        print("client_id: ", self.client.client_id)
         print("Connection failed with exception:{}".format(lifecycle_connection_failure.exception))
 
 

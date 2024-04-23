@@ -2,8 +2,9 @@ import boto3
 import boto3.session
 import requests
 import json
+import config
 
-class FirmwareSimulatorAWSThingSetup:
+class FirmwareSimulatorThingSetup:
     def __init__(self, region_name:str, certificate_file_path:str, private_key_file_path:str, public_key_file_path:str, root_ca1_pem_file_path:str, aws_endpoint:str, thing_name:str = "FirmwareSimulatorThing"):
         self.thing_name = thing_name
         self.region_name:str = region_name
@@ -90,8 +91,8 @@ class FirmwareSimulatorAWSThingSetup:
         # Resources
 
         # publish_receive_publishretain_resource_ARN:str = "arn:aws:iot:" + self.region_name + ":" + self.account_id + ":topic/habit-tracker-data/${iot:Connection.Thing.ThingName}/events"
-        publish_receive_publishretain_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/habit-tracker-data/${iot:Connection.Thing.ThingName}/events" # using "*" for region and account_id, because the connection is refused for some reason otherwise.
-        connect_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/${iot:Connection.Thing.ThingName}" # using "*" for region and account_id, because the connection is refused for some reason otherwise.
+        publish_receive_publishretain_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/" + config.PUBLISH_MQTT_TOPIC # using "*" for region and account_id, because the connection is refused for some reason otherwise.
+        connect_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name # using "*" for region and account_id, because the connection is refused for some reason otherwise.
 
         # Policy document
         firmare_simulator_policy_document:dict = {
@@ -277,18 +278,7 @@ class FirmwareSimulatorAWSThingSetup:
 
 
 if __name__ == '__main__':
-    #---------------------------------------------------------------------------
 
-    #                           Filepaths for certificates                  
-
-    #---------------------------------------------------------------------------
-
-    CERT_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.cert.pem"
-    PRI_KEY_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.private.key"
-    ROOT_PEM_FILE_PATH = "../firmwareSimulator/certificates2/root.pem"
-    AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
-    PUB_KEY_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.public.key"
-    
 
     #---------------------------------------------------------------------------
 
@@ -297,17 +287,17 @@ if __name__ == '__main__':
     #---------------------------------------------------------------------------
 
     print("===================BEGIN SETUP===================")
-    FirmwareSimulatorThing = FirmwareSimulatorAWSThingSetup(region_name='eu-north-1',
-                                                            certificate_file_path=CERT_FILE_PATH,
-                                                            private_key_file_path=PRI_KEY_FILE_PATH,
-                                                            public_key_file_path=PUB_KEY_FILE_PATH,
-                                                            root_ca1_pem_file_path=ROOT_PEM_FILE_PATH,
-                                                            aws_endpoint=AWS_ENDPOINT,
-                                                            thing_name="FirmwareSimulatorThing")
+    FirmwareSimulatorThing = FirmwareSimulatorThingSetup(region_name=config.REGION_NAME,
+                                                            certificate_file_path=config.CERT_FILE_PATH,
+                                                            private_key_file_path=config.PRI_KEY_FILE_PATH,
+                                                            public_key_file_path=config.PUB_KEY_FILE_PATH,
+                                                            root_ca1_pem_file_path=config.ROOT_PEM_FILE_PATH,
+                                                            aws_endpoint=config.AWS_ENDPOINT,
+                                                            thing_name=config.THING_NAME)
     
 
     certificate_ARN, certificateID = FirmwareSimulatorThing.create_certificates()
-    policy_name:str = FirmwareSimulatorThing.create_policy(policy_name="FirmwareSimulatorPolicy")
+    policy_name:str = FirmwareSimulatorThing.create_policy(policy_name=config.POLICY_NAME)
     thing_ARN,thing_ID = FirmwareSimulatorThing.create_firmware_simulator_aws_thing()
     FirmwareSimulatorThing.attach_policy_and_thing_principal_to_firmware_simulator_aws_thing(policy_name=policy_name, certificate_ARN=certificate_ARN)
 
@@ -326,10 +316,17 @@ if __name__ == '__main__':
 
 # The code for this setup file was heavily inspired by:     https://github.com/keivanK1/aws-create-thing-boto3/blob/master/createThing-Cert.py
 # The link to get the root_ca_url:                          https://repost.aws/knowledge-center/iot-core-publish-mqtt-messages-python
-# Response syntax of response in create_certificates:       https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_thing.html
+# Configure credentials:                                    https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html
 # Response syntax of create_keys_and_certificates:          https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_keys_and_certificate.html
+# Create AWS IoT policy:                                    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_policy.html
+# Create AWS IoT thing:                                     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_thing.html
+#                                                           https://www.youtube.com/watch?v=_OkJkV_StSM
+# Attatch thing principal:                                  https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/attach_thing_principal.html
+# Attatch AWS IoT policy:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/attach_policy.html
 # General boto3 session information:                        https://ben11kehoe.medium.com/boto3-sessions-and-why-you-should-use-them-9b094eb5ca8e
 # Listing all AWS IoT policies using the AWS CLI:           https://docs.aws.amazon.com/cli/latest/reference/iot/list-policies.html
+# Detatch AWS IoT policy:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/detach_policy.html
 # Delete an AWS IoT Policy using the AWS CLI:               https://docs.aws.amazon.com/cli/latest/reference/iot/delete-policy.html                  
-
+# Delete AWS certificate:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/delete_certificate.html
+# List all AWS IoT certificates:                            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/list_certificates.html
 ############################################################################

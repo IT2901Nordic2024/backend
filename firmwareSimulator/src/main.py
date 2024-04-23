@@ -1,6 +1,7 @@
 
 from FirmwareSimulator import FirmwareSimulator
 from config_pb2 import Config as ConfigMessage
+import config
 
 
 1
@@ -13,23 +14,17 @@ if __name__ == '__main__':
     #PRI_KEY_FILEPATH = "../firmwareSimulator/certificates/firmwareSimulatorThing.private.key"
     #CA_FILEPATH = "../firmwareSimulator/certificates/root.pem"
     #AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
-    PATH_TO_DODECAHEDRON = "../firmwareSimulator/dodecahedron/dodecahedron.json"
-    CERT_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.cert.pem"
-    PRI_KEY_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.private.key"
-    ROOT_PEM_FILE_PATH = "../firmwareSimulator/certificates2/root.pem"
-    AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
-    PUB_KEY_FILE_PATH = "../firmwareSimulator/certificates2/FirmwareSimulatorThing.public.key"
 
     #---------------------------------------------------------------------------
     #                                      Habit tracker                   
     #---------------------------------------------------------------------------
 
-    tracker = FirmwareSimulator(client_id="firmwareSimulatorThing",
-                        end_point=AWS_ENDPOINT,
-                        certficate_file_path=CERT_FILE_PATH,
-                        private_key_file_path=PRI_KEY_FILE_PATH,
-                        root_pem_file_path=ROOT_PEM_FILE_PATH,
-                        path_to_dodecahedron_json=PATH_TO_DODECAHEDRON)
+    tracker = FirmwareSimulator(client_id=config.CLIENT_ID,
+                        end_point=config.AWS_ENDPOINT,
+                        certficate_file_path=config.CERT_FILE_PATH,
+                        private_key_file_path=config.PRI_KEY_FILE_PATH,
+                        root_pem_file_path=config.ROOT_PEM_FILE_PATH,
+                        path_to_dodecahedron_json=config.PATH_TO_DODECAHEDRON)
 
 
 
@@ -42,7 +37,7 @@ if __name__ == '__main__':
     tracker.start_connection()
     print("Connection established")
     #tracker.subscribe("FirmwareSimulatorThing/updates")
-    tracker.interaction_listener("proto_buff","habitTrackerData/FirmwareSimulatorThing/events")
+    tracker.interaction_listener(message_format="proto_buff",mqtt_topic=config.PUBLISH_MQTT_TOPIC)
 
 
 #---------------------------------------------------------------------------
