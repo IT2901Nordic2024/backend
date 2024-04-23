@@ -82,10 +82,10 @@ export class UserPoolStack extends cdk.Stack {
       },
     })
 
-    const verifyUserFunction = new lambda.Function(this, 'VerifyEmailUser', {
-      functionName: 'VerifyEmailUser',
+    const verifyEmailFunction = new lambda.Function(this, 'VerifyEmailFunction', {
+      functionName: 'VerifyEmailFunction',
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'verifyEmailUser.handler',
+      handler: 'verifyEmail.handler',
       code: lambda.Code.fromAsset('lambda'),
       environment: {
         USERDATATABLENAME: 'UserDataTable',
@@ -103,7 +103,7 @@ export class UserPoolStack extends cdk.Stack {
     })
 
     const signupIntegration = new HttpLambdaIntegration('SignupIntegration', signupFunction)
-    const verifyuserIntegration = new HttpLambdaIntegration('VerifyuserIntegration', verifyUserFunction)
+    const verifyuserIntegration = new HttpLambdaIntegration('VerifyuserIntegration', verifyEmailFunction)
     const loginIntegration = new HttpLambdaIntegration('LoginIntegration', loginFunction)
 
     httpApi.addRoutes({

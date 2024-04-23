@@ -43,12 +43,12 @@
   ],
   "parameters": {
     "API_ID": "******sensitive******",
-    "userId": "c04ca9fc-0061-70aa-8ea2-8f26da31c64e",
-    "deviceId": "MyIotThing",
-    "habitName": "Treehugging",
+    "userId": "b04c19ac-80c1-7096-baff-83aea8fee9c6",
+    "deviceId": "firmwareSimulatorThing",
+    "habitName": "Sleeping",
     "habitType": "time",
-    "deviceSide": "1",
-    "habitId": "1713868485572"
+    "deviceSide": "8",
+    "habitId": "1713179977074"
   },
   "parameterPresets": [
     {

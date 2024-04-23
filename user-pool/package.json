@@ -25,6 +25,7 @@
     "typescript": "~5.3.3"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.556.0",
     "@aws-sdk/client-dynamodb": "^3.535.0",
     "@aws-sdk/client-iot-data-plane": "^3.535.0",
     "@aws-sdk/lib-dynamodb": "^3.535.0",
