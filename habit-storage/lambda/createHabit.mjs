@@ -54,7 +54,7 @@ export const handler = async (event) => {
       new PutCommand({
         TableName: habitEventTableName,
         Item: {
-          userId: Number(event.pathParameters.userId),
+          userId: event.pathParameters.userId,
           habitId: habitId,
           habitEvents: [],
         },
@@ -100,7 +100,7 @@ export const handler = async (event) => {
       new UpdateCommand({
         TableName: userDataTableName,
         Key: {
-          userId: Number(event.pathParameters.userId),
+          userId: event.pathParameters.userId,
         },
         UpdateExpression: 'SET habits = list_append(habits, :newHabit)',
         ExpressionAttributeValues: {

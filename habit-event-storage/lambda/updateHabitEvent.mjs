@@ -25,7 +25,7 @@ export const handler = async (event) => {
 
         UpdateExpression: 'SET habitEvents = list_append(habitEvents, :updatedHabit)',
         ExpressionAttributeValues: {
-          ':habitEvents': Number(event.pathParameters.userId),
+          ':habitEvents': event.pathParameters.userId,
         },
       })
     )

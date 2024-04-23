@@ -21,11 +21,6 @@ export const handler = async (event) => {
   }
 
   try {
-    // Throw error if userId isnt a integer
-    if (!isInt(event.pathParameters.userId)) {
-      throw 'userId must be a number'
-    }
-
     // Sends query to database and stores response in body
     body = await dynamo.send(
       new QueryCommand({
@@ -33,7 +28,7 @@ export const handler = async (event) => {
 
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
-          ':userId': Number(event.pathParameters.userId),
+          ':userId': event.pathParameters.userId,
         },
       })
     )
