@@ -1,3 +1,5 @@
+/* global process */
+
 import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
@@ -56,6 +58,8 @@ export const handler = async (event) => {
   body.userAttributes = userData.UserAttributes
   body.userName = userData.Username
   body.AccessToken = loginResponse.AuthenticationResult.AccessToken
+
+  body = JSON.stringify(body)
 
   return { statusCode, body, headers }
 }

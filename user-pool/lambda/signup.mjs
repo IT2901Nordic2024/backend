@@ -1,3 +1,5 @@
+/* global process */
+
 import { CognitoIdentityProviderClient, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
@@ -11,11 +13,11 @@ export const handler = async (event) => {
   }
 
   const client = new CognitoIdentityProviderClient({})
-  //const ddbclient = new DynamoDBClient({})
-  //const dynamo = new DynamoDBDocumentClient.from(ddbclient)
+  const ddbClient = new DynamoDBClient()
+  const dynamo = new DynamoDBDocumentClient(ddbClient)
   let signUpCommandResponse
-  let createUserdataResponse
-  let userData
+  //let createUserdataResponse
+  let userData = {}
   const userDataTableName = process.env.USERDATA_TABLENAME
   const clientId = process.env.USERPOOL_ID
 
@@ -41,18 +43,18 @@ export const handler = async (event) => {
     body.error = error
     body.failure = 'SignUpCommand failed'
     body.response = signUpCommandResponse
-    //body = JSON.stringify(body)
+    body = JSON.stringify(body)
     return { statusCode, body, headers }
   }
 
   try {
     // Legger til brukerdata i userData
-    userData.userId = signUpCommandResponse.UserSub
+    userData.userId = String(signUpCommandResponse.UserSub)
     userData.habits = []
     userData.deviceId = event.pathParameters.deviceId
-
+    console.log(userData)
     // Lagrer userData i databasen
-    createUserdataResponse = await dynamo.send(
+    await dynamo.send(
       new PutCommand({
         TableName: userDataTableName,
         Item: userData,
@@ -62,6 +64,8 @@ export const handler = async (event) => {
     statusCode = 400
     body.error = error
     body.failure = 'Creating userdata failed'
+    body = JSON.stringify(body)
+    body = userData
     body = JSON.stringify(body)
     return { statusCode, body, headers }
   }
