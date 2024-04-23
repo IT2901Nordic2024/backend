@@ -42,7 +42,7 @@
     }
   ],
   "parameters": {
-    "API_ID": "prg7rbhyt8",
+    "API_ID": "******sensitive******",
     "userId": "c04ca9fc-0061-70aa-8ea2-8f26da31c64e",
     "deviceId": "MyIotThing",
     "habitName": "Treehugging",

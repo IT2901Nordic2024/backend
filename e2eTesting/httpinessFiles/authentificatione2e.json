@@ -17,7 +17,7 @@
       "name": "verify user",
       "rawRequest": {
         "method": "POST",
-        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/signup/${username}/${confirmationCode}",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/verifyUser/${username}/${confirmationCode}",
         "headers": [],
         "body": null
       }
@@ -33,12 +33,12 @@
     }
   ],
   "parameters": {
-    "API_ID": "",
-    "username": "",
-    "email": "",
-    "deviceId": "",
-    "password": "",
-    "confirmationCode": ""
+    "API_ID": "mg7sr4uvql",
+    "username": "Pusegutt",
+    "email": "eskild.overen@online.ntnu.no",
+    "deviceId": "cat",
+    "password": "Passord123",
+    "confirmationCode": "050440"
   },
   "parameterPresets": [
     {
