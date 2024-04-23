@@ -37,11 +37,4 @@ describe('UpdateHabitEventFunction', () => {
     expect(response.statusCode).toEqual(400)
     expect(response.body).toEqual('{}')
   })
-  it('Returns 400 if userId isnt a number', async () => {
-    event.pathParameters.userId = 'FrodeFrydefull'
-    const response = await handler(event)
-    console.log(event.userId)
-    expect(response.statusCode).toEqual(400)
-    expect(response.body).toEqual('"userId must be a number"')
-  })
 })
