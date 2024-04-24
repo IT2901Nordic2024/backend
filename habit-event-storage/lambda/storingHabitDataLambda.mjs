@@ -74,7 +74,7 @@ export const handler = async (event, context) => {
       break
 
     case 'TIME':
-      newPayload = [event.payload.deviceTimestamp, event.payload.startTimestamp, event.payload.stopTimestamp]
+      newPayload = [event.payload.startTimestamp, event.payload.stopTimestamp]
       console.log('TIME')
       break
     default:
