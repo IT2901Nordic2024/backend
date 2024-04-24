@@ -12,11 +12,11 @@ export const handler = async (event) => {
     'Content-Type': 'application/json',
   }
 
+  // Initiates variables for later access
   const client = new CognitoIdentityProviderClient({})
   const ddbClient = new DynamoDBClient()
   const dynamo = new DynamoDBDocumentClient(ddbClient)
   let signUpCommandResponse
-  //let createUserdataResponse
   let userData = {}
   const userDataTableName = process.env.USERDATA_TABLENAME
   const clientId = process.env.USERPOOL_ID
@@ -48,11 +48,12 @@ export const handler = async (event) => {
   }
 
   try {
-    // Legger til brukerdata i userData
+    // Adds data into userdata object
     userData.userId = String(signUpCommandResponse.UserSub)
     userData.habits = []
     userData.deviceId = event.pathParameters.deviceId
-    // Lagrer userData i databasen
+
+    // Saves userdata in the database
     await dynamo.send(
       new PutCommand({
         TableName: userDataTableName,

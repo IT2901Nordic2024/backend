@@ -14,6 +14,7 @@ export const handler = async (event) => {
     'Content-Type': 'application/json',
   }
 
+  // Initiates variables for later access
   const client = new CognitoIdentityProviderClient({})
   let clientId = process.env.USERPOOL_ID
   let userData
@@ -55,6 +56,7 @@ export const handler = async (event) => {
     return { statusCode, body, headers }
   }
 
+  // Extracts data from previous api calls
   body.userAttributes = userData.UserAttributes
   body.username = userData.Username
   body.accessToken = loginResponse.AuthenticationResult.AccessToken

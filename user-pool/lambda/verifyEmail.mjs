@@ -12,10 +12,10 @@ export const handler = async (event) => {
     'Content-Type': 'application/json',
   }
 
+  // Sends request to confirm username-confirmationCode combo
   try {
     await client.send(
       new ConfirmSignUpCommand({
-        // ConfirmSignUpRequest
         ClientId: process.env.USERPOOL_ID,
         Username: event.pathParameters.username,
         ConfirmationCode: event.pathParameters.confirmationCode,

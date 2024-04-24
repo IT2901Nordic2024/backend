@@ -42,12 +42,12 @@
     }
   ],
   "parameters": {
-    "API_ID": "mg7sr4uvql",
+    "API_ID": "******sensitive******",
     "username": "Pusegutt",
     "email": "eskild.overen@online.ntnu.no",
     "deviceId": "cat",
     "password": "Passord123",
-    "confirmationCode": "100075"
+    "confirmationCode": "988722"
   },
   "parameterPresets": [
     {
