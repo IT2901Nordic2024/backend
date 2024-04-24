@@ -11,6 +11,7 @@ export class UserPoolStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
+    // Defines userpool and its settings
     const habitTrackerUserPool = new cognito.UserPool(this, 'HabitTrackerUserPool', {
       userPoolName: 'HabitTrackerUserPool',
       signInAliases: { email: true, username: true },
@@ -33,6 +34,7 @@ export class UserPoolStack extends cdk.Stack {
       },
     })
 
+    // APP integration for userpool
     const habitTrackerUserPoolClient = new cognito.UserPoolClient(this, 'HabitTrackerUserPoolClient', {
       userPoolClientName: 'HabitTrackerUserPoolClient',
       userPool: habitTrackerUserPool,
@@ -41,18 +43,7 @@ export class UserPoolStack extends cdk.Stack {
       },
     })
 
-    const loginFunction = new lambda.Function(this, 'LoginFunction', {
-      functionName: 'LoginFunction',
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'login.handler',
-      code: lambda.Code.fromAsset('lambda'),
-      environment: {
-        USERDATA_TABLENAME: 'UserDataTable',
-        USERPOOL_ID: habitTrackerUserPoolClient.userPoolClientId,
-      },
-    })
-
-    // Creating role for createHabit
+    // Creating role for editing UserDataTable
     const signupUserRole = new iam.Role(this, 'SignupUserRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       roleName: 'SignupUserRole',
@@ -70,12 +61,24 @@ export class UserPoolStack extends cdk.Stack {
       }),
     )
 
+    // Creates lambda functions for user verification, login and registration
     const signupFunction = new lambda.Function(this, 'SignupFunction', {
       functionName: 'SignupFunction',
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'signup.handler',
       code: lambda.Code.fromAsset('lambda'),
       role: signupUserRole,
+      environment: {
+        USERDATA_TABLENAME: 'UserDataTable',
+        USERPOOL_ID: habitTrackerUserPoolClient.userPoolClientId,
+      },
+    })
+
+    const loginFunction = new lambda.Function(this, 'LoginFunction', {
+      functionName: 'LoginFunction',
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'login.handler',
+      code: lambda.Code.fromAsset('lambda'),
       environment: {
         USERDATA_TABLENAME: 'UserDataTable',
         USERPOOL_ID: habitTrackerUserPoolClient.userPoolClientId,
@@ -93,6 +96,7 @@ export class UserPoolStack extends cdk.Stack {
       },
     })
 
+    // Resource for HTTP-API
     const httpApi = new apigwv2.HttpApi(this, 'AuthentificationAPI', {
       corsPreflight: {
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
@@ -102,10 +106,12 @@ export class UserPoolStack extends cdk.Stack {
       },
     })
 
+    // Creates lambda integrations for all defined functions
     const signupIntegration = new HttpLambdaIntegration('SignupIntegration', signupFunction)
     const verifyuserIntegration = new HttpLambdaIntegration('VerifyuserIntegration', verifyEmailFunction)
     const loginIntegration = new HttpLambdaIntegration('LoginIntegration', loginFunction)
 
+    // API routes for lambda integration
     httpApi.addRoutes({
       path: '/signup/{username}/{email}/{deviceId}/{password}',
       methods: [apigwv2.HttpMethod.POST],
