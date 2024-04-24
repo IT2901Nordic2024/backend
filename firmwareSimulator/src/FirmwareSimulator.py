@@ -15,7 +15,6 @@ import config_pb2
 
 
 
-
 class FirmwareSimulator:
     """Class that represents the dodecahedron habit tracker"""
     def __init__(self, client_id:str, end_point:str, certficate_file_path:str, private_key_file_path:str, root_pem_file_path:str, path_to_dodecahedron_json:str):

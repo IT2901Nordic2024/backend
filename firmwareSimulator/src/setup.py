@@ -220,6 +220,10 @@ class FirmwareSimulatorThingSetup:
             payload = modified_json
         )
 
+    def delete_device_shadow(self) -> None:
+        """Method that deletes the device shadow of the AWS thing created with this class."""
+        delete_device_shadow_response:dict = self.iot_data_client(thingName = self.thing_name)
+
     def list_all_aws_iot_policies(self) -> dict:
         """Returns all the AWS IoT policies assoicated with self.iot_client
 
@@ -352,6 +356,7 @@ if __name__ == '__main__':
 # Update or create thing shadow:                            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot-data.html
 #                                                           https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot-data/client/update_thing_shadow.html
 #                                                           https://stackoverflow.com/questions/61440132/why-is-my-aws-iot-sdk-thing-shadow-update-request-timing-out-using-the-node-sdk            
+# Delete thing shadow:                                      https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/delete_thing.html
 # Listing all AWS IoT policies using the AWS CLI:           https://docs.aws.amazon.com/cli/latest/reference/iot/list-policies.html
 # Detatch AWS IoT policy:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/detach_policy.html
 # Delete an AWS IoT Policy using the AWS CLI:               https://docs.aws.amazon.com/cli/latest/reference/iot/delete-policy.html                  

@@ -4,8 +4,6 @@ from config_pb2 import Config as ConfigMessage
 import config
 
 
-1
-
 if __name__ == '__main__':
     #---------------------------------------------------------------------------
     #                              Authentication Constants                  
