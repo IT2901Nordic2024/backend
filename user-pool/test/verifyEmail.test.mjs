@@ -3,16 +3,12 @@ import { handler } from '../lambda/verifyEmail.mjs'
 import { CognitoIdentityProviderClient, ConfirmSignUpCommand } from '@aws-sdk/client-cognito-identity-provider' // ES Modules import
 import { beforeEach, describe, it, expect } from '@jest/globals'
 
-const client = new CognitoIdentityProviderClient({})
-const mockCognitoClient = mockClient(client)
-let event = {
-  confirmationCode: 12345,
-  username: 'FrodeFrydfull',
-}
+const mockCognitoClient = mockClient(CognitoIdentityProviderClient)
+let event
 
 beforeEach(() => {
   resetEvent()
-  mockCognitoClient.on(ConfirmSignUpCommand).resolves({})
+  mockCognitoClient.on(ConfirmSignUpCommand).resolves()
 })
 
 describe('Handler for verifying a users email', () => {
@@ -21,11 +17,20 @@ describe('Handler for verifying a users email', () => {
     expect(response.statusCode).toEqual(200)
     expect(response.body).toEqual('User confirmed!')
   })
+  it('Fails when ConfirmSignupCommand rejects', async () => {
+    mockCognitoClient.on(ConfirmSignUpCommand).rejects({ message: 'This command failed' })
+    const response = await handler(event)
+    expect(response.statusCode).toEqual(400)
+    expect(JSON.parse(response.body).error.message).toEqual('This command failed')
+    expect(JSON.parse(response.body).failure).toEqual('Userconfirmation failure')
+  })
 })
 
 const resetEvent = () => {
   event = {
-    confirmationCode: 12345,
-    username: 'FrodeFrydfull',
+    pathParameters: {
+      confirmationCode: '12345',
+      username: 'FrodeFrydfull',
+    },
   }
 }
