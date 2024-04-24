@@ -94,8 +94,10 @@ https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/verifyUser/{username}/{c
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/login/{username}/{password}
 
 - "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is AuthentificationAPI. Ask you local Backend expert if you cant find the ID
-- {username} is the username that belongs to the user
+- {username} is the username or email that the user tries to log in with
 - {password} is the password associated with the inputted username
+
+This API call will return a list of user attributes, one of them being user-sub. It may look like this 406c393c-9021-7072-96f3-e71901a8f1ff. THis is the userId of the logged in user. It also contains an accesstoken and
 
 ## For real devs
 
