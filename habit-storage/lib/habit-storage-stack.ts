@@ -16,6 +16,7 @@ export class HabitStorageStack extends cdk.Stack {
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowOrigins: ['*'],
         allowHeaders: ['*'],
+        allowCredentials: false,
       },
     })
 
@@ -48,7 +49,7 @@ export class HabitStorageStack extends cdk.Stack {
 
     httpApi.addRoutes({
       path: '/createHabit/{userId}/{deviceId}/{habitName}/{habitType}/{deviceSide}',
-      methods: [apigwv2.HttpMethod.ANY],
+      methods: [apigwv2.HttpMethod.PUT],
       integration: createHabitLambdaIntegration,
     })
 
