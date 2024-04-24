@@ -23,10 +23,19 @@
       }
     },
     {
-      "name": "login",
+      "name": "login with username",
       "rawRequest": {
         "method": "GET",
         "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/login/${username}/${password}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "login with mail",
+      "rawRequest": {
+        "method": "GET",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/login/${email}/${password}",
         "headers": [],
         "body": null
       }
@@ -38,7 +47,7 @@
     "email": "eskild.overen@online.ntnu.no",
     "deviceId": "cat",
     "password": "Passord123",
-    "confirmationCode": "050440"
+    "confirmationCode": "100075"
   },
   "parameterPresets": [
     {
