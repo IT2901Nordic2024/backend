@@ -1,87 +1,52 @@
-/*import { mockClient } from 'aws-sdk-client-mock'
-import { handler } from '../lambda/createHabit.mjs'
-import { DynamoDBDocumentClient, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
-import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane'
+import { mockClient } from 'aws-sdk-client-mock'
+import { handler } from '../lambda/login.mjs'
+import {
+  CognitoIdentityProviderClient,
+  InitiateAuthCommand,
+  GetUserCommand,
+} from '@aws-sdk/client-cognito-identity-provider' // ES Modules import
+import { beforeEach, describe, it, expect } from '@jest/globals'
 
-// Making mocks of the different clients
-const ddbMock = mockClient(DynamoDBDocumentClient)
-const iotMock = mockClient(IoTDataPlaneClient)
-
-// Creates event that works
+const mockCognitoClient = mockClient(CognitoIdentityProviderClient)
 let event
 
-// Resets clients between tests
 beforeEach(() => {
-  event = resetEvent()
-  ddbMock.on(UpdateCommand).resolves({})
-  iotMock.onAnyCommand().resolves({})
-  ddbMock.on(PutCommand).resolves({})
+  resetEvent()
+  mockCognitoClient.on(InitiateAuthCommand).resolves({ AuthenticationResult: { AccessToken: 'OneAccessTokenPlease' } })
+  mockCognitoClient
+    .on(GetUserCommand)
+    .resolves({ Username: 'FrodeFrydfull', UserAttributes: ['List', 'with', 'userdata'] })
 })
 
-describe('works with the correct deviceSide and habitType', () => {
-  it('fails unsupported route succesfully', async () => {
-    //ddbMock.on(GetCommand).resolves(true)
-    ddbMock.on(UpdateCommand).resolves({})
-    iotMock.onAnyCommand().resolves({})
+describe('Handler for logging in a user', () => {
+  it('Passes when all commands resolves resolves', async () => {
     const response = await handler(event)
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual('All actions completed successfully')
+    expect(JSON.parse(response.body).accessToken).toEqual('OneAccessTokenPlease')
+    expect(JSON.parse(response.body).username).toEqual('FrodeFrydfull')
+    expect(JSON.parse(response.body).userAttributes).toEqual(['List', 'with', 'userdata'])
   })
-
-  it('Fails when deviceSide is too low', async () => {
-    event.pathParameters.deviceSide = -1
+  it('Fails when InitiateAuthCommand rejects', async () => {
+    mockCognitoClient.on(InitiateAuthCommand).rejects({ message: 'This command failed' })
     const response = await handler(event)
     expect(response.statusCode).toEqual(400)
-    expect(JSON.parse(response.body).error).toEqual(
-      'invalid deviceSide. Must be a number between 0 and 11. DeviceSide -1 was provided',
-    )
-    expect(JSON.parse(response.body).failure).toEqual('Failure when creating item in HabitEventTable')
+    expect(JSON.parse(response.body).error.message).toEqual('This command failed')
+    expect(JSON.parse(response.body).failure).toEqual('Authenticationfailure')
   })
-
-  it('Fails when deviceSide is too high', async () => {
-    event.pathParameters.deviceSide = 12
+  it('Fails when GetUserCommand rejects', async () => {
+    mockCognitoClient.on(GetUserCommand).rejects({ message: 'This command failed' })
     const response = await handler(event)
     expect(response.statusCode).toEqual(400)
-    expect(JSON.parse(response.body).error).toEqual(
-      'invalid deviceSide. Must be a number between 0 and 11. DeviceSide 12 was provided',
-    )
-    expect(JSON.parse(response.body).failure).toEqual('Failure when creating item in HabitEventTable')
-  })
-
-  it('Fails when deviceSide is too high', async () => {
-    event.pathParameters.habitType = 'tests_written'
-    const response = await handler(event)
-    expect(response.statusCode).toEqual(400)
-    expect(JSON.parse(response.body).error).toEqual(
-      'invalid habitType. Valid habitTypes are count and time. habitType tests_written was provided',
-    )
-    expect(JSON.parse(response.body).failure).toEqual('Failure when creating item in HabitEventTable')
-  })
-
-  it('Handles spaces in URL correctly', async () => {
-    // TODO
+    expect(JSON.parse(response.body).error.message).toEqual('This command failed')
+    expect(JSON.parse(response.body).failure).toEqual('Failure when getting userdata')
   })
 })
 
 const resetEvent = () => {
   event = {
-    routeKey: 'PUT /createHabit/{userId}/{deviceId}/{habitName}/{habitType}/{deviceSide}',
     pathParameters: {
-      userId: '0',
-      deviceId: 'TestDevice',
-      habitName: 'Testing lambda handlers',
-      habitType: 'count',
-      deviceSide: '3',
+      username: 'FrodeFrydfull',
+      password: 'Passord123',
     },
   }
-  return event
 }
-
-*/
-import { describe, it, expect } from '@jest/globals'
-
-describe('Handler for verifying a users email', () => {
-  it('Passes when ConfirmSignupCommand resolves', () => {
-    expect(true).toEqual(true)
-  })
-})
