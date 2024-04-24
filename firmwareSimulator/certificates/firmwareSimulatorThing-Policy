@@ -6,23 +6,31 @@
       "Action": [
         "iot:Publish",
         "iot:Receive",
-        "iot:PublishRetain"
+        "iot:PublishRetain",
+        "iot:Subscribe"
       ],
       "Resource": [
-        "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}",
-        "arn:aws:iot:*:*:topic/${iot:Connection.Thing.ThingName}/updates",
-        "arn:aws:iot:*:*:topic/habitTrackerData/firmwareSimulatorThing/events"
+        "arn:aws:iot:eu-north-1:339713040007:topic/${iot:Connection.Thing.ThingName}",
+        "arn:aws:iot:eu-north-1:339713040007:topic/${iot:Connection.Thing.ThingName}/updates"
       ]
     },
     {
       "Effect": "Allow",
       "Action": "iot:Subscribe",
-      "Resource": "arn:aws:iot:*:*:topicfilter/habitTrackerData/${iot:Connection.Thing.ThingName}/config"
+      "Resource": "arn:aws:iot:eu-north-1:339713040007:topicfilter/${iot:Connection.Thing.ThingName}/updates"
     },
     {
       "Effect": "Allow",
       "Action": "iot:Connect",
-      "Resource": "arn:aws:iot:*:*:client/${iot:Connection.Thing.ThingName}"
+      "Resource": [
+        "arn:aws:iot:eu-north-1:339713040007:client/${iot:Connection.Thing.ThingName}",
+        "arn:aws:iot:eu-north-1:339713040007:client/${iot:Connection.Thing.ThingName}/updates"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:GetThingShadow",
+      "Resource": "*"
     }
   ]
 }

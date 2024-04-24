@@ -9,6 +9,10 @@ ROOT_PEM_FILE_PATH = '../firmwareSimulator/certificates2/root.pem'
 AWS_ENDPOINT = 'a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com'
 PUB_KEY_FILE_PATH = '../firmwareSimulator/certificates2/FirmwareSimulatorThing.public.key'
 
+#CERT_FILEPATH = "../firmwareSimulator/certificates/firmwareSimulatorThing.cert.pem"
+#PRI_KEY_FILEPATH = "../firmwareSimulator/certificates/firmwareSimulatorThing.private.key"
+#CA_FILEPATH = "../firmwareSimulator/certificates/root.pem"
+#AWS_ENDPOINT = "a2aclgd4nh1dkk-ats.iot.eu-north-1.amazonaws.com"
 
 #---------------------------------------------------------------------------
 #                                  Constants                  

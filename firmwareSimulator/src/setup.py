@@ -349,6 +349,9 @@ if __name__ == '__main__':
 # Attatch thing principal:                                  https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/attach_thing_principal.html
 # Attatch AWS IoT policy:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/attach_policy.html
 # General boto3 session information:                        https://ben11kehoe.medium.com/boto3-sessions-and-why-you-should-use-them-9b094eb5ca8e
+# Update or create thing shadow:                            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot-data.html
+#                                                           https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot-data/client/update_thing_shadow.html
+#                                                           https://stackoverflow.com/questions/61440132/why-is-my-aws-iot-sdk-thing-shadow-update-request-timing-out-using-the-node-sdk            
 # Listing all AWS IoT policies using the AWS CLI:           https://docs.aws.amazon.com/cli/latest/reference/iot/list-policies.html
 # Detatch AWS IoT policy:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/detach_policy.html
 # Delete an AWS IoT Policy using the AWS CLI:               https://docs.aws.amazon.com/cli/latest/reference/iot/delete-policy.html                  
