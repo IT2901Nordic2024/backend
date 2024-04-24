@@ -56,8 +56,8 @@ export const handler = async (event) => {
   }
 
   body.userAttributes = userData.UserAttributes
-  body.userName = userData.Username
-  body.AccessToken = loginResponse.AuthenticationResult.AccessToken
+  body.username = userData.Username
+  body.accessToken = loginResponse.AuthenticationResult.AccessToken
 
   body = JSON.stringify(body)
 

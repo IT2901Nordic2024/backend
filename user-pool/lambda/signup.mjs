@@ -52,7 +52,6 @@ export const handler = async (event) => {
     userData.userId = String(signUpCommandResponse.UserSub)
     userData.habits = []
     userData.deviceId = event.pathParameters.deviceId
-    console.log(userData)
     // Lagrer userData i databasen
     await dynamo.send(
       new PutCommand({
@@ -65,13 +64,11 @@ export const handler = async (event) => {
     body.error = error
     body.failure = 'Creating userdata failed'
     body = JSON.stringify(body)
-    body = userData
-    body = JSON.stringify(body)
     return { statusCode, body, headers }
   }
 
   // TODO: Gjør body brukbar fro frontend. Gi en response som gir tilbake userId, email, username, name?, / dataen du lagrer i userData
-  body = signUpCommandResponse
   body = 'Successfull registration!'
+
   return { statusCode, body, headers }
 }
