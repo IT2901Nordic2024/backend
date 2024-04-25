@@ -76,6 +76,11 @@ export const handler = async (event) => {
     return { statusCode, body, headers }
   }
 
+  const deletedSideData = {
+    id: '',
+    type: '',
+  }
+
   // Updates shadow of thing, setting habit's corresponding side to point to 0
   if (deviceSide != null) {
     try {
@@ -87,7 +92,7 @@ export const handler = async (event) => {
               JSON.stringify({
                 state: {
                   desired: {
-                    [deviceSide]: 0,
+                    [deviceSide]: deletedSideData,
                   },
                 },
               }),

@@ -22,17 +22,17 @@ beforeEach(() => {
   baseShadowState = {
     state: {
       desired: {
-        1: 1,
-        3: 3,
-        8: 2,
+        1: { id: 1, type: 'COUNT' },
+        3: { id: 3, type: 'TIME' },
+        8: { id: 2, type: 'COUNT' },
       },
       reported: {
         welcome: 'aws-iot',
       },
       delta: {
-        1: 5,
-        3: 4,
-        5: 7,
+        1: { id: 5, type: 'COUNT' },
+        3: { id: 4, type: 'COUNT' },
+        5: { id: 7, type: 'TIME' },
       },
     },
   }

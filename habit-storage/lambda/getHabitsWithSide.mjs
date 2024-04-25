@@ -66,7 +66,7 @@ export const handler = async (event) => {
   // related index will be null.
   for (let i = 0; i < 12; i++) {
     if (shadowJson[i] != null) {
-      sides.push(shadowJson[i])
+      sides.push(shadowJson[i].id)
     } else {
       sides.push(null)
     }
