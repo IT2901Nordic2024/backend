@@ -21,11 +21,7 @@ export const handler = async (event) => {
   }
 
   try {
-    // Validates if habitId and userId are numbers
-    if (!isInt(event.pathParameters.userId)) {
-      throw 'userId must be a number'
-    }
-
+    // Validates if habitId  are numbers
     if (!isInt(event.pathParameters.habitId)) {
       throw 'habitId must be a number'
     }
@@ -35,7 +31,7 @@ export const handler = async (event) => {
       new GetCommand({
         TableName: process.env.TABLENAME,
         Key: {
-          userId: Number(event.pathParameters.userId),
+          userId: event.pathParameters.userId,
           habitId: Number(event.pathParameters.habitId),
         },
       })

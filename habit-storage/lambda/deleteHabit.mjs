@@ -32,7 +32,7 @@ export const handler = async (event) => {
       new GetCommand({
         TableName: userDataTableName,
         Key: {
-          userId: Number(event.pathParameters.userId),
+          userId: event.pathParameters.userId,
         },
       }),
     )
@@ -110,7 +110,7 @@ export const handler = async (event) => {
       new DeleteCommand({
         TableName: habitEventTableName,
         Key: {
-          userId: Number(event.pathParameters.userId),
+          userId: event.pathParameters.userId,
           habitId: Number(event.pathParameters.habitId),
         },
       }),
@@ -129,7 +129,7 @@ export const handler = async (event) => {
       new UpdateCommand({
         TableName: userDataTableName,
         Key: {
-          userId: Number(event.pathParameters.userId),
+          userId: event.pathParameters.userId,
         },
         UpdateExpression: `REMOVE habits[${habitIndex}]`,
       }),

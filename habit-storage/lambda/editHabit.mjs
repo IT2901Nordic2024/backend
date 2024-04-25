@@ -81,7 +81,7 @@ export const handler = async (event) => {
         new GetCommand({
           TableName: tableName,
           Key: {
-            userId: Number(event.pathParameters.userId),
+            userId: event.pathParameters.userId,
           },
         }),
       )
@@ -118,7 +118,7 @@ export const handler = async (event) => {
         new UpdateCommand({
           TableName: tableName,
           Key: {
-            userId: Number(event.pathParameters.userId),
+            userId: event.pathParameters.userId,
           },
           UpdateExpression: `SET habits[${habitIndex}] = :newHabit`,
           ExpressionAttributeValues: {

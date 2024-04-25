@@ -49,7 +49,7 @@ export class HabitStorage extends Construct {
     // Creating DynamoDB table. Sort key is included in case more than one row is needed
     const userDataTable = new dynamodb.Table(this, 'UserDataTable', {
       tableName: 'UserDataTable',
-      partitionKey: { name: 'userId', type: dynamodb.AttributeType.NUMBER },
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
     })
 
     const deviceIdIndex: dynamodb.GlobalSecondaryIndexProps = {

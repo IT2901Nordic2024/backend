@@ -25,8 +25,8 @@
   ],
   "parameters": {
     "API_ID": "******sensitive******",
-    "userId": "0",
-    "habitId": "1"
+    "userId": "b04c19ac-80c1-7096-baff-83aea8fee9c6",
+    "habitId": "123"
   },
   "parameterPresets": [
     {

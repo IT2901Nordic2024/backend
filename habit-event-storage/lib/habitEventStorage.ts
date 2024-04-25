@@ -23,7 +23,7 @@ export class HabitEventStorage extends Construct {
     // Creates table with partitionKey and sortKey
     const table = new dynamodb.Table(this, 'HabitEventTable', {
       tableName: 'HabitEventTable',
-      partitionKey: { name: 'userId', type: dynamodb.AttributeType.NUMBER },
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'habitId', type: dynamodb.AttributeType.NUMBER },
     })
 

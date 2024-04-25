@@ -12,6 +12,7 @@ export class HttpApi extends Construct {
       corsPreflight: {
         allowOrigins: ['*'],
         allowMethods: [apigwv2.CorsHttpMethod.GET, apigwv2.CorsHttpMethod.PUT],
+        allowCredentials: false,
       },
       apiName: 'HabitEventStorageHTTP',
     })

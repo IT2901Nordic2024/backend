@@ -35,7 +35,7 @@
       "name": "deleteHabit",
       "rawRequest": {
         "method": "DELETE",
-        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/deleteHabit/1/${habitId}",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/deleteHabit/${userId}/${habitId}",
         "headers": [],
         "body": null
       }
@@ -43,12 +43,12 @@
   ],
   "parameters": {
     "API_ID": "******sensitive******",
-    "userId": "1",
-    "deviceId": "MyIotThing",
-    "habitName": "Treehugging",
+    "userId": "b04c19ac-80c1-7096-baff-83aea8fee9c6",
+    "deviceId": "firmwareSimulatorThing",
+    "habitName": "Sleeping",
     "habitType": "time",
-    "deviceSide": "4",
-    "habitId": "4"
+    "deviceSide": "8",
+    "habitId": "1713179977074"
   },
   "parameterPresets": [
     {
