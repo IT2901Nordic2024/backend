@@ -8,8 +8,6 @@ import json
 from concurrent.futures import Future
 import time
 from fromFirmwareToBackend_pb2 import habit_data as FirmwareMessage
-from config_pb2 import Config
-import config_pb2
 
 
 
@@ -29,6 +27,7 @@ class FirmwareSimulator:
         self.client = None
         self.future_stopped = Future()
         self.future_connection_success = Future()
+        self.path_to_dodecahedron_json = path_to_dodecahedron_json
 
 
     #############################################################
@@ -216,29 +215,9 @@ class FirmwareSimulator:
         -----------
         Parameters:
         -----------
-        payload:       (byte string) The information given by the user with which the dodecahedron is to be updated with.
-
-        
         """
+        pass
 
-        config = Config()
-        try:
-            config.ParseFromString(payload)
-            print("decoded payload: ", config)
-            print("type value: ", config.type)
-            print("type name: ", config_pb2.Type.Name(config.type)) 
-        except:
-            raise Exception("ERROR: Decoding payload failed")
-        
-
-
-        # Updating the dodecahedron
-        print("side before: ", self._dodecahedron.get(str(config.side)))
-        self._dodecahedron.get(str(config.side)).update({"id":config.id, "type": config_pb2.Type.Name(config.type)})
-        print("side after: ", self._dodecahedron.get(str(config.side)))
-        # writing dodecahedron dictionary to JSON file
-        with open('firmwareSimulator/dodecahedron/dodecahedron.json','w') as dodecahedron_json_data:
-            json.dump(self._dodecahedron,dodecahedron_json_data, indent=4)
 
 
     
@@ -298,17 +277,17 @@ class FirmwareSimulator:
 
         while keyboard.is_pressed('esc') == False:
             if len(key_buffer) >= 2 or keyboard.is_pressed('enter'):
-                side = ""
+                side:str = ""
                 for value in key_buffer:
-                    side = side + value
+                    side:str = side + value
                 print("side: ", side) # Providing the user with some feedback, specifically showing the selected habit tracker side
                 key_buffer.clear()    # Clearing the buffer to make way for new entries
 
             #------Preparing data to be sent to AWS IoT core------
                 print("side: ", side)
-                habit_id = self.get_habit_id(side=side)    
-                habit_type = self.get_habit_type(side=side)
-                habit_data = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
+                habit_id:str = self.get_habit_id(side=side)    
+                habit_type:str = self.get_habit_type(side=side)
+                habit_data:int = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
 
             #-------------------MQTT-------------------
                 self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data, habit_type=habit_type)
