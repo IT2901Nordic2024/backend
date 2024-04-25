@@ -94,8 +94,21 @@ class FirmwareSimulatorThingSetup:
 
         # publish_receive_publishretain_resource_ARN:str = "arn:aws:iot:" + self.region_name + ":" + self.account_id + ":topic/habit-tracker-data/${iot:Connection.Thing.ThingName}/events"
         publish_receive_publishretain_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/" + config.PUBLISH_MQTT_TOPIC # using "*" for region and account_id, because the connection is refused for some reason otherwise.
-        connect_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name # using "*" for region and account_id, because the connection is refused for some reason otherwise.
-        update_thing_shadow_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name
+        allow_connect_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name # using "*" for region and account_id, because the connection is refused for some reason otherwise.
+        
+        allow_update_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name
+        
+        ## Topic to which we publish an empty message in order to get the shadow of a device
+        publish_get_from_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/get"
+
+        ## Topic to which AWS IoT publishes an error response document when it cannot return a device shadow
+        subscribe_thing_shadow_get_rejected_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" +":topicfilter/$aws/things/"+ self.thing_name + "/shadow/get/rejected"
+        receive_thing_shadow_get_rejected_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" +":topic/$aws/things/"+ self.thing_name + "/shadow/get/rejected"
+        
+        ## Topic to which AWS IoT publishes a response shadow document when returning the device shadow
+        subscribe_thing_shadow_get_accepted_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topicfilter/$aws/things/" + self.thing_name + "/shadow/get/accepted"
+        receive_thing_shadow_get_accepted_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/get/accepted"
+        
         # Policy document
         firmare_simulator_policy_document:dict = {
 
@@ -117,23 +130,32 @@ class FirmwareSimulatorThingSetup:
 
                                                     ],
 
-                                                    "Resource": [publish_receive_publishretain_resource_ARN]
+                                                    "Resource": [publish_receive_publishretain_resource_ARN,
+                                                                 publish_get_from_thing_shadow_resource_ARN,
+                                                                 receive_thing_shadow_get_accepted_resource_ARN,
+                                                                 receive_thing_shadow_get_rejected_resource_ARN]
 
+                                                    },
+                                                    {
+                                                        "Effect": "Allow",
+                                                        "Action": ["iot:Subscribe"],
+                                                        "Resource": [subscribe_thing_shadow_get_accepted_resource_ARN,
+                                                                     subscribe_thing_shadow_get_rejected_resource_ARN]
                                                     },
 
                                                     {
 
                                                     "Effect": "Allow",
 
-                                                    "Action": "iot:Connect",
+                                                    "Action": ["iot:Connect"],
 
-                                                    "Resource": connect_resource_ARN
+                                                    "Resource": [allow_connect_resource_ARN]
 
                                                     },
                                                     {
                                                         "Effect": "Allow",
                                                         "Action":["iot:UpdateThingShadow"],
-                                                        "Resource": update_thing_shadow_ARN
+                                                        "Resource": [allow_update_thing_shadow_resource_ARN]
                                                     }
 
                                                 ]
