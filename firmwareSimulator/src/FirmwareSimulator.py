@@ -113,13 +113,14 @@ class FirmwareSimulator:
             case "TIME":
                 # For JSON format
                 message = {
+                    "device_timestamp": device_timestamp,
                     "habit_id": habit_id,
                     "start_timestamp": data[1],
                     "stop_timestamp": data[2]
                 }
                 
                 # For protocol buffers format
-                payload = FirmwareMessage(habit_id=message["habit_id"], start_timestamp=message["start_timestamp"], stop_timestamp=message["stop_timestamp"]).SerializeToString()
+                payload = FirmwareMessage(device_timestamp = message["device_timestamp"], habit_id=message["habit_id"], start_timestamp=message["start_timestamp"], stop_timestamp=message["stop_timestamp"]).SerializeToString()
             
             case _:
                 raise Exception("The provided habit_type ({}) is not recognised".format(habit_type))
