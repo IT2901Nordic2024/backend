@@ -22,7 +22,6 @@ beforeEach(() => {
 describe('UpdateHabitEventFunction', () => {
   it('Returns 200 ok for acceptable event', async () => {
     // event.pathParameters.userId = '0'
-    console.log('event: ', event)
     const response = await handler(event)
     expect(response.statusCode).toEqual(200)
   })
