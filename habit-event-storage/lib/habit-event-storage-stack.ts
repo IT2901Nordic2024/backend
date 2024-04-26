@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
-import { aws_iot, aws_iam, aws_s3_deployment, Stack } from 'aws-cdk-lib'
+import { aws_iot, aws_iam, aws_s3_deployment } from 'aws-cdk-lib'
 import * as path from 'path'
 import * as s3 from 'aws-cdk-lib/aws-s3'
 import { HabitEventStorage } from './habitEventStorage'
