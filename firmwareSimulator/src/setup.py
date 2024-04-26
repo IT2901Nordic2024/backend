@@ -97,17 +97,23 @@ class FirmwareSimulatorThingSetup:
         allow_connect_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name # using "*" for region and account_id, because the connection is refused for some reason otherwise.
         
         allow_update_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name
+        allow_delete_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name
+        allow_get_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":client/" + self.thing_name
         
         ## Topic to which we publish an empty message in order to get the shadow of a device
         publish_get_from_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/get"
 
+        ## Topic to which AWS publishes a message when it accepts a change for the device shadow. The message contains among other things the state, which again contains the attributes that change due to the update.
+        subscribe_update_delta_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topicfilter/$aws/things/" + self.thing_name + "/shadow/update/delta"
+        receive_update_delta_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/update/delta"
+
         ## Topic to which AWS IoT publishes an error response document when it cannot return a device shadow
-        subscribe_thing_shadow_get_rejected_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" +":topicfilter/$aws/things/"+ self.thing_name + "/shadow/get/rejected"
-        receive_thing_shadow_get_rejected_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" +":topic/$aws/things/"+ self.thing_name + "/shadow/get/rejected"
+        subscribe_get_rejected_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" +":topicfilter/$aws/things/"+ self.thing_name + "/shadow/get/rejected"
+        receive_get_rejected_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" +":topic/$aws/things/"+ self.thing_name + "/shadow/get/rejected"
         
         ## Topic to which AWS IoT publishes a response shadow document when returning the device shadow
-        subscribe_thing_shadow_get_accepted_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topicfilter/$aws/things/" + self.thing_name + "/shadow/get/accepted"
-        receive_thing_shadow_get_accepted_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/get/accepted"
+        subscribe_get_accepted_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topicfilter/$aws/things/" + self.thing_name + "/shadow/get/accepted"
+        receive_get_accepted_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/get/accepted"
         
         # Policy document
         firmare_simulator_policy_document:dict = {
@@ -132,15 +138,17 @@ class FirmwareSimulatorThingSetup:
 
                                                     "Resource": [publish_receive_publishretain_resource_ARN,
                                                                  publish_get_from_thing_shadow_resource_ARN,
-                                                                 receive_thing_shadow_get_accepted_resource_ARN,
-                                                                 receive_thing_shadow_get_rejected_resource_ARN]
+                                                                 receive_get_accepted_thing_shadow_resource_ARN,
+                                                                 receive_get_rejected_thing_shadow_resource_ARN,
+                                                                 receive_update_delta_thing_shadow_resource_ARN]
 
                                                     },
                                                     {
                                                         "Effect": "Allow",
                                                         "Action": ["iot:Subscribe"],
-                                                        "Resource": [subscribe_thing_shadow_get_accepted_resource_ARN,
-                                                                     subscribe_thing_shadow_get_rejected_resource_ARN]
+                                                        "Resource": [subscribe_get_accepted_thing_shadow_resource_ARN,
+                                                                     subscribe_get_rejected_thing_shadow_resource_ARN,
+                                                                     subscribe_update_delta_thing_shadow_resource_ARN]
                                                     },
 
                                                     {
@@ -156,6 +164,16 @@ class FirmwareSimulatorThingSetup:
                                                         "Effect": "Allow",
                                                         "Action":["iot:UpdateThingShadow"],
                                                         "Resource": [allow_update_thing_shadow_resource_ARN]
+                                                    },
+                                                    {
+                                                        "Effect": "Allow",
+                                                        "Action":["iot:GetThingShadow"],
+                                                        "Resource": [allow_get_thing_shadow_resource_ARN]
+                                                    },
+                                                    {
+                                                        "Effect": "Allow",
+                                                        "Action":["iot:DeleteThingShadow"],
+                                                        "Resource": [allow_delete_thing_shadow_resource_ARN]
                                                     }
 
                                                 ]
@@ -241,6 +259,7 @@ class FirmwareSimulatorThingSetup:
             thingName = self.thing_name,
             payload = modified_json
         )
+        print("SUCCESS: Thing shadow / device shadow was successfully created")
 
     def delete_device_shadow(self) -> None:
         """Method that deletes the device shadow of the AWS thing created with this class."""
@@ -311,8 +330,14 @@ class FirmwareSimulatorThingSetup:
         A certificate must be deactivated before it can be deleted.
 
         Args:
-            certificate_ID (_type_): The ID of the certifcate to delete
+            certificate_ID (string): The ID of the certifcate to delete
         """
+        delete_certificate_response:None = self.iot_client.delete_certificate(
+            certificateId = certificate_ID,
+            forceDelete = True
+        )
+
+
     def delete_firmware_simulator_aws_thing_policy(self, policy_name:str) -> None:
         """Deltes the AWS IoT rule specified by the policy_name
 
@@ -363,25 +388,27 @@ if __name__ == '__main__':
 
  
 
-############################################################################
+############################################################################################################################################################################################################################
 
-# The code for this setup file was heavily inspired by:     https://github.com/keivanK1/aws-create-thing-boto3/blob/master/createThing-Cert.py
-# The link to get the root_ca_url:                          https://repost.aws/knowledge-center/iot-core-publish-mqtt-messages-python
-# Configure credentials:                                    https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html
-# Response syntax of create_keys_and_certificates:          https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_keys_and_certificate.html
-# Create AWS IoT policy:                                    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_policy.html
-# Create AWS IoT thing:                                     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_thing.html
-#                                                           https://www.youtube.com/watch?v=_OkJkV_StSM
-# Attatch thing principal:                                  https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/attach_thing_principal.html
-# Attatch AWS IoT policy:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/attach_policy.html
-# General boto3 session information:                        https://ben11kehoe.medium.com/boto3-sessions-and-why-you-should-use-them-9b094eb5ca8e
-# Update or create thing shadow:                            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot-data.html
-#                                                           https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot-data/client/update_thing_shadow.html
-#                                                           https://stackoverflow.com/questions/61440132/why-is-my-aws-iot-sdk-thing-shadow-update-request-timing-out-using-the-node-sdk            
-# Delete thing shadow:                                      https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/delete_thing.html
-# Listing all AWS IoT policies using the AWS CLI:           https://docs.aws.amazon.com/cli/latest/reference/iot/list-policies.html
-# Detatch AWS IoT policy:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/detach_policy.html
-# Delete an AWS IoT Policy using the AWS CLI:               https://docs.aws.amazon.com/cli/latest/reference/iot/delete-policy.html                  
-# Delete AWS certificate:                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/delete_certificate.html
-# List all AWS IoT certificates:                            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/list_certificates.html
-############################################################################
+# The code for this setup file was heavily inspired by:                             https://github.com/keivanK1/aws-create-thing-boto3/blob/master/createThing-Cert.py
+# The link to get the root_ca_url:                                                  https://repost.aws/knowledge-center/iot-core-publish-mqtt-messages-python
+# Configure credentials:                                                            https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html
+# Response syntax of create_keys_and_certificates:                                  https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_keys_and_certificate.html
+# Create AWS IoT policy:                                                            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_policy.html
+# Create AWS IoT thing:                                                             https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_thing.html
+#                                                                                   https://www.youtube.com/watch?v=_OkJkV_StSM
+# Attatch thing principal:                                                          https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/attach_thing_principal.html
+# Attatch AWS IoT policy:                                                           https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/attach_policy.html
+# General boto3 session information:                                                https://ben11kehoe.medium.com/boto3-sessions-and-why-you-should-use-them-9b094eb5ca8e
+# Update or create thing shadow:                                                    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot-data.html
+#                                                                                   https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot-data/client/update_thing_shadow.html
+#                                                                                   https://stackoverflow.com/questions/61440132/why-is-my-aws-iot-sdk-thing-shadow-update-request-timing-out-using-the-node-sdk            
+# AWS thing/device shadow specific MQTT topics:                                     https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-delta-pub-sub-topic
+# AWS thing/device shadow specific MQTT topic response documents:                   https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-document.html#device-shadow-example-response-json-delta
+# Delete thing shadow:                                                              https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/delete_thing.html
+# Listing all AWS IoT policies using the AWS CLI:                                   https://docs.aws.amazon.com/cli/latest/reference/iot/list-policies.html
+# Detatch AWS IoT policy:                                                           https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/detach_policy.html
+# Delete an AWS IoT Policy using the AWS CLI:                                       https://docs.aws.amazon.com/cli/latest/reference/iot/delete-policy.html                  
+# Delete AWS certificate:                                                           https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/delete_certificate.html
+# List all AWS IoT certificates:                                                    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/list_certificates.html
+############################################################################################################################################################################################################################
