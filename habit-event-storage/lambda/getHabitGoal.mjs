@@ -17,7 +17,7 @@ export const handler = async (event) => {
   const tableName = process.env.TABLENAME
 
   try {
-    // Sends a message to DynamoDB, getting habitgoal from given habit
+    // Sends a message to DynamoDB, getting habitgoal-attribute from a given habit
     getCommandResponse = await dynamo.send(
       new GetCommand({
         TableName: tableName,
@@ -36,7 +36,12 @@ export const handler = async (event) => {
     return { statusCode, body, headers }
   }
 
-  body = getCommandResponse.Item
+  if (!getCommandResponse.Item) {
+    body.message = 'No habitgoal found'
+  } else {
+    body = getCommandResponse.Item
+  }
+
   body = JSON.stringify(body)
 
   return { statusCode, body, headers }
