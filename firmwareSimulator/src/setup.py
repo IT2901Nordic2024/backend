@@ -103,6 +103,9 @@ class FirmwareSimulatorThingSetup:
         ## Topic to which we publish an empty message in order to get the shadow of a device
         publish_get_from_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/get"
 
+        ## Topic to which we report the current device state to get the sides we need to update on the update7delta topic mentioned below
+        publish_update_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/update"
+
         ## Topic to which AWS publishes a message when it accepts a change for the device shadow. The message contains among other things the state, which again contains the attributes that change due to the update.
         subscribe_update_delta_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topicfilter/$aws/things/" + self.thing_name + "/shadow/update/delta"
         receive_update_delta_thing_shadow_resource_ARN:str = "arn:aws:iot:" + "*" + ":" + "*" + ":topic/$aws/things/" + self.thing_name + "/shadow/update/delta"
@@ -140,7 +143,8 @@ class FirmwareSimulatorThingSetup:
                                                                  publish_get_from_thing_shadow_resource_ARN,
                                                                  receive_get_accepted_thing_shadow_resource_ARN,
                                                                  receive_get_rejected_thing_shadow_resource_ARN,
-                                                                 receive_update_delta_thing_shadow_resource_ARN]
+                                                                 receive_update_delta_thing_shadow_resource_ARN,
+                                                                 publish_update_thing_shadow_resource_ARN]
 
                                                     },
                                                     {

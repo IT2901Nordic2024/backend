@@ -5,7 +5,7 @@ package habit_data;
 
 message habit_data {
     int32 device_timestamp = 1; // Time stamp from when the message is sent.
-    int32 habit_id = 2; // ID of the habit being tracked
+    string habit_id = 2; // ID of the habit being tracked
     int32 data = 3; // Some data from the device. Used, for instance, in the tracking of habits of the type "counting". In this case its value will be the number of counts registered by the habit tracker. 
     int32 start_timestamp = 4; // For time tracking. The timestamp signifying the start of the time tracking.
     int32 stop_timestamp = 5; // For time tracking. The timestamp signifying the end of the time tracking.

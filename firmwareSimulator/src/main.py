@@ -1,6 +1,5 @@
 
 from FirmwareSimulator import FirmwareSimulator
-from config_pb2 import Config as ConfigMessage
 import config
 
 
@@ -34,8 +33,9 @@ if __name__ == '__main__':
     print("Client created")
     tracker.start_connection()
     print("Connection established")
-    #tracker.subscribe("FirmwareSimulatorThing/updates")
+    tracker.subscribe(config.AWS_THING_SHADOW_MQTT_UPDATE_DELTA) # Topic where the updates will be published
     tracker.interaction_listener(message_format="proto_buff",mqtt_topic=config.PUBLISH_MQTT_TOPIC)
+    tracker.request_update()
 
 
 #---------------------------------------------------------------------------

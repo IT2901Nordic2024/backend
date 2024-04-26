@@ -8,6 +8,7 @@ import json
 from concurrent.futures import Future
 import time
 from fromFirmwareToBackend_pb2 import habit_data as FirmwareMessage
+import config
 
 
 
@@ -208,6 +209,17 @@ class FirmwareSimulator:
     ############################################################# 
 
 
+    def request_update(self) -> None:
+        print("requesting update")
+        current_state = open(config.PATH_TO_DODECAHEDRON)
+        reported_state = {"reported": current_state}
+        message = {"state":reported_state}
+        self.client.publish(mqtt5.PublishPacket(
+                    topic = config.AWS_THING_SHADOW_MQTT_UPDATE,
+                    payload = json.dumps(message),
+                    qos = mqtt5.QoS.AT_LEAST_ONCE
+                ))
+
     def update_sides(self,payload)->None:
         """A method that takes in the configuration received from the AWS IoT device shadow,
         decodes it and then updates the specified side of the dodecahedron accordingly.
@@ -216,7 +228,7 @@ class FirmwareSimulator:
         Parameters:
         -----------
         """
-        pass
+        print("update_sides payload: ", json.load(payload))
 
 
 
