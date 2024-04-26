@@ -22,6 +22,14 @@ describe('a fucntion for getting habit-goals', () => {
     expect(JSON.parse(response.body)).toEqual(getCommandResponse.Item)
   })
 
+  it('Returns response if no Item is returned', async () => {
+    getCommandResponse = {}
+    ddbMock.on(GetCommand).resolves(getCommandResponse)
+    const response = await handler(event)
+    expect(response.statusCode).toEqual(200)
+    expect(JSON.parse(response.body)).toEqual('No habitgoal found')
+  })
+
   it('Throws error if GetCommand rejects', async () => {
     ddbMock.on(GetCommand).rejects({ message: 'Not allowed!' })
     const response = await handler(event)

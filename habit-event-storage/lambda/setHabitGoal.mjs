@@ -23,7 +23,7 @@ export const handler = async (event) => {
       frequency: event.pathParameters.frequency,
     }
 
-    // Sends a message to DynamoDB, replacing the old habit with a new one
+    // Sends a message to DynamoDB, making the habitGoal attribute newHabitGoal
     await dynamo.send(
       new UpdateCommand({
         TableName: tableName,
@@ -38,7 +38,6 @@ export const handler = async (event) => {
       })
     )
   } catch (error) {
-    console.log('error', error)
     statusCode = 400
     body.error = error
     body.failure = 'Failure when setting habit goal'

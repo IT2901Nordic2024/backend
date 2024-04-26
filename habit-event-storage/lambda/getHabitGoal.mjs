@@ -37,7 +37,7 @@ export const handler = async (event) => {
   }
 
   if (!getCommandResponse.Item) {
-    body.message = 'No habitgoal found'
+    body = 'No habitgoal found'
   } else {
     body = getCommandResponse.Item
   }
