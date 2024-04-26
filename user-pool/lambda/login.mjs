@@ -56,10 +56,11 @@ export const handler = async (event) => {
     return { statusCode, body, headers }
   }
 
-  // Extracts data from previous api calls
-  body.userAttributes = userData.UserAttributes
-  body.username = userData.Username
-  body.accessToken = loginResponse.AuthenticationResult.AccessToken
+  userData.UserAttributes.forEach((userAttribute) => {
+    if (userAttribute.Name == 'sub') {
+      body.userId = userAttribute.Value
+    }
+  })
 
   body = JSON.stringify(body)
 
