@@ -1,3 +1,5 @@
+/* global process */
+
 /**
  * Lambda function that stores data comming from the habit tracker (via a topic rule that decodes the message from procol buffers format to JSON)
  * to the appropriate DynamoDB table.
@@ -8,17 +10,17 @@
  * https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/UpdateItemCommand/
  */
 
-import { DynamoDB, DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { PutCommand, DynamoDBDocumentClient, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { DynamoDBDocumentClient, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 
-export const handler = async (event, context) => {
+export const handler = async (event) => {
   // Defining working variables
   let user
   let userID
   let habit
   let habitType
   let newPayload = []
-  const habitID = event.payload.habitId
+  const habitID = Number(event.payload.habitId)
 
   // Table names
   const habitEventTableName = process.env.HABIT_EVENT_TABLENAME

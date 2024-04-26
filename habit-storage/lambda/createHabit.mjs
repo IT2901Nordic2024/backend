@@ -70,6 +70,10 @@ export const handler = async (event) => {
 
   try {
     //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
+    const sideData = {
+      id: String(habitId),
+      type: event.pathParameters.habitType,
+    }
     await iotClient.send(
       new UpdateThingShadowCommand({
         thingName: event.pathParameters.deviceId,
@@ -78,7 +82,7 @@ export const handler = async (event) => {
             JSON.stringify({
               state: {
                 desired: {
-                  [event.pathParameters.deviceSide]: habitId,
+                  [event.pathParameters.deviceSide]: sideData,
                 },
               },
             }),

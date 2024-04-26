@@ -21,12 +21,34 @@
         "headers": [],
         "body": null
       }
+    },
+    {
+      "name": "Set habitgoal",
+      "rawRequest": {
+        "method": "PUT",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/setHabitGoal/${userId}/${habitId}/${question}/${target}/${unit}/${frequency}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "Get habitgoal ",
+      "rawRequest": {
+        "method": "GET",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/getHabitGoal/${userId}/${habitId}",
+        "headers": [],
+        "body": null
+      }
     }
   ],
   "parameters": {
     "API_ID": "******sensitive******",
-    "userId": "b04c19ac-80c1-7096-baff-83aea8fee9c6",
-    "habitId": "123"
+    "userId": "a09c89ec-30a1-709c-c994-526b3502a57e",
+    "habitId": "123",
+    "question": "HowManyTreesHug",
+    "target": "10",
+    "unit": "trees",
+    "frequency": "daily"
   },
   "parameterPresets": [
     {

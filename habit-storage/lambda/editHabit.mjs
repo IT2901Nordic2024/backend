@@ -46,6 +46,16 @@ export const handler = async (event) => {
         }
       }
 
+      const sideData = {
+        id: String(event.pathParameters.habitId),
+        type: event.pathParameters.habitType,
+      }
+
+      const deletedSideData = {
+        id: '',
+        type: '',
+      }
+
       //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
       await iotClient.send(
         new UpdateThingShadowCommand({
@@ -55,8 +65,8 @@ export const handler = async (event) => {
               JSON.stringify({
                 state: {
                   desired: {
-                    [oldDeviceSide]: 0,
-                    [event.pathParameters.deviceSide]: Number(event.pathParameters.habitId),
+                    [oldDeviceSide]: deletedSideData,
+                    [event.pathParameters.deviceSide]: sideData,
                   },
                 },
               }),

@@ -58,10 +58,6 @@ describe('works with the correct deviceSide and habitType', () => {
     )
     expect(JSON.parse(response.body).failure).toEqual('Failure when creating item in HabitEventTable')
   })
-
-  it('Handles spaces in URL correctly', async () => {
-    // TODO
-  })
 })
 
 const resetEvent = () => {
