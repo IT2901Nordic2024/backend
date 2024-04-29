@@ -15,16 +15,14 @@ beforeEach(() => {
   mockCognitoClient.on(InitiateAuthCommand).resolves({ AuthenticationResult: { AccessToken: 'OneAccessTokenPlease' } })
   mockCognitoClient
     .on(GetUserCommand)
-    .resolves({ Username: 'FrodeFrydfull', UserAttributes: ['List', 'with', 'userdata'] })
+    .resolves({ Username: 'FrodeFrydfull', UserAttributes: [{ Name: 'sub', Value: 'One userId' }] })
 })
 
 describe('Handler for logging in a user', () => {
   it('Passes when all commands resolves resolves', async () => {
     const response = await handler(event)
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body).accessToken).toEqual('OneAccessTokenPlease')
-    expect(JSON.parse(response.body).username).toEqual('FrodeFrydfull')
-    expect(JSON.parse(response.body).userAttributes).toEqual(['List', 'with', 'userdata'])
+    expect(JSON.parse(response.body).userId).toEqual('One userId')
   })
   it('Fails when InitiateAuthCommand rejects', async () => {
     mockCognitoClient.on(InitiateAuthCommand).rejects({ message: 'This command failed' })
