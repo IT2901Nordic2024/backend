@@ -208,6 +208,9 @@ class FirmwareSimulator:
 
 
     def request_update(self) -> None:
+        """Method that requests an update from the AWS by publishing the current state (see dodecahedron.json) to the AWS specific update
+        MQTT topic.
+        """
         print("Requesting update START")
         with open(config.PATH_TO_DODECAHEDRON, "r") as dodecahedron_json_file:
             dodecahedron_state = dodecahedron_json_file.read()
