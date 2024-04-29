@@ -56,7 +56,7 @@ export const handler = async (event) => {
     user = await docClient.send(getUserData)
     userID = user.Items[0].userId
     habit = user.Items[0].habits.filter((habit) => {
-      return habit.habitId === habitID
+      return habit.habitId == habitID
     })[0]
     habitType = habit.habitType
   } catch (error) {
