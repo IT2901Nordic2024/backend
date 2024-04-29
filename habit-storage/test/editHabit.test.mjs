@@ -14,9 +14,9 @@ let userData
 let shadow
 
 beforeEach(() => {
-  event = baseEvent()
-  shadow = baseShadow()
-  userData = baseUserData()
+  resetEvent()
+  resetShadow()
+  resetUserData()
   ddbMock.on(GetCommand).resolves(userData)
   ddbMock.on(UpdateCommand).resolves()
   iotMock.on(UpdateThingShadowCommand).resolves()
@@ -85,27 +85,26 @@ describe('editHabit when editing side and name', () => {
   it('Fails when UpdateThingShadowCommand fails', async () => {
     iotMock.on(UpdateThingShadowCommand).rejects({ message: 'This command failed' })
     const response = await handler(event)
+    //expect(response).toBe('Hi')
     expect(JSON.parse(response.body).failure).toEqual('Failure when updating deviceShadow')
     expect(JSON.parse(response.body).error.message).toEqual('This command failed')
     expect(response.statusCode).toEqual(400)
   })
 })
 
-const baseEvent = () => {
+const resetEvent = () => {
   event = {
     pathParameters: {
       userId: 0,
       habitId: 1,
       deviceId: 'deviceThing',
       habitName: 'Tree hugging',
-      deviceSide: 3,
+      deviceSide: 10,
     },
   }
-
-  return event
 }
 
-const baseUserData = () => {
+const resetUserData = () => {
   userData = {
     Item: {
       habits: [
@@ -115,7 +114,7 @@ const baseUserData = () => {
           habitType: 'TIME',
         },
         {
-          habitId: 2,
+          habitId: 6,
           habitName: 'Kitty Pets',
           habitType: 'COUNT',
         },
@@ -125,20 +124,21 @@ const baseUserData = () => {
   return userData
 }
 
-const baseShadow = () => {
+const resetShadow = () => {
   shadow = {
     state: {
       desired: {
-        1: 1,
-        2: 9,
-        3: 3,
-        4: 0,
-        5: 5,
-        6: 6,
-        7: 7,
-        8: 4,
+        0: { id: '3', type: 'TIME' },
+        1: { id: '1', type: 'TIME' },
+        2: { id: '9', type: 'TIME' },
+        3: { id: '3', type: 'COUNT' },
+        4: { id: '0', type: 'COUNT' },
+        5: { id: '5', type: 'TIME' },
+        6: { id: '6', type: 'COUNT' },
+        7: { id: '7', type: 'COUNT' },
+        8: { id: '4', type: 'TIME' },
+        9: { id: '4', type: 'TIME' },
       },
     },
   }
-  return shadow
 }
