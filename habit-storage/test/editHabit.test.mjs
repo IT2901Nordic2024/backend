@@ -30,6 +30,13 @@ describe('editHabit when editing side and name', () => {
     expect(response.statusCode).toEqual(200)
   })
 
+  it('Passes when id isnt in shadow', async () => {
+    event.pathParameters.habitId = 13
+    const response = await handler(event)
+    expect(response.body).toEqual('The habit was successfully edited')
+    expect(response.statusCode).toEqual(200)
+  })
+
   it('Passes when only editing side', async () => {
     event.pathParameters.habitName = 'noChange'
     const response = await handler(event)
@@ -115,6 +122,11 @@ const resetUserData = () => {
         },
         {
           habitId: 6,
+          habitName: 'Kitty Pets',
+          habitType: 'COUNT',
+        },
+        {
+          habitId: 13,
           habitName: 'Kitty Pets',
           habitType: 'COUNT',
         },

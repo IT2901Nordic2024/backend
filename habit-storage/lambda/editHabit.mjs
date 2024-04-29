@@ -23,6 +23,32 @@ export const handler = async (event) => {
   let iotShadow
   let oldDeviceSide = 'lazy_backend'
 
+  try {
+    // Extracts a users habits into variable habits
+    habits = await dynamo.send(
+      new GetCommand({
+        TableName: tableName,
+        Key: {
+          userId: event.pathParameters.userId,
+        },
+      }),
+    )
+    habits = habits.Item.habits
+
+    let index = 0
+    habits.forEach((habit) => {
+      if (habit.habitId == event.pathParameters.habitId) {
+        habitIndex = index
+      }
+      index++
+    })
+  } catch (error) {
+    statusCode = 400
+    body.error = error
+    body.failure = 'Failure when getting habits from user'
+    body = JSON.stringify(body)
+    return { statusCode, body, headers }
+  }
   // Updates deiceSide in shadow, only if a numbered deviceSide is sent
   if (isInt(event.pathParameters.deviceSide)) {
     try {
@@ -49,7 +75,7 @@ export const handler = async (event) => {
 
       const sideData = {
         id: String(event.pathParameters.habitId),
-        type: iotShadow[oldDeviceSide]['type'].toUpperCase(),
+        type: habits[habitIndex]['habitType'].toUpperCase(),
       }
 
       const deletedSideData = {
@@ -84,38 +110,8 @@ export const handler = async (event) => {
     }
   }
 
-  // Only gets a users habits if habitName isn't noChange
+  // Will not update habitName if habitname isnt "noChange"
   if (event.pathParameters.habitName != 'noChange') {
-    try {
-      // Extracts a users habits into variable habits
-      habits = await dynamo.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: {
-            userId: event.pathParameters.userId,
-          },
-        }),
-      )
-      habits = habits.Item.habits
-
-      let index = 0
-      habits.forEach((habit) => {
-        if (habit.habitId == event.pathParameters.habitId) {
-          habitIndex = index
-        }
-        index++
-      })
-    } catch (error) {
-      statusCode = 400
-      body.error = error
-      body.failure = 'Failure when getting habits from user'
-      body = JSON.stringify(body)
-      return { statusCode, body, headers }
-    }
-  }
-
-  // Will not update habitName if the habit isnt found, or the previous if-statement doesnt fire
-  if (habitIndex != null) {
     try {
       // Data habit that will be added to the table
       const editedHabit = {
