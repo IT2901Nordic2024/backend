@@ -58,11 +58,9 @@ class FirmwareSimulator:
         # Decoding the incomming message and passing the elements of the decoded version to the update_sides function
         # It is assumed that any incomming message is a config message used to configure the dodecahedron
         # Check the config.proto file in the protocol_buffers_messages folder to see the assumed structure of those config messages.
-        self.update_sides(publish_packet.payload)
-        
-        # For testing purposes comment out self.update_sides(publish_packet.payload) and uncomment the two lines below.
-        # message = b'\x08\xb9`\x10\x02\x18\x03 \x01'
-        # self.update_sides(message)
+        if publish_packet.topic == config.AWS_THING_SHADOW_MQTT_UPDATE_DELTA:      
+            payload:dict = json.loads(publish_packet.payload.decode())
+            self.update_sides(payload)
 
         
 
@@ -210,25 +208,49 @@ class FirmwareSimulator:
 
 
     def request_update(self) -> None:
-        print("requesting update")
-        current_state = open(config.PATH_TO_DODECAHEDRON)
-        reported_state = {"reported": current_state}
+        print("Requesting update START")
+        with open(config.PATH_TO_DODECAHEDRON, "r") as dodecahedron_json_file:
+            dodecahedron_state = dodecahedron_json_file.read()
+            
+        reported_state = {"reported": json.loads(dodecahedron_state)}
         message = {"state":reported_state}
+        print("message: ", message)
+        message = json.dumps(message)
         self.client.publish(mqtt5.PublishPacket(
                     topic = config.AWS_THING_SHADOW_MQTT_UPDATE,
-                    payload = json.dumps(message),
+                    payload = message,
                     qos = mqtt5.QoS.AT_LEAST_ONCE
                 ))
+        print("Requesting update END")
 
-    def update_sides(self,payload)->None:
-        """A method that takes in the configuration received from the AWS IoT device shadow,
-        decodes it and then updates the specified side of the dodecahedron accordingly.
-        
-        -----------
-        Parameters:
-        -----------
+    def update_sides(self,payload:dict)->None:
+        """Method that updates the sides of the dodecahedron according to the data in the payload.
+
+        Args:
+            payload (dict): The payload received by the FirmwareSimulator when it receives a message from the MQTT topic responsible for providing updates to the simulator.
         """
-        print("update_sides payload: ", json.load(payload))
+
+        state:dict = payload["state"]
+        sides_to_update:list = list(state.keys())
+
+        # Updating sides
+        for side in sides_to_update:
+            print("Updating side: {}".format(side))          
+            try:
+                habit_id:str = state[side].get("id")
+                self._dodecahedron[side]["id"] = habit_id
+            except:
+                print("habit_id could not be assigned")
+            try:
+                habit_type:str = state[side].get("type")
+                self._dodecahedron[side]["type"] = habit_type
+            except:
+                print("habit_id could not be assigned.")
+            # Updating the doedecahedron JSON file
+            with open(config.PATH_TO_DODECAHEDRON, "w") as dodecahedron_json_data_file:
+                dodecahedron_json_data_file.write(json.dumps(self._dodecahedron))
+            
+            print("Side {} updated".format(side))
 
 
 
