@@ -79,10 +79,6 @@ export class UserPoolStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'login.handler',
       code: lambda.Code.fromAsset('lambda'),
-      environment: {
-        USERDATA_TABLENAME: 'UserDataTable',
-        USERPOOL_ID: habitTrackerUserPoolClient.userPoolClientId,
-      },
     })
 
     const verifyEmailFunction = new lambda.Function(this, 'VerifyEmailFunction', {
@@ -90,10 +86,6 @@ export class UserPoolStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'verifyEmail.handler',
       code: lambda.Code.fromAsset('lambda'),
-      environment: {
-        USERDATATABLENAME: 'UserDataTable',
-        USERPOOL_ID: habitTrackerUserPoolClient.userPoolClientId,
-      },
     })
 
     // Resource for HTTP-API
