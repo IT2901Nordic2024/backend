@@ -10,9 +10,9 @@ export class HttpApi extends Construct {
     // Creates the API with necessary cors settings to access from rontend
     const api = new apigwv2.HttpApi(this, 'HabitEventStorageHTTP', {
       corsPreflight: {
+        allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowOrigins: ['*'],
-        allowMethods: [apigwv2.CorsHttpMethod.GET, apigwv2.CorsHttpMethod.PUT],
-        allowCredentials: false,
+        allowHeaders: ['*'],
       },
       apiName: 'HabitEventStorageHTTP',
     })
@@ -51,7 +51,7 @@ export class HttpApi extends Construct {
 
     api.addRoutes({
       path: '/setHabitGoal/{userId}/{habitId}/{question}/{target}/{unit}/{frequency}',
-      methods: [apigwv2.HttpMethod.PUT],
+      methods: [apigwv2.HttpMethod.ANY],
       integration: setHabitGoalIntegration,
     })
 
