@@ -39,16 +39,17 @@ export const handler = async (event) => {
 
       // Converting raw Uint8Array to human readable JSON
       iotShadow = JSON.parse(String.fromCharCode.apply(null, iotShadow.payload)).state.desired
-
-      for (let i = 0; i < 12; i++) {
-        if (iotShadow[Number(i)] == event.pathParameters.habitId) {
-          oldDeviceSide = String(i)
+      for (let i = 0; i < 11; i++) {
+        if (i in iotShadow) {
+          if (iotShadow[i].id == String(event.pathParameters.habitId)) {
+            oldDeviceSide = i
+          }
         }
       }
 
       const sideData = {
         id: String(event.pathParameters.habitId),
-        type: event.pathParameters.habitType,
+        type: iotShadow[oldDeviceSide]['type'].toUpperCase(),
       }
 
       const deletedSideData = {
