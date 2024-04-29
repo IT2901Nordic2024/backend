@@ -8,8 +8,7 @@ import json
 from concurrent.futures import Future
 import time
 from fromFirmwareToBackend_pb2 import habit_data as FirmwareMessage
-from config_pb2 import Config
-import config_pb2
+import config
 
 
 
@@ -29,6 +28,7 @@ class FirmwareSimulator:
         self.client = None
         self.future_stopped = Future()
         self.future_connection_success = Future()
+        self.path_to_dodecahedron_json = path_to_dodecahedron_json
 
 
     #############################################################
@@ -58,11 +58,9 @@ class FirmwareSimulator:
         # Decoding the incomming message and passing the elements of the decoded version to the update_sides function
         # It is assumed that any incomming message is a config message used to configure the dodecahedron
         # Check the config.proto file in the protocol_buffers_messages folder to see the assumed structure of those config messages.
-        self.update_sides(publish_packet.payload)
-        
-        # For testing purposes comment out self.update_sides(publish_packet.payload) and uncomment the two lines below.
-        # message = b'\x08\xb9`\x10\x02\x18\x03 \x01'
-        # self.update_sides(message)
+        if publish_packet.topic == config.AWS_THING_SHADOW_MQTT_UPDATE_DELTA:      
+            payload:dict = json.loads(publish_packet.payload.decode())
+            self.update_sides(payload)
 
         
 
@@ -209,36 +207,54 @@ class FirmwareSimulator:
     ############################################################# 
 
 
-    def update_sides(self,payload)->None:
-        """A method that takes in the configuration received from the AWS IoT device shadow,
-        decodes it and then updates the specified side of the dodecahedron accordingly.
-        
-        -----------
-        Parameters:
-        -----------
-        payload:       (byte string) The information given by the user with which the dodecahedron is to be updated with.
+    def request_update(self) -> None:
+        """Method that requests an update from the AWS by publishing the current state (see dodecahedron.json) to the AWS specific update
+        MQTT topic.
+        """
+        print("Requesting update START")
+        with open(config.PATH_TO_DODECAHEDRON, "r") as dodecahedron_json_file:
+            dodecahedron_state = dodecahedron_json_file.read()
+            
+        reported_state = {"reported": json.loads(dodecahedron_state)}
+        message = {"state":reported_state}
+        print("message: ", message)
+        message = json.dumps(message)
+        self.client.publish(mqtt5.PublishPacket(
+                    topic = config.AWS_THING_SHADOW_MQTT_UPDATE,
+                    payload = message,
+                    qos = mqtt5.QoS.AT_LEAST_ONCE
+                ))
+        print("Requesting update END")
 
-        
+    def update_sides(self,payload:dict)->None:
+        """Method that updates the sides of the dodecahedron according to the data in the payload.
+
+        Args:
+            payload (dict): The payload received by the FirmwareSimulator when it receives a message from the MQTT topic responsible for providing updates to the simulator.
         """
 
-        config = Config()
-        try:
-            config.ParseFromString(payload)
-            print("decoded payload: ", config)
-            print("type value: ", config.type)
-            print("type name: ", config_pb2.Type.Name(config.type)) 
-        except:
-            raise Exception("ERROR: Decoding payload failed")
-        
+        state:dict = payload["state"]
+        sides_to_update:list = list(state.keys())
 
+        # Updating sides
+        for side in sides_to_update:
+            print("Updating side: {}".format(side))          
+            try:
+                habit_id:str = state[side].get("id")
+                self._dodecahedron[side]["id"] = habit_id
+            except:
+                print("habit_id could not be assigned")
+            try:
+                habit_type:str = state[side].get("type")
+                self._dodecahedron[side]["type"] = habit_type
+            except:
+                print("habit_id could not be assigned.")
+            # Updating the doedecahedron JSON file
+            with open(config.PATH_TO_DODECAHEDRON, "w") as dodecahedron_json_data_file:
+                dodecahedron_json_data_file.write(json.dumps(self._dodecahedron))
+            
+            print("Side {} updated".format(side))
 
-        # Updating the dodecahedron
-        print("side before: ", self._dodecahedron.get(str(config.side)))
-        self._dodecahedron.get(str(config.side)).update({"id":config.id, "type": config_pb2.Type.Name(config.type)})
-        print("side after: ", self._dodecahedron.get(str(config.side)))
-        # writing dodecahedron dictionary to JSON file
-        with open('firmwareSimulator/dodecahedron/dodecahedron.json','w') as dodecahedron_json_data:
-            json.dump(self._dodecahedron,dodecahedron_json_data, indent=4)
 
 
     
@@ -298,17 +314,17 @@ class FirmwareSimulator:
 
         while keyboard.is_pressed('esc') == False:
             if len(key_buffer) >= 2 or keyboard.is_pressed('enter'):
-                side = ""
+                side:str = ""
                 for value in key_buffer:
-                    side = side + value
+                    side:str = side + value
                 print("side: ", side) # Providing the user with some feedback, specifically showing the selected habit tracker side
                 key_buffer.clear()    # Clearing the buffer to make way for new entries
 
             #------Preparing data to be sent to AWS IoT core------
                 print("side: ", side)
-                habit_id = self.get_habit_id(side=side)    
-                habit_type = self.get_habit_type(side=side)
-                habit_data = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
+                habit_id:str = self.get_habit_id(side=side)    
+                habit_type:str = self.get_habit_type(side=side)
+                habit_data:int = self.execute_habit(habit_type=habit_type) # Execute action associated with habit / execute habit and store the return value as data to be sent to AWS IoT core MQTT broker
 
             #-------------------MQTT-------------------
                 self.publish_message(format=message_format,mqtt_topic=mqtt_topic,habit_id=habit_id,data=habit_data, habit_type=habit_type)

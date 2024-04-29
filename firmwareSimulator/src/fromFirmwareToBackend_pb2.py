@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x66romFirmwareToBackend.proto\x12\nhabit_data\"w\n\nhabit_data\x12\x18\n\x10\x64\x65vice_timestamp\x18\x01 \x01(\x05\x12\x10\n\x08habit_id\x18\x02 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x05\x12\x17\n\x0fstart_timestamp\x18\x04 \x01(\x05\x12\x16\n\x0estop_timestamp\x18\x05 \x01(\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x66romFirmwareToBackend.proto\x12\nhabit_data\"w\n\nhabit_data\x12\x18\n\x10\x64\x65vice_timestamp\x18\x01 \x01(\x05\x12\x10\n\x08habit_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x05\x12\x17\n\x0fstart_timestamp\x18\x04 \x01(\x05\x12\x16\n\x0estop_timestamp\x18\x05 \x01(\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
