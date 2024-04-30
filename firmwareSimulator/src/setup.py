@@ -40,13 +40,13 @@ class FirmwareSimulatorThingSetup:
 
         # Creating and writing the cerificates, keys and permissions to specified files
 
-        with open(self.private_key_file_path, 'a') as private_key_file:
+        with open(self.private_key_file_path, 'w') as private_key_file:
             private_key_file.write(create_keys_and_certificate_response['keyPair']['PrivateKey'])
         
-        with open(self.public_key_file_path, 'a') as public_key_file:
+        with open(self.public_key_file_path, 'w') as public_key_file:
             public_key_file.write(create_keys_and_certificate_response['keyPair']['PublicKey'])
 
-        with open(self.certificate_file_path, 'a') as certificate_file:
+        with open(self.certificate_file_path, 'w') as certificate_file:
             certificate_file.write(create_keys_and_certificate_response['certificatePem'])
         
         # Getting the root certificate needed for communicating with AWS using MQTT
@@ -57,7 +57,7 @@ class FirmwareSimulatorThingSetup:
 
             if root_ca1_response.status_code == 200: # success
                 # Save the root certificate
-                with open(self.root_ca1_pem_file_path, 'a') as root_ca1_pem_file:
+                with open(self.root_ca1_pem_file_path, 'w') as root_ca1_pem_file:
                     root_ca1_pem_file.write(root_ca1_response.content.decode('utf-8')) # Decoding from bytes to string
 
             else: # Failure / Non 200 code
@@ -396,6 +396,7 @@ if __name__ == '__main__':
 
 # The code for this setup file was heavily inspired by:                             https://github.com/keivanK1/aws-create-thing-boto3/blob/master/createThing-Cert.py
 # The link to get the root_ca_url:                                                  https://repost.aws/knowledge-center/iot-core-publish-mqtt-messages-python
+#                                                                                   https://www.amazontrust.com/repository/AmazonRootCA1.pem 
 # Configure credentials:                                                            https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html
 # Response syntax of create_keys_and_certificates:                                  https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_keys_and_certificate.html
 # Create AWS IoT policy:                                                            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/iot/client/create_policy.html

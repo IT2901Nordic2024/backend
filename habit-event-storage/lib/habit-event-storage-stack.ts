@@ -154,7 +154,7 @@ export class HabitEventStorageStack extends cdk.Stack {
      *
      * Remember to use `` strings in the SQL if you want to insert variables using${}
      * Use bucket.bucketName to get the actual name of the bucket as it is registered in aws
-     * as AWS often adds some letters to the bucket name 8something like a unique id)
+     * as AWS often adds some letters to the bucket name (something like a unique id)
      *
      *
      * Sources:
