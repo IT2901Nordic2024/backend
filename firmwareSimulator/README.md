@@ -33,6 +33,7 @@ In its current configuration the simulator has the following features
   - A habit of type TIME and a habit of type COUNT are hard coded in from the start to the sides 0 and 1. In fact the simulator does not support habit types other than COUNT and TIME.
     - This is because the firmware does not support other habit types at this point in time.
 - Receive updates / configurations from the backend infrastructure the same way as the firware / habit tracker. This is done by subscribing to the correct AWS MQTT topic (see config.py) and then updating the JSON file storing the configuration for the simulator.
+  - **Note:** The simulator sends its entire state to the AWS update topic, after updating it. The firmware only sends the part it actually updated. Given timeconstraints this was not implemented in the simulator.
 
 ## [Files & Folders](#files--folders)
 
