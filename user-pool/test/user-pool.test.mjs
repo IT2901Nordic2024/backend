@@ -1,10 +1,8 @@
 import * as cdk from 'aws-cdk-lib'
 import { Template } from 'aws-cdk-lib/assertions'
 import * as UserPool from '../lib/user-pool-stack'
-
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/user-pool-stack.ts
 import { test } from '@jest/globals'
+
 test('Lambda Functions get created', () => {
   const app = new cdk.App()
   const stack = new UserPool.UserPoolStack(app, 'MyTestStack')
