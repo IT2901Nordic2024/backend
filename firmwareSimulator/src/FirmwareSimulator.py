@@ -241,22 +241,42 @@ class FirmwareSimulator:
             print("Updating side: {}".format(side))          
             try:
                 habit_id:str = state[side].get("id")
+                print("Habit id:  ", habit_id)
                 self._dodecahedron[side]["id"] = habit_id
+                print("dod habit id:   ",self._dodecahedron[side]["id"] )
             except:
                 print("habit_id could not be assigned")
             try:
                 habit_type:str = state[side].get("type")
+                print("Habit type:   ", habit_type)
                 self._dodecahedron[side]["type"] = habit_type
+                print("dod habit type: ", self._dodecahedron[side]["type"])
+
+                print("Habit id2:  ", habit_id)
+                print("dod habit id2:   ",self._dodecahedron[side]["id"] )
             except:
                 print("habit_id could not be assigned.")
-            # Updating the doedecahedron JSON file
+            # Updating the dodecahedron JSON file
             with open(config.PATH_TO_DODECAHEDRON, "w") as dodecahedron_json_data_file:
                 dodecahedron_json_data_file.write(json.dumps(self._dodecahedron))
             
             print("Side {} updated".format(side))
 
+        print("Sending updated state")
+        with open(config.PATH_TO_DODECAHEDRON, "r") as dodecahedron_json_file:
+            dodecahedron_state = dodecahedron_json_file.read()
+            
+        reported_state = {"reported": json.loads(dodecahedron_state)}
+        message = {"state":reported_state}
+        print("message: ", message)
+        message = json.dumps(message)
+        self.client.publish(mqtt5.PublishPacket(
+                    topic = config.AWS_THING_SHADOW_MQTT_UPDATE,
+                    payload = message,
+                    qos = mqtt5.QoS.AT_LEAST_ONCE
+                ))
 
-
+        print("Updated state sent")
     
     def get_habit_type(self,side:str)->str:
         """Method that returns the type of habit associated with that side.
