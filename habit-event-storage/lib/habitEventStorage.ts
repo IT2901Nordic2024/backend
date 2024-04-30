@@ -28,26 +28,6 @@ export class HabitEventStorage extends Construct {
       },
     })
 
-    const getHabitEventsFromUserFunction = new lambda.Function(this, 'GetHabitEventFromUserFunction', {
-      functionName: 'getHabitEventsFromUser',
-      handler: 'getHabitEventFromUser.handler',
-      code: lambda.Code.fromAsset('lambda'),
-      runtime: lambda.Runtime.NODEJS_20_X,
-      environment: {
-        TABLENAME: table.tableName,
-      },
-    })
-
-    const updateHabitEventFunction = new lambda.Function(this, 'UpdateHabitEventFunction', {
-      functionName: 'UpdateHabitEvent',
-      handler: 'updateHabitEvents.handler',
-      code: lambda.Code.fromAsset('lambda'),
-      runtime: lambda.Runtime.NODEJS_20_X,
-      environment: {
-        TABLENAME: table.tableName,
-      },
-    })
-
     const setHabitGoalFunction = new lambda.Function(this, 'SetHabitGoal', {
       functionName: 'SetHabitGoal',
       handler: 'setHabitGoal.handler',
@@ -72,8 +52,6 @@ export class HabitEventStorage extends Construct {
 
     // Grants all functions necessary access to the database
     table.grantReadData(getHabitEventFunction)
-    table.grantReadData(getHabitEventsFromUserFunction)
-    table.grantReadWriteData(updateHabitEventFunction)
     table.grantReadWriteData(setHabitGoalFunction)
     table.grantReadWriteData(getHabitGoalFunction)
 
@@ -81,8 +59,6 @@ export class HabitEventStorage extends Construct {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const httpApi = new HttpApi(this, 'habitEventStorage', {
       getHabitEventFunction: getHabitEventFunction,
-      updateHabitEventFunction: updateHabitEventFunction,
-      getHabitEventsFromUserFunction: getHabitEventsFromUserFunction,
       setHabitGoalFunction: setHabitGoalFunction,
       getHabitGoalFunction: getHabitGoalFunction,
     })
@@ -92,8 +68,6 @@ export class HabitEventStorage extends Construct {
 // Type for the httpAPI below
 export type httpApiProps = {
   getHabitEventFunction: lambda.Function
-  getHabitEventsFromUserFunction: lambda.Function
-  updateHabitEventFunction: lambda.Function
   setHabitGoalFunction: lambda.Function
   getHabitGoalFunction: lambda.Function
 }
