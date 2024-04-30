@@ -19,14 +19,6 @@ export class HttpApi extends Construct {
 
     // Creates integrations from all lambdafunctions
     const getHabitEventIntegration = new HttpLambdaIntegration('GetHabitEventIntegration', props.getHabitEventFunction)
-    const updateHabitEventIntegration = new HttpLambdaIntegration(
-      'GetHabitEventIntegration',
-      props.updateHabitEventFunction
-    )
-    const getHabitEventFromUserIntegration = new HttpLambdaIntegration(
-      'GetHabitEventFromUserIntegration',
-      props.getHabitEventsFromUserFunction
-    )
     const setHabitGoalIntegration = new HttpLambdaIntegration('SetHabitGoalIntegration', props.setHabitGoalFunction)
     const getHabitGoalIntegration = new HttpLambdaIntegration('GetHabitGoalIntegration', props.getHabitGoalFunction)
 
@@ -35,18 +27,6 @@ export class HttpApi extends Construct {
       path: '/getHabitEvents/{userId}/{habitId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: getHabitEventIntegration,
-    })
-
-    api.addRoutes({
-      path: '/getHabitEvents/{userId}',
-      methods: [apigwv2.HttpMethod.GET],
-      integration: getHabitEventFromUserIntegration,
-    })
-
-    api.addRoutes({
-      path: '/getHabitEvents/{userId}/{habitId}/{habitEventId}',
-      methods: [apigwv2.HttpMethod.PUT],
-      integration: updateHabitEventIntegration,
     })
 
     api.addRoutes({
