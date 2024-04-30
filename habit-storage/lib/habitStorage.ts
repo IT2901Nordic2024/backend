@@ -10,7 +10,6 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 export class HabitStorage extends Construct {
   // Making handler and table public for all
   public readonly table: dynamodb.Table
-  public readonly getHabitsHandler: lambda.Function
   public readonly getHabitsWithSideHandler: lambda.Function
   public readonly createHabitHandler: lambda.Function
   public readonly editHabitHandler: lambda.Function
@@ -62,20 +61,7 @@ export class HabitStorage extends Construct {
 
     userDataTable.addGlobalSecondaryIndex(deviceIdIndex)
 
-    // Handler for accessing DynamoDB table
-    // TODO: DELETE THIS AFTER CONFIRMING IT IS NOT USED IN FRONTEND
-    const getHabitsHandler = new lambda.Function(this, 'GetHabitsHandler', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'getHabits.handler',
-      code: lambda.Code.fromAsset('lambda'),
-      functionName: 'GetHabits',
-
-      environment: {
-        USER_DATA_TABLENAME: userDataTable.tableName,
-      },
-    })
-
-    // TODO: Update role or give this an exclusive role
+    // Handlers for interracting with DynamoDB table
     const getHabitWithSide = new lambda.Function(this, 'GetHabitWithSideFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getHabitsWithSide.handler',
@@ -127,14 +113,12 @@ export class HabitStorage extends Construct {
 
     // Setting the table and handler for this construct
     this.table = userDataTable
-    this.getHabitsHandler = getHabitsHandler
     this.createHabitHandler = createHabitHandler
     this.getHabitsWithSideHandler = getHabitWithSide
     this.editHabitHandler = editHabitHandler
     this.deleteHabitHandler = deleteHabitHandler
 
     // Granting handler read and write access to the table
-    userDataTable.grantReadWriteData(this.getHabitsHandler)
     userDataTable.grantReadWriteData(this.createHabitHandler)
     userDataTable.grantReadWriteData(this.editHabitHandler)
     userDataTable.grantReadData(this.getHabitsWithSideHandler)
