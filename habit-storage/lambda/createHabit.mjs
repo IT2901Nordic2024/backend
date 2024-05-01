@@ -72,7 +72,7 @@ export const handler = async (event) => {
     //Command for updating shadow. Sends this before dynamodb command, because this one is stricter
     const sideData = {
       id: String(habitId),
-      type: event.pathParameters.habitType,
+      type: event.pathParameters.habitType.toUpperCase(),
     }
     await iotClient.send(
       new UpdateThingShadowCommand({
