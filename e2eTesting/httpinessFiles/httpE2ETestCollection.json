@@ -1,0 +1,63 @@
+{
+  "collectionVersion": "httpiness/JSON/0.11",
+  "uuid": "e611f86b-6157-4f92-b551-3eab98c92c3f",
+  "authChildren": [],
+  "dirChildren": [],
+  "reqtChildren": [
+    {
+      "name": "getHabit",
+      "rawRequest": {
+        "method": "GET",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/habits/${userId}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "createHabit",
+      "rawRequest": {
+        "method": "PUT",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/createHabit/${userId}/${deviceId}/${habitName}/${habitType}/${deviceSide}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "editHabit",
+      "rawRequest": {
+        "method": "PUT",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/editHabit/${userId}/${deviceId}/${habitId}/${habitName}/${deviceSide}",
+        "headers": [],
+        "body": null
+      }
+    },
+    {
+      "name": "deleteHabit",
+      "rawRequest": {
+        "method": "DELETE",
+        "url": "https://${API_ID}.execute-api.eu-north-1.amazonaws.com/deleteHabit/${userId}/${habitId}",
+        "headers": [],
+        "body": null
+      }
+    }
+  ],
+  "parameters": {
+    "API_ID": "******sensitive******",
+    "userId": "c04ca9fc-0061-70aa-8ea2-8f26da31c64e",
+    "deviceId": "MyIotThing",
+    "habitName": "Meetings",
+    "habitType": "time",
+    "deviceSide": "6",
+    "habitId": "1713963829141"
+  },
+  "parameterPresets": [
+    {
+      "name": "Development",
+      "macros": []
+    },
+    {
+      "name": "Production",
+      "macros": []
+    }
+  ]
+}
