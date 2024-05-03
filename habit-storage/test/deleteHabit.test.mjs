@@ -9,10 +9,12 @@ import { expect, describe, beforeEach, it } from '@jest/globals'
 const ddbMock = mockClient(DynamoDBDocumentClient)
 const iotMock = mockClient(IoTDataPlaneClient)
 
+//Initializing variables
 let event
 let userData
 let shadow
 
+// Resets event before every test to make testing different alterations easier
 beforeEach(() => {
   event = baseEvent()
   shadow = baseShadow()
@@ -24,6 +26,7 @@ beforeEach(() => {
   iotMock.on(GetThingShadowCommand).resolves({ payload: new Uint8Array(Buffer.from(JSON.stringify(shadow))) })
 })
 
+// Testing the lambda code
 describe('a handler for deleting habits', () => {
   it('Passes when all clients resolves', async () => {
     const response = await handler(event)
@@ -72,6 +75,7 @@ describe('a handler for deleting habits', () => {
   })
 })
 
+// Functions for resetting variables to one that should pass
 const baseEvent = () => {
   event = {
     pathParameters: {

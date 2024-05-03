@@ -3,10 +3,14 @@ import { handler } from '../lambda/storingHabitDataLambda.mjs'
 import { DynamoDBDocumentClient, UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { expect, describe, beforeEach, it } from '@jest/globals'
 
+// Creating mockclient
 const ddbMock = mockClient(DynamoDBDocumentClient)
+
+//Initializing variables
 let event
 let queryResponse
 
+// Resets event before every test to make testing different alterations easier
 beforeEach(() => {
   resetEvent()
   resetQueryResponse()
@@ -14,14 +18,15 @@ beforeEach(() => {
   ddbMock.on(UpdateCommand).resolves()
 })
 
+// Testing lambda handler
 describe('A function that stores habitEvents from the habittracker', () => {
   it('Passes when querycommand and updatecommand resolves', async () => {
-    // expect(true).toEqual(true)
     const response = await handler(event)
     expect(response).toEqual(event)
   })
 })
 
+// Functions for resetting variables to one that should pass
 const resetEvent = () => {
   event = {
     payload: {

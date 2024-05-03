@@ -4,16 +4,21 @@ import { CognitoIdentityProviderClient, SignUpCommand } from '@aws-sdk/client-co
 import { beforeEach, describe, it, expect } from '@jest/globals'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 
+// Making mocks of the different clients
 const mockCognitoClient = mockClient(CognitoIdentityProviderClient)
 const ddbMock = mockClient(DynamoDBDocumentClient)
+
+//Initializing variables
 let event
 
+// Resets event before every test to make testing different alterations easier
 beforeEach(() => {
   resetEvent()
   mockCognitoClient.on(SignUpCommand).resolves({ UserSub: 'userId' })
   ddbMock.on(PutCommand).resolves()
 })
 
+// Testing the lambda code
 describe('Handler for logging in a user', () => {
   it('Passes when all commands resolves resolves', async () => {
     const response = await handler(event)
@@ -36,6 +41,7 @@ describe('Handler for logging in a user', () => {
   })
 })
 
+// Functions for resetting variables to one that should pass
 const resetEvent = () => {
   event = {
     pathParameters: {
