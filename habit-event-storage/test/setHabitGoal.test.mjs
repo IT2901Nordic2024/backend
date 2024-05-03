@@ -6,7 +6,7 @@ import { beforeEach, describe, it, expect } from '@jest/globals'
 // Creating mockclient
 const ddbMock = mockClient(DynamoDBDocumentClient)
 
-//Initializing event
+//Initializing variables
 let event
 
 // Resets event before every test to make testing different alterations easier
@@ -15,6 +15,7 @@ beforeEach(() => {
   resetEvent()
 })
 
+// Testing lambda handler
 describe('UpdateHabitEventFunction', () => {
   it('Returns 200 ok for acceptable event', async () => {
     const response = await handler(event)
@@ -30,6 +31,7 @@ describe('UpdateHabitEventFunction', () => {
   })
 })
 
+// Functions for resetting variables to one that should pass
 const resetEvent = () => {
   event = {
     pathParameters: {

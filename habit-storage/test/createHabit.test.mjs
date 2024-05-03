@@ -8,20 +8,20 @@ import { expect, describe, beforeEach, it } from '@jest/globals'
 const ddbMock = mockClient(DynamoDBDocumentClient)
 const iotMock = mockClient(IoTDataPlaneClient)
 
-// Creates event that works
+//Initializing variables
 let event
 
-// Resets clients between tests
+// Resets event before every test to make testing different alterations easier
 beforeEach(() => {
   event = resetEvent()
   ddbMock.on(UpdateCommand).resolves({})
-  iotMock.onAnyCommand().resolves({})
   ddbMock.on(PutCommand).resolves({})
+  iotMock.onAnyCommand().resolves({})
 })
 
+// Testing the lambda code
 describe('works with the correct deviceSide and habitType', () => {
   it('fails unsupported route succesfully', async () => {
-    //ddbMock.on(GetCommand).resolves(true)
     ddbMock.on(UpdateCommand).resolves({})
     iotMock.onAnyCommand().resolves({})
     const response = await handler(event)
@@ -60,6 +60,7 @@ describe('works with the correct deviceSide and habitType', () => {
   })
 })
 
+// Functions for resetting variables to one that should pass
 const resetEvent = () => {
   event = {
     routeKey: 'PUT /createHabit/{userId}/{deviceId}/{habitName}/{habitType}/{deviceSide}',

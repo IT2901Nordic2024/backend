@@ -17,52 +17,65 @@ let expectedResponse
 let getResponse
 let iotResponse
 
-// Resets variables and clients between tests
+// Resets event before every test to make testing different alterations easier
 beforeEach(() => {
-  baseShadowState = {
-    state: {
-      desired: {
-        1: { id: 1, type: 'COUNT' },
-        3: { id: 3, type: 'TIME' },
-        8: { id: 2, type: 'COUNT' },
-      },
-      reported: {
-        welcome: 'aws-iot',
-      },
-      delta: {
-        1: { id: 5, type: 'COUNT' },
-        3: { id: 4, type: 'COUNT' },
-        5: { id: 7, type: 'TIME' },
-      },
-    },
-  }
-
-  getResponse = {
-    name: 'Frode',
-    habits: [
-      {
-        habitName: 'Treehuggingtime',
-        habitId: 1,
-        deviceId: 'MyIotThing',
-        habitType: 'time',
-      },
-      {
-        habitName: 'Treehuggingtime',
-        habitId: 2,
-        deviceId: 'MyIotThing',
-        habitType: 'time',
-      },
-      {
-        habitName: 'Treehugging+time',
-        habitId: 3,
-        deviceId: 'MyIotThing',
-        habitType: 'time',
-      },
-    ],
-  }
+  resetShadowState()
+  resetGetResponse()
+  resetExpectedResponse()
+  resetEvent()
 
   iotResponse = { payload: new Uint8Array(Buffer.from(JSON.stringify(baseShadowState))) }
+  iotMock.onAnyCommand().resolves(iotResponse)
+  ddbMock.on(GetCommand).resolves(getResponse)
+})
 
+// Testing the lambda code
+describe('A function that converts charcode to json', () => {
+  it('converts', () => {
+    const originalJSON = { name: 'Frode', lastName: 'Frydefull', pet: 'Cat', likes: ['Cats', 'Icecream', 'pencils'] }
+    let convertedJSON = new Uint8Array(Buffer.from(JSON.stringify(originalJSON)))
+    convertedJSON = charCodeToJSON(convertedJSON)
+    expect(convertedJSON).toEqual(originalJSON)
+  })
+})
+
+describe('getHabitsWithSide handler', () => {
+  it('Gets data when event is correct', async () => {
+    const response = await handler(event)
+    expect(response.body).toEqual(JSON.stringify(expectedResponse))
+    expect(response.statusCode).toEqual(200)
+  })
+
+  it('Works when a habit doesnt have a side', async () => {
+    getResponse.Item.habits.push({
+      habitName: 'Treehuggingtime',
+      habitId: 4,
+      deviceId: 'MyIotThing',
+      habitType: 'time',
+    })
+    expectedResponse.habits.push({
+      habitName: 'Treehuggingtime',
+      habitId: 4,
+      deviceId: 'MyIotThing',
+      habitType: 'time',
+    })
+
+    const response = await handler(event)
+    expect(response.body).toEqual(JSON.stringify(expectedResponse))
+    expect(response.statusCode).toEqual(200)
+  })
+})
+
+// Functions for resetting variables to one that should pass
+const resetEvent = () => {
+  event = {
+    routeKey: 'GET /getHabitsWithSide/{userId}',
+    pathParameters: {
+      userId: '0',
+    },
+  }
+}
+const resetExpectedResponse = () => {
   expectedResponse = {
     name: 'Frode',
     habits: [
@@ -89,51 +102,52 @@ beforeEach(() => {
       },
     ],
   }
-  event = {
-    routeKey: 'GET /getHabitsWithSide/{userId}',
-    pathParameters: {
-      userId: '0',
+}
+
+const resetGetResponse = () => {
+  getResponse = {
+    Item: {
+      name: 'Frode',
+      habits: [
+        {
+          habitName: 'Treehuggingtime',
+          habitId: 1,
+          deviceId: 'MyIotThing',
+          habitType: 'time',
+        },
+        {
+          habitName: 'Treehuggingtime',
+          habitId: 2,
+          deviceId: 'MyIotThing',
+          habitType: 'time',
+        },
+        {
+          habitName: 'Treehugging+time',
+          habitId: 3,
+          deviceId: 'MyIotThing',
+          habitType: 'time',
+        },
+      ],
     },
   }
+}
 
-  iotMock.onAnyCommand().resolves(iotResponse)
-  ddbMock.on(GetCommand).resolves({
-    Item: getResponse,
-  })
-})
-
-describe('A function that converts charcode to json', () => {
-  it('converts', () => {
-    const originalJSON = { name: 'Frode', lastName: 'Frydefull', pet: 'Cat', likes: ['Cats', 'Icecream', 'pencils'] }
-    let convertedJSON = new Uint8Array(Buffer.from(JSON.stringify(originalJSON)))
-    convertedJSON = charCodeToJSON(convertedJSON)
-    expect(convertedJSON).toEqual(originalJSON)
-  })
-})
-
-describe('getHabitsWithSide handler', () => {
-  it('Gets data when event is correct', async () => {
-    const response = await handler(event)
-    expect(response.body).toEqual(JSON.stringify(expectedResponse))
-    expect(response.statusCode).toEqual(200)
-  })
-
-  it('Works when a habit doesnt have a side', async () => {
-    getResponse.habits.push({
-      habitName: 'Treehuggingtime',
-      habitId: 4,
-      deviceId: 'MyIotThing',
-      habitType: 'time',
-    })
-    expectedResponse.habits.push({
-      habitName: 'Treehuggingtime',
-      habitId: 4,
-      deviceId: 'MyIotThing',
-      habitType: 'time',
-    })
-
-    const response = await handler(event)
-    expect(response.body).toEqual(JSON.stringify(expectedResponse))
-    expect(response.statusCode).toEqual(200)
-  })
-})
+const resetShadowState = () => {
+  baseShadowState = {
+    state: {
+      desired: {
+        1: { id: 1, type: 'COUNT' },
+        3: { id: 3, type: 'TIME' },
+        8: { id: 2, type: 'COUNT' },
+      },
+      reported: {
+        welcome: 'aws-iot',
+      },
+      delta: {
+        1: { id: 5, type: 'COUNT' },
+        3: { id: 4, type: 'COUNT' },
+        5: { id: 7, type: 'TIME' },
+      },
+    },
+  }
+}

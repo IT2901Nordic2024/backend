@@ -9,10 +9,12 @@ import { Buffer } from 'buffer'
 const ddbMock = mockClient(DynamoDBDocumentClient)
 const iotMock = mockClient(IoTDataPlaneClient)
 
+//Initializing variables
 let event
 let userData
 let shadow
 
+// Resets event before every test to make testing different alterations easier
 beforeEach(() => {
   resetEvent()
   resetShadow()
@@ -23,6 +25,7 @@ beforeEach(() => {
   iotMock.on(GetThingShadowCommand).resolves({ payload: new Uint8Array(Buffer.from(JSON.stringify(shadow))) })
 })
 
+// Testing the lambda code
 describe('editHabit when editing side and name', () => {
   it('Passes when editing side and name', async () => {
     const response = await handler(event)
@@ -99,6 +102,7 @@ describe('editHabit when editing side and name', () => {
   })
 })
 
+// Functions for resetting variables to one that should pass
 const resetEvent = () => {
   event = {
     pathParameters: {
@@ -133,7 +137,6 @@ const resetUserData = () => {
       ],
     },
   }
-  return userData
 }
 
 const resetShadow = () => {

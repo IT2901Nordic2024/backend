@@ -3,14 +3,19 @@ import { handler } from '../lambda/verifyEmail.mjs'
 import { CognitoIdentityProviderClient, ConfirmSignUpCommand } from '@aws-sdk/client-cognito-identity-provider' // ES Modules import
 import { beforeEach, describe, it, expect } from '@jest/globals'
 
+// Making mocks of the different clients
 const mockCognitoClient = mockClient(CognitoIdentityProviderClient)
+
+//Initializing variables
 let event
 
+// Resets event before every test to make testing different alterations easier
 beforeEach(() => {
   resetEvent()
   mockCognitoClient.on(ConfirmSignUpCommand).resolves()
 })
 
+// Testing the lambda code
 describe('Handler for verifying a users email', () => {
   it('Passes when ConfirmSignupCommand resolves', async () => {
     const response = await handler(event)
@@ -26,6 +31,7 @@ describe('Handler for verifying a users email', () => {
   })
 })
 
+// Functions for resetting variables to one that should pass
 const resetEvent = () => {
   event = {
     pathParameters: {

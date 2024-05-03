@@ -7,9 +7,13 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider' // ES Modules import
 import { beforeEach, describe, it, expect } from '@jest/globals'
 
+// Making mocks of the different clients
 const mockCognitoClient = mockClient(CognitoIdentityProviderClient)
+
+//Initializing variables
 let event
 
+// Resets event before every test to make testing different alterations easier
 beforeEach(() => {
   resetEvent()
   mockCognitoClient.on(InitiateAuthCommand).resolves({ AuthenticationResult: { AccessToken: 'OneAccessTokenPlease' } })
@@ -18,6 +22,7 @@ beforeEach(() => {
     .resolves({ Username: 'FrodeFrydfull', UserAttributes: [{ Name: 'sub', Value: 'One userId' }] })
 })
 
+// Testing the lambda code
 describe('Handler for logging in a user', () => {
   it('Passes when all commands resolves resolves', async () => {
     const response = await handler(event)
@@ -40,6 +45,7 @@ describe('Handler for logging in a user', () => {
   })
 })
 
+// Functions for resetting variables to one that should pass
 const resetEvent = () => {
   event = {
     pathParameters: {
