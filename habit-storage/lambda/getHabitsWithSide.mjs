@@ -59,6 +59,11 @@ export const handler = async (event) => {
   // let shadowJson = JSON.parse(String.fromCharCode.apply(null, response.payload)).state.desired
   let shadowJson = charCodeToJSON(response.payload).state.desired
 
+  if (shadowJson == undefined) {
+    body = JSON.stringify(body)
+    return { statusCode, body, headers }
+  }
+
   // Creating array fro storing what habit-id belongs to what side
   let sides = []
 
@@ -73,8 +78,8 @@ export const handler = async (event) => {
   }
 
   // Extracts all habits from the first query to habits
-  const habits = body.habits
 
+  const habits = body.habits
   // Matches every habit with every device-side to see if their ids match. If yes, add side = index to the habit
   // Also changes all habittypes to lowercase, due to firmware wanting it to be upper case in database
   habits.forEach((habit) => {
