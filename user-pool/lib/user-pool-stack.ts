@@ -55,7 +55,7 @@ export class UserPoolStack extends cdk.Stack {
         statements: [
           new iam.PolicyStatement({
             actions: ['dynamodb:*'],
-            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:*'],
+            resources: [`arn:aws:dynamodb:${props?.env?.region}:${props?.env?.account}:*`],
           }),
         ],
       }),
@@ -79,6 +79,9 @@ export class UserPoolStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'login.handler',
       code: lambda.Code.fromAsset('lambda'),
+      environment: {
+        USERPOOL_ID: habitTrackerUserPoolClient.userPoolClientId,
+      },
     })
 
     const verifyEmailFunction = new lambda.Function(this, 'VerifyEmailFunction', {
