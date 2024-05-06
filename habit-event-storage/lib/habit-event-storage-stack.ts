@@ -112,7 +112,7 @@ export class HabitEventStorageStack extends cdk.Stack {
             sid: 'UserDataTableInteractions',
             effect: aws_iam.Effect.ALLOW,
             actions: ['dynamodb:Query'],
-            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:table/UserDataTable/*'],
+            resources: [`arn:aws:dynamodb:${props?.env?.region}:${props?.env?.account}:table/UserDataTable/*`],
           }),
         ],
       }

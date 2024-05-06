@@ -5,11 +5,6 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations'
 import * as iam from 'aws-cdk-lib/aws-iam'
 
-/**
- * TODO
- * - create seperate roles and policies for postShadowHandler and getShadowHandler
- */
-
 export class ConfigureShadowApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
@@ -27,7 +22,7 @@ export class ConfigureShadowApiStack extends cdk.Stack {
         statements: [
           new iam.PolicyStatement({
             actions: ['iot:GetThingShadow', 'iot:UpdateThingShadow'],
-            resources: ['arn:aws:iot:eu-north-1:339713040007:thing/*'],
+            resources: [`arn:aws:iot:${props?.env?.region}:${props?.env?.region}:thing/*`],
           }),
         ],
       })
