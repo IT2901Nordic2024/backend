@@ -174,7 +174,7 @@ List of technologies in our repository
 
 ## prerequisites
 
-You need to set up your aws account in order to use the code in this repository. We also assume you have installed and configured you local aws cdk environment. If you havent bootstrapped your account to region yet, run `cdk bootstrap`. If you are unsure, you can just run the command, no harm will be done.
+You need to set up your aws account in order to use the code in this repository. [Follow this guide](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install) on how to do that.
 
 ## getting-started
 
