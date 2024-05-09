@@ -1,148 +1,280 @@
-# Backend README
+# nRFHabitTracker-backend
 
-## For non-backend devs
+## Table of Contents
 
-### General info
+- [Features](#features)
 
-Each of the stacks below has its own API-id. The ids can be found in the AWS API Gateway console. Ask your local backend dev if you can find the API id, and he will happily help you.
+- [Folder Structure](#folder-structure)
+
+- [Technologies](#technologies)
+
+- [Prerequisites](#prerequisites)
+
+- [Getting Started](#getting-started)
+
+- [Testing using hest](#testing-using-jest)
+
+- [E2E-tests](#api-tests)
+
+- [API endpoints](#api-endpoints)
+
+## features
+
+- **User authentification** Basic user system that allows a user to register and log in to their account. Mainly for giving each user their own data, security was not a priority during this project
+
+- **Two database-tables** Each table contain sdifferent types of data. One contains user data such as what habits a user has and which device belongs to them. The other contains the tracked data and goals of each habit
+
+- **APIs** We have different APIs for interracting with the data in our database
+
+- **IoT Core topic routing** We have included rules for invoking lambda functions whenever the firmware beloning to this prosject sends a message. This will store the tracked habit event in a database
+
+- **Device state interraction** We user IoT Core shadows to configure the device
+
+- **IoT Service** We us AWS IoT Core in order to have an MQTT IoT endpoint to connect devices to our cloud services
+
+## folder-structure
+
+- e2eTesting: Contains api testing for the backend using Httpiness. [Here](https://www.httpiness.com/#/docs) is the documentation for how to use Httpiness
+
+- firmwareSimulator: Tool for simulating the Habitt Tracker. Usefull for testing
+
+- XXXXXXXX WHATEVER HANNES DID XXXXXXXX
+
+- habit-event-storage
+
+- lambda: Folder containing lambda functions that is used in this project
+
+- getHabitEvents: Gets all habit events associated with a specific user
+
+- getHabitGoal: Gets habit goal associated with a specific habit
+
+- setHabitGoal: Sets habit goal associated with a specific user
+
+- storingHabitDataLambda: Stores habit event from decoded from firmware device
+
+- lib: CDK code used for the template that gets deployed to cloudformation
+
+- habit-event-storage-stack
+
+- XXXXXXXX WHATEVER HANNES DID XXXXXXXX
+
+- habitEventStorage: Resources of a HTTP api that interracts with HabitEventTable, with the following constructs
+
+- table: DynamoDB table for storing habit events with userId as partition key and habitId as sort key
+
+- Lambda Functions: constructs for running functions from lambda folder
+
+- httpApi: HTTP api construct for invoking lambda functions
+
+- test: Contains all tests for this app. Run tsc compile & npm run test for testing
+
+- getHabitEvents.test: tests getHabitEvents lambda handler
+
+- getHabitGoal.test: tests getHabitGoal lambda handler
+
+- setHabitGoal.test: tests setHabitGoal lambda handler
+
+- storingHabitDataLambda.test: tests storingHabitDataLambda lambda handler
+
+- habit-storage
+
+- lambda: Folder containing lambda functions that is used in this project
+
+- createHabit: Creates item new habit for a specific user in UserDataTable and new item in HabitEventTable for storing habit events associated that habit
+
+- deleteHabit: Deletes all habit data for a specific user in both tables
+
+- editHabit: Edits a specific habit in UserDataTable
+
+- getHabitsWithSide: Gets habits from UserDataTable and matches it with the user's IoT shadow to return every habit for a user with their device side
+
+- lib: CDK code used for the template that gets deployed to cloudformation
+
+- habit-storage-stack
+
+- table: DynamoDB table for storing habit events with userId as partition key
+
+- Lambda Functions: constructs for running functions from lambda folder
+
+- httpApi: HTTP api construct for invoking lambda functions
+
+- test: Contains all tests for this app. Run tsc compile & npm run test for testing
+
+- createHabit.test: tests createHabit lambda handler
+
+- deleteHabit.test: tests deleteHabit lambda handler
+
+- editHabit.test: tests editHabit lambda handler
+
+- getHabitsWithSide.test: tests getHabitsWithSide lambda handler
+
+- user-pool
+
+- lambda: Folder containing lambda functions that is used in this project
+
+- login: Sends username/email and password to our userpool, returns userId for that user
+
+- signup: Creates new user in user pool
+
+- verifyEmail: Verifies user that signed up by using username and verification code from mail
+
+- lib: CDK code used for the template that gets deployed to cloudformation
+
+- habitTrackerUserPool
+
+- habitTrackerUserPoolClient
+
+- Lambda Functions: constructs for running functions from lambda folder
+
+- test: Contains all tests for this app. Run tsc compile & npm run test for testing
+
+- login.test: tests login lambda handler
+
+- signup.test: tests signup lambda handler
+
+- verifyEmail.test: tests verifyEmail lambda handler
+
+## technologies
+
+List of technologies in our repository
+
+- [Amazon Web Services (AWS)](https://aws.amazon.com/) is a service that provides cloud computing platforms
+
+- [AWS CDK](https://aws.amazon.com/cdk/) is a development framewok for defining and deploying cloud infrastructure
+
+- [AWS Cloudformation](https://aws.amazon.com/cloudformation/) is a service for modeling and managin cloud infrastructure
+
+- [AWS DynamoDB](https://aws.amazon.com/dynamodb/) is a serverless, no-sqld fully managed database from Amazon
+
+- [AWS IoT Core](https://aws.amazon.com/iot-core/) is a cloud solution for connecting IoT devices to other cloud services
+
+- [AWS Lambda](https://aws.amazon.com/lambda/) is a serverless computing service
+
+- [AWS SDK](https://aws.amazon.com/developer/tools/) provides APIs to interract with you AWS cloud services
+
+- [AWS API Gateway](https://aws.amazon.com/api-gateway/) is a cloud service for managing APIs
+
+- [AWS Cognito](https://aws.amazon.com/cognito/) is a managed service for user registration and authentification
+
+- [AWS IAM](https://aws.amazon.com/iam/) is used to manage acesses from one AWS service to another
+
+- [AWS Cloudwatch](https://aws.amazon.com/cloudwatch/) is used to monitor you backend
+
+- [AWS S3](https://aws.amazon.com/s3/) is a service for storing objects in the cloud
+
+- [JavaScript](https://www.javascript.com/) is a programming language commonly used bothback end and frontend web development
+
+- [TypeScript](https://www.typescriptlang.org/) Typescript is strongly typed programming language built on JavaScript
+
+- [Python](https://www.python.org/) is a general-purpose programming language
+
+- [Jest](https://jestjs.io/) is a JavaScript testing library
+
+- [Httpiness](https://www.httpiness.com/) is a minimal client for testing HTTP apis
+
+## prerequisites
+
+You need to set up your aws account in order to use this repo. You have installed and configured you local aws cdk environment. If you havent bootstrapped your account to region yet, run cdk bootstrap. If you already have bootstrapped, you will get an error.
+
+## getting-started
+
+run the following commands in th treminal from the root folder to deploy our root
+
+cd habit-event-storage
+
+cdk deploy
+
+cd ..
+
+cd habit-storage
+
+cdk deploy
+
+cd ..
+
+cd user-pool
+
+cdk deploy
+
+## Testing using Jest
+
+In order to test run the Jest tests, cd into the app you want to test and run `tsc & npm run test`
+
+## API-tests
+
+[Here](https://www.httpiness.com/#/docs) is the documentation for how to use Httpiness. Test files are in the e2e tests folder
+
+## API endpoints
+
+Each API has the following parts
+
+- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is AuthentificationAPI. Ask you local Backend expert if you cant find the ID
+
+- The attributes in "{}" brackets should be replaced with the attribute you want instead. For example {userId} should be replaced with a user ID when doing the API call
+  Also note that each stack has its own api id. These can be found in the AWS API Gateway console
 
 ### habit-storage
 
-This stack uses API Gateway, DynamoDB and Lambda to get and update the users habit. Format for different HTTP routes below
-
+These API endpoints are used for performing CRUD operations on a users habits
 **Getting all userdata (including habits) from user**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/habits/{userId}
 
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you cant find the ID
-- {userId} is the id of the user you want to get the data from.
-- The "{}" brackets should not be included in the url, just write getHabitsWithSide/0
-
-**Adding a new habit to a user**
+**Creating a new habit associated with a user**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/createHabit/{userId}/{deviceId}/{habitName}/{habitType}/{deviceSide}
+Notes about the parameters:
 
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you cant find the ID
-- {userId} is the id of the user you want to add a new habit to.
-- {deviceId} is the id of the device the user wants to track this habit with
-- {habitName} is the name of the habit the user want to track
-- {habitType} is the type tracking the user want to do for the habit. Currently we only support "count" and "time"
-- {deviceSide} is the side of the device you want to connect to. This is 0-indexed and works with all numbers from 0 to 11
-- The "{}" brackets should not be included in the url, just write 0/MyIotThing/treehugging/time
+- The habitType must be either "count" or "time"
+- deviceSide must be between 0 and 10
 
 **Editing a user's habit's name or deviceSide**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/editHabit/{userId}/{deviceId}/{habitId}/{habitName}/{deviceSide}
 
-- IMPORTANT: If you're not going to change habitName or deviceSide, set them as "noChange"
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you cant find the ID
-- {userId} is the id of the user you want to add a new habit to.
-- {deviceId} is the id of the device the user wants to track this habit with
-- {habitId} is the id of the habit you want to change
-- {habitName} is the name of the habit the user want to track
-- {deviceSide} is the side of the device you want to connect to. This is 0-indexed and works with all numbers from 0 to 11
-- The "{}" brackets should not be included in the url, just write 0/MyIotThing/174324234/treehugging/4
+Notes about the parameters:
+
+- If you're not going to change habitName or deviceSide, set them as "noChange"
 
 **Deleting a user's habit's name or deviceSide**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/deleteHabit/{userId}/{habitId}
 
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitStorageHTTP. Ask you local Backend expert if you cant find the ID
-- {userId} is the id of the user you want to add a new habit to.
-- {habitId} is the id of the habit you want to remove
-- The "{}" brackets should not be included in the url, just write 0/MyIotThing/174324234/treehugging/4
-
 ### habit-event-storage
 
-This contains all the habit events for the users. Also gives acces to getting and setting a habit's goals
+These API endpoints are used for accessing a users habit events and interrating with the habit goals
 
 **Getting data from user with a specific habitId**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/getHabitEvents/{userId}/{habitId}
 
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitEventStorageHTTP. Ask you local Backend expert if you cant find the ID
-- {userId} is the id of the user you want to get the habit from
-- {habitId} is the id of the new habit you want to track
-- The "{}" brackets should not be included in the url
-
-**Getting all habit events from specific user**
-
-https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/getHabitEvents/{userId}
-
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitEventStorageHTTP. Ask you local Backend expert if you cant find the ID
-- {userId} is the id of the user you want to get the habit from
-- The "{}" brackets should not be included in the url
-
 **Setting habit goal**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/setHabitGoal/{userId}/{habitId}/{question}/{target}/{unit}/{frequency}
-
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitEventStorageHTTP. Ask you local Backend expert if you cant find the ID
-- {userId} is the id of the user you want to add a new habit to.
-- {habitId} is the id of the habit related to the habitgoal
-- {question}/{target}/{unit}/{frequency} are all attributes to the habitgoal itself
-- The "{}" brackets should not be included in the url
 
 **Getting habit goal**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/getHabitGoal/{userId}/{habitId}
 
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is HabitEventStorageHTTP. Ask you local Backend expert if you cant find the ID
-- {userId} is the id of the user you want to add a new habit to.
-- {habitId} is the id of the habit related to the habitgoal
-- The "{}" brackets should not be included in the url
-
 ### user-pool
 
-This stack is used for registering and authenticating users
+These API calls are used for registering and authenticating users
 
 **Registering a user**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/signup/{username}/{email}/{deviceId}/{password}
 
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is AuthentificationAPI. Ask you local Backend expert if you cant find the ID
-- {username} is the username the user wants. Keep in mind that this is unique across all users. WIll return an error if the chosen username already exists
-- {email} is the email the user wants to register with. This must be unique across all users, and needs to be verified before a user can log in to their account. Use the API for verifying users to do confirm a users email
-- {deviceId} is the id of the device the user wants to register with
-- {password} is the password that the user wants for their account. It must be at least 6 characters long, and contain at least one lower case letter, one higher case letter and a number
-- The "{}" brackets should not be included in the url
+Notes about the parameters:
+
+- usernames and emails must be unique
+
+- Passwords must be at least 6 characters long, and contain at least one lower case letter, one higher case letter and a number
 
 **Verifying a user**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/verifyUser/{username}/{confirmationCode}
 
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is AuthentificationAPI. Ask you local Backend expert if you cant find the ID
-- {username} is the username that the user chose to register with
-- {confirmationCode} is the code that the user got sent to their email
-- The "{}" brackets should not be included in the url
-
 **Logging in a user**
 
 https://XXXXXXXXXX.execute-api.eu-north-1.amazonaws.com/login/{username}/{password}
-
-- "XXXXXXXXXX" is the API ID, which can be found in table for APIs in the API Gateway console. The API name is AuthentificationAPI. Ask you local Backend expert if you cant find the ID
-- {username} is the username or email that the user tries to log in with
-- {password} is the password associated with the inputted username
-- The "{}" brackets should not be included in the url
-
-This API will return the user-sub of the user that logs in. It may look like this 406c393c-9021-7072-96f3-e71901a8f1ff. This is the userId of the logged in user
-
-## For real devs
-
-### Creating new stacks
-
-**Step 1**
-
-Create the stack itself using this guide: https://docs.aws.amazon.com/cdk/v2/guide/hello_world.html
-
-**Step 2**
-
-Add ESLint by following the quick start here: https://eslint.org/docs/latest/use/getting-started
-
-**Step 3**
-
-Copy the .prettierrc from an earlier stack to your new stack
-
-**Step 4**
-
-Start coding :)
+s
