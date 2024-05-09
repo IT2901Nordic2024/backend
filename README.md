@@ -17,8 +17,11 @@
 - [E2E-tests](#api-tests)
 
 - [API endpoints](#api-endpoints)
+  - [habit-storage](#habit-storage)
+  - [habit-event-storage](#habit-event-storage)
+  - [user-pool](#user-pool)
 
-## features
+## Features
 
 - **User authentification** Basic user system that allows a user to register and log in to their account. Mainly for giving each user their own data, security was not a priority during this project
 
@@ -32,7 +35,7 @@
 
 - **IoT Service** We us AWS IoT Core in order to have an MQTT IoT endpoint to connect devices to our cloud services
 
-## folder-structure
+## Folder Structure
 
 - e2eTesting: Contains api testing for the backend using Httpiness. [Here](https://www.httpiness.com/#/docs) is the documentation for how to use Httpiness
 
@@ -134,7 +137,7 @@
 
 - verifyEmail.test: tests verifyEmail lambda handler
 
-## technologies
+## Technologies
 
 List of technologies in our repository
 
@@ -172,29 +175,29 @@ List of technologies in our repository
 
 - [Httpiness](https://www.httpiness.com/) is a minimal client for testing HTTP apis
 
-## prerequisites
+## Prerequisites
 
 You need to set up your aws account in order to use the code in this repository. [Follow this guide](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install) on how to do that.
 
-## getting-started
+## Getting Started
 
-run the following commands in th treminal from the root folder to deploy our root
+Run the following commands in th treminal from the root folder to deploy our root
 
-cd habit-event-storage
+`cd habit-event-storage`
 
-cdk deploy
+`cdk deploy`
 
-cd ..
+`cd ..`
 
-cd habit-storage
+`cd habit-storage`
 
-cdk deploy
+`cdk deploy`
 
-cd ..
+`cd ..`
 
-cd user-pool
+`cd user-pool`
 
-cdk deploy
+`cdk deploy`
 
 ## Testing using Jest
 
