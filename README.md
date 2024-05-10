@@ -59,7 +59,6 @@
 
 - habit-event-storage-stack
 
-- XXXXXXXX WHATEVER HANNES DID XXXXXXXX
 
 - habitEventStorage: Resources of a HTTP api that interracts with HabitEventTable, with the following constructs
 
