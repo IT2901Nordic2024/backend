@@ -41,7 +41,7 @@
 
 - firmwareSimulator: Tool for simulating the Habitt Tracker. Usefull for testing
 
-- XXXXXXXX WHATEVER HANNES DID XXXXXXXX
+- For more information about the firmwareSimulator view: [firmwareSimulator README](firmwareSimulator/README.md)
 
 - habit-event-storage
 
