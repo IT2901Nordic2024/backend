@@ -8,7 +8,7 @@ export class HabitStorageStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
     //Creating HabitStorage construct
-    const habitStorage = new HabitStorage(this, 'HabitStorage')
+    const habitStorage = new HabitStorage(this, 'HabitStorage', props)
 
     //Creating API, and configures CORS to allow GET methods
     const httpApi = new apigwv2.HttpApi(this, 'HabitStorageHTTP', {

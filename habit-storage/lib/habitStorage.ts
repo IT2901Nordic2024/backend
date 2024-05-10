@@ -2,10 +2,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { Construct } from 'constructs'
 import * as iam from 'aws-cdk-lib/aws-iam'
-
-/**
- * This file contains the table for storing diffrent habits, and a handler for interracting with it
- */
+import * as cdk from 'aws-cdk-lib'
 
 export class HabitStorage extends Construct {
   // Making handler and table public for all
@@ -15,7 +12,7 @@ export class HabitStorage extends Construct {
   public readonly editHabitHandler: lambda.Function
   public readonly deleteHabitHandler: lambda.Function
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id)
 
     // Creating role for createHabit
@@ -31,7 +28,7 @@ export class HabitStorage extends Construct {
         statements: [
           new iam.PolicyStatement({
             actions: ['iot:GetThingShadow', 'iot:UpdateThingShadow'],
-            resources: ['arn:aws:iot:eu-north-1:339713040007:thing/*'],
+            resources: [`arn:aws:iot:${props?.env?.region}:${props?.env?.account}:thing/*`],
           }),
           new iam.PolicyStatement({
             actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents', 'logs:DescribeLogStreams'],
@@ -39,7 +36,7 @@ export class HabitStorage extends Construct {
           }),
           new iam.PolicyStatement({
             actions: ['dynamodb:*'],
-            resources: ['arn:aws:dynamodb:eu-north-1:339713040007:*'],
+            resources: [`arn:aws:dynamodb:${props?.env?.region}:${props?.env?.account}:*`],
           }),
         ],
       }),
