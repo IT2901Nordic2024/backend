@@ -42,13 +42,13 @@
     }
   ],
   "parameters": {
-    "API_ID": "******sensitive******",
-    "userId": "a09c89ec-30a1-709c-c994-526b3502a57e",
-    "habitId": "123",
-    "question": "HowManyTreesHug",
-    "target": "10",
-    "unit": "trees",
-    "frequency": "daily"
+    "API_ID": "",
+    "userId": "",
+    "habitId": "",
+    "question": "",
+    "target": "",
+    "unit": "",
+    "frequency": ""
   },
   "parameterPresets": [
     {
